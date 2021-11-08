@@ -7,4 +7,6 @@ export default {
   admin: () => [import('web.crud/src/CRUD')],
   qform: () => [import('web.crud/src/form/BaseForm')],
   qlist: () => [import('web.crud/src/list/QBaseList')],
+  'w-sidebar': () => [import('./components/w-sidebar')],
+  'w-topbar': () => [import('./components/w-topbar')],
 }

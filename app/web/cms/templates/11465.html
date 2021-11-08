@@ -1,0 +1,55 @@
+<>
+  {" "}
+  <admin
+    nav={["kegiatan"]}
+    content={{
+      spesialis: {
+        table: "m_kegiatan",
+        label: "Kegiatan CSR",
+        list: {
+          table: {
+            columns: [
+              ["nama_kegiatan", { title: "Kode" }],
+              [
+                "_",
+                {
+                  width: 200,
+                  title: "Pilar",
+                  value: (item) => {
+                    return <span>{item.m_pillar.nama_kegiatan}</span>;
+                  },
+                },
+              ],
+            ],
+          },
+          params: {
+            include: {
+              m_pillar: true,
+            },
+          },
+        },
+        form: {
+          params: {
+            include: {
+              m_pillar: true,
+            },
+          },
+          create: {
+            title: "Tambah",
+          },
+          action: {
+            jsonEdit: false,
+          },
+          alter: {
+            nama_kegiatan: {
+              title: "Nama Kegiatan",
+              type: "text",
+              required: true,
+            },
+          },
+          layout: [["nama_spesialis", "m_pillar"]],
+        },
+      },
+    }}
+  />
+</>

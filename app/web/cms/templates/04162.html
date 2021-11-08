@@ -1,0 +1,60 @@
+<>
+  <effect
+    meta={{
+      titleHeader: "-",
+      open: false,
+    }}
+    run={() => {
+      // if (
+      //   window.user.role === "guest" &&
+      //   window.location.pathname !== "/login"
+      // ) {
+      //   return (window.location.href = "/login");
+      // } else if (
+      //   window.user.role !== "guest" &&
+      //   window.location.pathname === "/login"
+      // ) {
+      //   return (window.location.href = "/");
+      // }
+
+      const titleHeader = {
+        "/admin/master-data-kegiatan": "Kegiatan CSR",
+      };
+
+      runInAction(() => {
+        const f = Object.keys(titleHeader).find(
+          (x) => window.location.pathname.indexOf(x) >= 0
+        );
+        meta.titleHeader = titleHeader[f] || "-";
+      });
+    }}
+  />
+  <div class={`bg-white flex flex-1 overflow-hidden`}>
+    <div class="flex flex-1 self-stretch items-start justify-start">
+      <w-sidebar
+        class={`flex self-stretch flex-col items-start justify-start border border-indigo-50`}
+        style={`background-color: linear-gradient(178.29deg, #0D6D68 59.99%, #52B949 98.55%);  background-size: 100% 100%; background-repeat: no-repeat; min-height:1022px;`}
+      />
+      <div class="flex flex-1 self-stretch flex-col items-start justify-start bg-white">
+        <div class={`flex self-stretch flex-col items-start justify-start`}>
+          <w-topbar
+            class={`flex flex-1 self-stretch items-center justify-start px-5 bg-blue-50 border border-indigo-50`}
+            title={meta.titleHeader}
+            open={meta.open}
+            onClickOpen={() => {
+              runInAction(() => {
+                meta.open = !meta.open;
+              });
+            }}
+          />
+        </div>
+        <div
+          class={`flex flex-1 self-stretch justify-center`}
+          style="height: 100%;"
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  </div>
+</>
