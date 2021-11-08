@@ -1,0 +1,14 @@
+{
+  "name": "db",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {},
+  "dependencies": {
+    "@prisma/client": "^3.4.1"
+  },
+  "types": "./src/index.ts",
+  "devDependencies": {
+    "prisma": "^3.4.1"
+  },
+  "main": "./build/index.js"
+}

@@ -1,0 +1,254 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["orderByRelation"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:andromedia123oke@db.plansys.co:5432/avian_csr?schema=public"
+}
+
+model m_area_tirta {
+  id              Int        @id @default(autoincrement())
+  nama_area_tirta String     @db.VarChar(50)
+  m_cabang        m_cabang[]
+  t_csr           t_csr[]
+}
+
+model m_budget_by {
+  id        Int    @id @default(autoincrement())
+  budget_by String @db.VarChar(50)
+}
+
+model m_cabang {
+  id            Int          @id @default(autoincrement())
+  nama_cabang   String       @db.VarChar(50)
+  id_area_tirta Int
+  m_area_tirta  m_area_tirta @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
+  t_csr         t_csr[]
+}
+
+model m_covered_area {
+  id                Int     @id @default(autoincrement())
+  nama_covered_area String  @db.VarChar(50)
+  t_csr             t_csr[]
+}
+
+model m_divisi {
+  id    Int     @id(map: "m_division_pkey") @default(autoincrement())
+  name  String  @db.VarChar(20)
+  t_csr t_csr[]
+}
+
+model m_fasilitas_lainnya {
+  id                      Int                       @id @default(autoincrement())
+  fasilitas               String                    @db.VarChar(50)
+  t_csr_fasilitas_lainnya t_csr_fasilitas_lainnya[]
+}
+
+model m_instansi_penerima {
+  id                Int                @id @default(autoincrement())
+  instansi_penerima String             @db.VarChar(50)
+  m_jenis_instansi  m_jenis_instansi[]
+  m_setting_target  m_setting_target?
+  t_csr             t_csr[]
+}
+
+model m_jenis_bantuan {
+  id                   Int                    @id @default(autoincrement())
+  jenis_bantuan        String                 @db.VarChar(50)
+  t_csr_detail_bantuan t_csr_detail_bantuan[]
+}
+
+model m_jenis_instansi {
+  id                   Int                 @id @default(autoincrement())
+  jenis_instansi       String              @db.VarChar(50)
+  id_instansi_penerima Int
+  m_instansi_penerima  m_instansi_penerima @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
+  t_csr                t_csr[]
+}
+
+model m_kegiatan {
+  id            Int      @id @default(autoincrement())
+  nama_kegiatan String   @db.VarChar(50)
+  id_pillar     Int
+  m_pillar      m_pillar @relation(fields: [id_pillar], references: [id], onDelete: Cascade)
+  t_csr         t_csr[]
+}
+
+model m_pillar {
+  id         Int          @id @default(autoincrement())
+  name       String       @db.VarChar(20)
+  m_kegiatan m_kegiatan[]
+  t_csr      t_csr[]
+}
+
+model m_product_csr {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(255)
+  id_web               Int?
+  jenis                String                 @db.VarChar(20)
+  diskon               Decimal                @default(0) @db.Decimal
+  t_csr_detail_bantuan t_csr_detail_bantuan[]
+}
+
+model m_pulau {
+  id    Int     @id @default(autoincrement())
+  pulau String  @db.VarChar(255)
+  t_csr t_csr[]
+}
+
+model m_role {
+  id        Int    @id @default(autoincrement())
+  role_name String @db.VarChar(255)
+  menu_path String @db.VarChar(255)
+  home_url  String @db.VarChar(255)
+  repo_path String @db.VarChar(255)
+}
+
+model m_setting_target {
+  id                  Int                 @id @default(autoincrement())
+  target              Int
+  instansi_penerima   String              @db.VarChar(50)
+  bantuan             String              @db.VarChar(255)
+  periode             Int
+  m_instansi_penerima m_instansi_penerima @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model m_supplier {
+  id            Int     @id @default(autoincrement())
+  nama_supplier String  @db.VarChar(50)
+  t_csr         t_csr[]
+}
+
+model m_user {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(255)
+  username    String        @db.VarChar(50)
+  password    String        @db.VarChar(50)
+  last_login  DateTime      @db.Timestamp(6)
+  m_user_role m_user_role[]
+}
+
+model m_user_role {
+  id                Int           @id @default(autoincrement())
+  user_id           Int
+  role_id           Int
+  m_user_role       m_user_role   @relation("m_user_roleTom_user_role_role_id", fields: [role_id], references: [id], onDelete: Cascade)
+  m_user            m_user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  other_m_user_role m_user_role[] @relation("m_user_roleTom_user_role_role_id")
+}
+
+model p_migration {
+  version    String @id @db.VarChar(180)
+  apply_time Int?
+}
+
+model p_role {
+  id               Int           @id @default(autoincrement())
+  role_name        String        @db.VarChar(255)
+  role_description String        @db.VarChar(255)
+  menu_path        String?       @db.VarChar(255)
+  home_url         String?       @db.VarChar(255)
+  repo_path        String?       @db.VarChar(255)
+  p_user_role      p_user_role[]
+}
+
+model p_user {
+  id          Int           @id @default(autoincrement())
+  email       String        @db.VarChar(255)
+  username    String        @db.VarChar(255)
+  password    String        @db.VarChar(255)
+  last_login  DateTime?     @db.Timestamp(6)
+  is_deleted  Boolean?
+  user_token  String?       @db.VarChar(255)
+  p_user_role p_user_role[]
+}
+
+model p_user_role {
+  id              Int     @id @default(autoincrement())
+  user_id         Int
+  role_id         Int
+  is_default_role String? @default("No") @db.VarChar(255)
+  p_role          p_role  @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "p_role_has_p_user")
+  p_user          p_user  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "p_user_has_p_role")
+}
+
+model t_csr {
+  id                      Int                       @id @default(autoincrement())
+  no_kegiatan             String                    @db.VarChar(8)
+  id_division             Int
+  id_pillar               Int
+  id_kegiatan             Int
+  is_training             String                    @default("N") @db.VarChar(1)
+  tgl_kegiatan            DateTime                  @db.Date
+  nama_project_csr        String                    @db.VarChar(100)
+  id_supplier             Int
+  id_area_tirta           Int
+  id_cabang               Int
+  id_covered_area         Int
+  id_pulau                Int
+  lokasi                  String
+  longitude               Decimal                   @db.Decimal
+  latitude                Decimal                   @db.Decimal
+  deskripsi_singkat       String
+  budget_by               String                    @db.VarChar(50)
+  value_biaya             Float
+  created_by              Int
+  created_date            DateTime                  @db.Timestamp(6)
+  updated_by              Int?
+  updated_date            DateTime?                 @db.Timestamp(6)
+  id_instansi_penerima    Int
+  id_jenis_instansi       Int
+  keterangan              String?
+  jumlah_orang            Int
+  m_area_tirta            m_area_tirta              @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
+  m_cabang                m_cabang                  @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
+  m_covered_area          m_covered_area            @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)
+  m_divisi                m_divisi                  @relation(fields: [id_division], references: [id], onDelete: Cascade)
+  m_instansi_penerima     m_instansi_penerima       @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
+  m_jenis_instansi        m_jenis_instansi          @relation(fields: [id_jenis_instansi], references: [id], onDelete: Cascade)
+  m_kegiatan              m_kegiatan                @relation(fields: [id_kegiatan], references: [id], onDelete: Cascade)
+  m_pillar                m_pillar                  @relation(fields: [id_pillar], references: [id], onUpdate: Restrict)
+  m_pulau                 m_pulau                   @relation(fields: [id_pulau], references: [id], onDelete: Cascade)
+  m_supplier              m_supplier                @relation(fields: [id_supplier], references: [id], onDelete: Cascade)
+  t_csr_detail_bantuan    t_csr_detail_bantuan[]
+  t_csr_dokumentasi       t_csr_dokumentasi[]
+  t_csr_fasilitas_lainnya t_csr_fasilitas_lainnya[]
+}
+
+model t_csr_detail_bantuan {
+  id               Int              @id(map: "t_bantuan_pkey") @default(autoincrement())
+  bantuan          String           @db.VarChar(50)
+  jumlah           Int
+  merek            String?          @db.VarChar(255)
+  jenis            String           @db.VarChar(50)
+  warna            String           @db.VarChar(50)
+  value            Int
+  harga_nett       Int
+  id_csr           Int
+  id_jenis_bantuan Int?
+  id_product_csr   Int?
+  t_csr            t_csr            @relation(fields: [id_csr], references: [id], onDelete: Cascade)
+  m_jenis_bantuan  m_jenis_bantuan? @relation(fields: [id_jenis_bantuan], references: [id], onDelete: Cascade)
+  m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Restrict, onUpdate: Restrict)
+}
+
+model t_csr_dokumentasi {
+  id       Int    @id(map: "m_dokumentasi_pkey") @default(autoincrement())
+  url_file String
+  tipe     String @db.VarChar(50)
+  caption  String @db.VarChar(255)
+  id_csr   Int
+  t_csr    t_csr  @relation(fields: [id_csr], references: [id], onDelete: Cascade)
+}
+
+model t_csr_fasilitas_lainnya {
+  id                   Int                 @id @default(autoincrement())
+  jumlah               Int
+  id_fasilitas_lainnya Int
+  keterangan           String?             @db.VarChar(255)
+  id_csr               Int
+  t_csr                t_csr               @relation(fields: [id_csr], references: [id], onDelete: Cascade)
+  m_fasilitas_lainnya  m_fasilitas_lainnya @relation(fields: [id_fasilitas_lainnya], references: [id], onDelete: Cascade)
+}

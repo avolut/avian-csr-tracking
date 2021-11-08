@@ -1,0 +1,16 @@
+{
+  "name": "web.view",
+  "version": "1.0.0",
+  "types": "./src/index.tsx",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "./build/index.js",
+  "scripts": {
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "@fluentui/react": "^8.36.3",
+    "lodash.get": "^4.4.2"
+  }
+}
