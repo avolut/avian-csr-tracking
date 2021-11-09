@@ -126,7 +126,7 @@ export const Template = (props: {
             meta.state.crud.mode === 'form' && form ? (
               <Fragment>
                 {form.db.data.id && (
-                  <div className="mr-2 py-1 px-2 rounded-md bg-blue-100">
+                  <div className="mr-2 py-1 px-2 rounded-md bg-green-100">
                     {form.db.data.id}
                   </div>
                 )}

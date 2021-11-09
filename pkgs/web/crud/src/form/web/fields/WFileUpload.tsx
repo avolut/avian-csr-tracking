@@ -1,10 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import {
-  Icon,
-  Modal,
-  ProgressIndicator,
-} from '@fluentui/react'
+import { Icon, Modal, ProgressIndicator } from '@fluentui/react'
 import { Fragment, useContext, useEffect, useRef } from 'react'
 import { useRender } from 'web.utils/src/useRender'
 import { IBaseFieldProps } from '../../../../../ext/types/__form'
@@ -34,17 +30,16 @@ export const WFileUpload = (props: IBaseFieldProps) => {
     modal: false,
     progress: 100,
     showBrowse: false,
-    loading: false
+    loading: false,
   })
 
   const meta = _.current
   const fieldProps = state.fieldProps
 
   useEffect(() => {
-    meta.value = state.value;
+    meta.value = state.value
     render()
   }, [state.value])
-
 
   const _onChange = async (e) => {
     if (e.target.files.length) {
@@ -68,7 +63,7 @@ export const WFileUpload = (props: IBaseFieldProps) => {
         formData.append(directory, file)
 
         meta.loading = true
-        render();
+        render()
 
         await request(
           '/__upload',
@@ -107,18 +102,18 @@ export const WFileUpload = (props: IBaseFieldProps) => {
       <div
         className="relative"
         css={css`
-                min-height: 25px;
-                border: 1px dashed #ccc;
-                border-bottom: 0px;
-              `}
+          min-height: 25px;
+          border: 1px dashed #ccc;
+          border-bottom: 0px;
+        `}
       >
         <div
           className="absolute w-full t-0 x-0"
           css={css`
-                  div {
-                    padding: 0px;
-                  }
-                `}
+            div {
+              padding: 0px;
+            }
+          `}
         >
           {meta.progress < 100 && (
             <ProgressIndicator
@@ -132,8 +127,8 @@ export const WFileUpload = (props: IBaseFieldProps) => {
           <div
             className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-400"
             css={css`
-                    font-size: 9px;
-                  `}
+              font-size: 9px;
+            `}
           >
             Empty
           </div>
@@ -146,36 +141,27 @@ export const WFileUpload = (props: IBaseFieldProps) => {
                   className="flex flex-col items-stretch p-1 cursor-pointer"
                   onClick={() => {
                     meta.modal = true
-                    render();
+                    render()
                   }}
                   css={css`
-                          background-image: linear-gradient(
-                              45deg,
-                              #d1d1d1 25%,
-                              transparent 25%
-                            ),
-                            linear-gradient(
-                              -45deg,
-                              #d1d1d1 25%,
-                              transparent 25%
-                            ),
-                            linear-gradient(45deg, transparent 75%, #d1d1d1 75%),
-                            linear-gradient(
-                              -45deg,
-                              transparent 75%,
-                              #d1d1d1 75%
-                            );
-                          background-size: 20px 20px;
-                          background-position: 0 0, 0 10px, 10px -10px,
-                            -10px 0px;
-                        `}
+                    background-image: linear-gradient(
+                        45deg,
+                        #d1d1d1 25%,
+                        transparent 25%
+                      ),
+                      linear-gradient(-45deg, #d1d1d1 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, #d1d1d1 75%),
+                      linear-gradient(-45deg, transparent 75%, #d1d1d1 75%);
+                    background-size: 20px 20px;
+                    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+                  `}
                 >
                   <img
                     css={css`
-                            max-height: 90px;
-                            object-fit: scale-down;
-                            object-position: center;
-                          `}
+                      max-height: 90px;
+                      object-fit: scale-down;
+                      object-position: center;
+                    `}
                     src={meta.value}
                     alt={props.name}
                   />
@@ -195,30 +181,17 @@ export const WFileUpload = (props: IBaseFieldProps) => {
                 >
                   <img
                     css={css`
-                            background-image: linear-gradient(
-                                45deg,
-                                #d1d1d1 25%,
-                                transparent 25%
-                              ),
-                              linear-gradient(
-                                -45deg,
-                                #d1d1d1 25%,
-                                transparent 25%
-                              ),
-                              linear-gradient(
-                                45deg,
-                                transparent 75%,
-                                #d1d1d1 75%
-                              ),
-                              linear-gradient(
-                                -45deg,
-                                transparent 75%,
-                                #d1d1d1 75%
-                              );
-                            background-size: 20px 20px;
-                            background-position: 0 0, 0 10px, 10px -10px,
-                              -10px 0px;
-                          `}
+                      background-image: linear-gradient(
+                          45deg,
+                          #d1d1d1 25%,
+                          transparent 25%
+                        ),
+                        linear-gradient(-45deg, #d1d1d1 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #d1d1d1 75%),
+                        linear-gradient(-45deg, transparent 75%, #d1d1d1 75%);
+                      background-size: 20px 20px;
+                      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+                    `}
                     onClick={() => {
                       meta.modal = false
                       render()
@@ -233,14 +206,13 @@ export const WFileUpload = (props: IBaseFieldProps) => {
               <a
                 href={meta.value}
                 target="_blank"
-                className="flex flex-row justify-center px-1 py-4 font-semibold text-blue-800 cursor-pointer"
+                className="flex flex-row justify-center px-1 py-4 font-semibold text-green-800 cursor-pointer"
                 css={css`
-                        font-size: 12px;
-                      `}
+                  font-size: 12px;
+                `}
               >
-                Download{' '}
-                {(meta.value.split('.').pop() || '').toUpperCase()} File{' '}
-                <Icon className="ml-1" iconName="Download" />
+                Download {(meta.value.split('.').pop() || '').toUpperCase()}{' '}
+                File <Icon className="ml-1" iconName="Download" />
               </a>
             )}
           </Fragment>
@@ -249,23 +221,24 @@ export const WFileUpload = (props: IBaseFieldProps) => {
       <div
         className="flex flex-row items-center justify-between font-semibold select-none "
         css={css`
-                min-height: 32px;
-                border: 1px dashed #ccc;
-                font-size: 12px;
-                ${false ? "display: none" : ""}
-              `}
+          min-height: 32px;
+          border: 1px dashed #ccc;
+          font-size: 12px;
+          ${false ? 'display: none' : ''}
+        `}
       >
         <div
-          className="relative flex-1 text-gray-500 hover:text-blue-500"
+          className="relative flex-1 text-gray-500 hover:text-green-500"
           css={css`
-                  min-height: 32px;
-                `}
+            min-height: 32px;
+          `}
         >
           <div
             className={`absolute 
                  inset-0 flex items-center pl-3 w-full h-full
-                  pointer-events-none ${meta.value ? 'pl-3' : 'justify-center'
-              }`}
+                  pointer-events-none ${
+                    meta.value ? 'pl-3' : 'justify-center'
+                  }`}
           >
             Click here to upload
           </div>
@@ -305,7 +278,6 @@ export const WFileUpload = (props: IBaseFieldProps) => {
   )
 }
 
-
 function request(
   url: string,
   opts: {
@@ -337,5 +309,5 @@ function request(
 const getUuid = (a: string = ''): string =>
   a
     ? /* eslint-disable no-bitwise */
-    ((Number(a) ^ (Math.random() * 16)) >> (Number(a) / 4)).toString(16)
+      ((Number(a) ^ (Math.random() * 16)) >> (Number(a) / 4)).toString(16)
     : `${1e7}-${1e3}-${4e3}-${8e3}-${1e11}`.replace(/[018]/g, getUuid)

@@ -79,8 +79,8 @@ export const Dev = (props: any) => {
                 {meta.tabs.map((e) => {
                   const className =
                     e === meta.tab
-                      ? `  px-3 py-2 text-gray-600 border-r-2 border-blue-500 text-blue-500 focus:outline-none`
-                      : ` px-3 py-2 text-gray-600 border-r-2 border-white hover:text-blue-500 focus:outline-none`
+                      ? `  px-3 py-2 text-gray-600 border-r-2 border-green-500 text-green-500 focus:outline-none`
+                      : ` px-3 py-2 text-gray-600 border-r-2 border-white hover:text-green-500 focus:outline-none`
 
                   return (
                     <button

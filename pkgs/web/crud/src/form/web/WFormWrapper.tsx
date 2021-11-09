@@ -188,7 +188,7 @@ const WHeader = ({
       )}
 
       {state.db.saveStatus === 'saving' && (
-        <div className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-blue-500 bg-white border-2 border-blue-300 rounded-md">
+        <div className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-green-500 bg-white border-2 border-green-300 rounded-md">
           {lang('SAVING', 'en')}
         </div>
       )}

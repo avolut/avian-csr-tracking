@@ -186,7 +186,7 @@ const NiceValue = ({
                                       fontSize: 13,
                                       whiteSpace: 'nowrap',
                                     }}
-                                    className="select-none hover:bg-blue-100"
+                                    className="select-none hover:bg-green-100"
                                   >
                                     {startCase(key)}
                                   </td>
@@ -201,7 +201,7 @@ const NiceValue = ({
                                       wordWrap: 'break-word',
                                       whiteSpace: 'pre-wrap',
                                     }}
-                                    className="hover:bg-blue-100"
+                                    className="hover:bg-green-100"
                                   >
                                     <div
                                       style={{

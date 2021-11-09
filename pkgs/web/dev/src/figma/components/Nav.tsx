@@ -196,7 +196,7 @@ export const Nav = observer(
         )}
         <div className="flex flex-row items-center">
           <div
-            className="cursor-pointer border border-gray-300 flex flex-1 items-center hover:bg-blue-100 px-1"
+            className="cursor-pointer border border-gray-300 flex flex-1 items-center hover:bg-green-100 px-1"
             css={css`
               height: 20px;
               font-size: 9px;

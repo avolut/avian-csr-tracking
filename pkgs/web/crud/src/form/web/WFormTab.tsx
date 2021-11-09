@@ -460,7 +460,7 @@ export const PureTab = ({
               }}
               className={`${
                 meta.current.tab === e ? 'active' : ''
-              } tab-item whitespace-nowrap border border-gray-300 hover:bg-blue-100`}
+              } tab-item whitespace-nowrap border border-gray-300 hover:bg-green-100`}
             >
               {e}
             </Label>

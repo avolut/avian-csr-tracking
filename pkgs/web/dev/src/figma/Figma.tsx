@@ -306,7 +306,7 @@ export default observer(() => {
         `}
       >
         <div
-          className="flex flex-row self-stretch flex-1 hover:bg-blue-100 items-center justify-center text-md cursor-pointer"
+          className="flex flex-row self-stretch flex-1 hover:bg-green-100 items-center justify-center text-md cursor-pointer"
           onClick={() => {
             runInAction(() => {
               meta.mini = false

@@ -117,7 +117,7 @@ export const PureSelect = (props: {
       <WBox className="pure-select">
         <div className="flex items-center">
           <Spinner />
-          <Label className="text-xs text-blue-300 ml-2">Loading...</Label>
+          <Label className="text-xs text-green-300 ml-2">Loading...</Label>
         </div>
       </WBox>
     )

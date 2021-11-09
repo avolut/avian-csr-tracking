@@ -345,7 +345,7 @@ export const PAGETab = observer(({ frame, node, target, html }: any) => {
                                     className={`${
                                       e.name.startsWith('api')
                                         ? 'bg-red-50'
-                                        : 'bg-blue-50'
+                                        : 'bg-green-50'
                                     } rounded-md text-center mr-2`}
                                   >
                                     {e.id}

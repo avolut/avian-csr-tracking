@@ -114,7 +114,7 @@ export const Server = observer(
                     }
                   }
                 })}
-                className="flex-1 cursor-pointer flex items-center justify-center hover:bg-blue-100"
+                className="flex-1 cursor-pointer flex items-center justify-center hover:bg-green-100"
                 css={css`
                   font-size: 12px;
                   font-weight: bold;

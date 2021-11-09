@@ -2,7 +2,7 @@
 import { useLocalObservable } from 'mobx-react-lite'
 import { useComponent } from 'web.utils/component'
 
-export default ({ children }) => {
+export default ({ role, children }) => {
   const meta = useLocalObservable(() => ({
     expandMaster: false,
   }))
@@ -21,6 +21,7 @@ export default ({ children }) => {
     'w-sidebar',
     '/app/web/src/components/w-sidebar',
     {
+      role,
       useLocalObservable,
       meta,
       toggleMaster,

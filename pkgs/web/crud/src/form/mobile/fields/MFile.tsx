@@ -64,7 +64,7 @@ export const MFile = ({ ctx, internalChange, name }: IBaseFieldProps) => {
 
   const unggah = state.readonly ? null : (
     <div className=" relative flex-1">
-      <Button fill bgColor="blue" className="capitalize">
+      <Button fill bgColor="green" className="capitalize">
         {meta.value ? 'UNGGAH FILE BARU ↑' : 'UNGGAH FILE ↑'}
       </Button>
 

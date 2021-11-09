@@ -158,7 +158,7 @@ export const TemplateCodeFigma = ({
             const res = await api('/__figma/figma-url', false, { raw: true })
             alert(`Figma Manifest Path:\n` + res)
           }}
-          className="hover:underline text-blue-400 cursor-pointer"
+          className="hover:underline text-green-400 cursor-pointer"
         >
           Figma Base Plugin
         </div>

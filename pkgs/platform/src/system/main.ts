@@ -385,7 +385,7 @@ export class CMS {
   return children;
   `
         : `
-  const children = h("div", {"className": "m-2 p-2 border border-blue-200 bg-blue-100 text-center text-xs font-normal"}, "Children")
+  const children = h("div", {"className": "m-2 p-2 border border-green-200 bg-green-100 text-center text-xs font-normal"}, "Children")
   return children
       `
     }`

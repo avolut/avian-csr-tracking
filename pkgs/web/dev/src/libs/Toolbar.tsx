@@ -45,7 +45,7 @@ export const Toolbar = ({ back, id, title, actions, unsaved, saving }) => {
                 )}
                 <div className="flex flex-row items-center">
                   {id ? (
-                    <div className="px-2 py-1 bg-blue-100 rounded-md mr-1">
+                    <div className="px-2 py-1 bg-green-100 rounded-md mr-1">
                       {id}
                     </div>
                   ) : (
@@ -60,7 +60,7 @@ export const Toolbar = ({ back, id, title, actions, unsaved, saving }) => {
                 </div>
               )}
               {!unsaved && saving && (
-                <div className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-blue-500 bg-white border-2 border-blue-300 rounded-md">
+                <div className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-green-500 bg-white border-2 border-green-300 rounded-md">
                   SAVING
                 </div>
               )}
