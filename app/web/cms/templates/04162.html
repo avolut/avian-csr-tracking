@@ -19,6 +19,14 @@
 
       const titleHeader = {
         "/admin/master-data-kegiatan": "Kegiatan CSR",
+        "/admin/master-data-supplier": "Supplier",
+        "/admin/master-data-area": "Area Tirta",
+        "/admin/master-data-cabang": "Cabang",
+        "/admin/master-data-covered-area": "Covered Area",
+        "/admin/master-data-jenis-instansi": "Jenis Instansi",
+        "/admin/master-data-jenis-bantuan": "Jenis Bantuan",
+        "/admin/master-data-instansi-penerima": "Instansi Penerima",
+        "/admin/master-data-jenis-instanis": "Jenis Instansi",
       };
 
       runInAction(() => {
@@ -31,10 +39,7 @@
   />
   <div class={`bg-white flex flex-1 overflow-hidden`}>
     <div class="flex flex-1 self-stretch items-start justify-start">
-      <w-sidebar
-        class={`flex self-stretch flex-col items-start justify-start border border-indigo-50`}
-        style={`background-color: linear-gradient(178.29deg, #0D6D68 59.99%, #52B949 98.55%);  background-size: 100% 100%; background-repeat: no-repeat; min-height:1022px;`}
-      />
+      <w-sidebar />
       <div class="flex flex-1 self-stretch flex-col items-start justify-start bg-white">
         <div class={`flex self-stretch flex-col items-start justify-start`}>
           <w-topbar

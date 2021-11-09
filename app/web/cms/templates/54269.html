@@ -1,37 +1,38 @@
 <>
   {" "}
   <admin
-    nav={["kegiatan"]}
+    nav={["instansi"]}
     content={{
-      "Kegiatan CSR": {
-        table: "m_kegiatan",
-        label: "Kegiatan CSR",
+      "Jenis Instansi": {
+        table: "m_jenis_instansi",
+        label: "Jenis instansi",
         list: {
           table: {
             columns: [
               [
                 "_",
                 {
-                  width: 200,
-                  title: "Pilar",
+                  title: "Instansi Penerima",
                   value: (item) => {
-                    return <span>{item.m_pillar.name}</span>;
+                    return (
+                      <span>{item.m_instansi_penerima.instansi_penerima}</span>
+                    );
                   },
                 },
               ],
-              ["nama_kegiatan", { title: "Kegiatan CSR" }],
+              ["jenis_instansi", { title: "Jenis instansi" }],
             ],
           },
           params: {
             include: {
-              m_pillar: true,
+              m_instansi_penerima: true,
             },
           },
         },
         form: {
           params: {
             include: {
-              m_pillar: true,
+              m_instansi_penerima: true,
             },
           },
           create: {
@@ -41,13 +42,13 @@
             jsonEdit: false,
           },
           alter: {
-            nama_kegiatan: {
-              title: "Kegiatan CSR",
+            jenis_instansi: {
+              title: "Jenis instansi",
               type: "text",
               required: true,
             },
           },
-          layout: ["m_pillar", "nama_kegiatan"],
+          layout: ["m_instansi_penerima", "jenis_instansi"],
         },
       },
     }}

@@ -1,37 +1,36 @@
 <>
   {" "}
   <admin
-    nav={["kegiatan"]}
+    nav={["cabang"]}
     content={{
-      "Kegiatan CSR": {
-        table: "m_kegiatan",
-        label: "Kegiatan CSR",
+      cabang: {
+        table: "m_cabang",
+        label: "Cabang",
         list: {
           table: {
             columns: [
               [
                 "_",
                 {
-                  width: 200,
-                  title: "Pilar",
+                  title: "Area Tirta",
                   value: (item) => {
-                    return <span>{item.m_pillar.name}</span>;
+                    return <span>{item.m_area_tirta.nama_area_tirta}</span>;
                   },
                 },
               ],
-              ["nama_kegiatan", { title: "Kegiatan CSR" }],
+              ["nama_cabang", { title: "Cabang" }],
             ],
           },
           params: {
             include: {
-              m_pillar: true,
+              m_area_tirta: true,
             },
           },
         },
         form: {
           params: {
             include: {
-              m_pillar: true,
+              m_area_tirta: true,
             },
           },
           create: {
@@ -41,13 +40,13 @@
             jsonEdit: false,
           },
           alter: {
-            nama_kegiatan: {
-              title: "Kegiatan CSR",
+            nama_cabang: {
+              title: "Cabang",
               type: "text",
               required: true,
             },
           },
-          layout: ["m_pillar", "nama_kegiatan"],
+          layout: ["m_area_tirta", "nama_cabang"],
         },
       },
     }}

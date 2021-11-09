@@ -1,11 +1,12 @@
 <div
-  class="flex self-stretch flex-col items-start justify-start border border-indigo-50 bg-white"
+  class="flex self-stretch flex-col items-start justify-start border border-indigo-50"
+  style="background: linear-gradient(178.29deg, #0D6D68 59.99%, #52B949 98.55%);  background-size: 100% 100%; background-repeat: no-repeat; height: 100vh;"
 >
-  <div class="flex self-stretch items-center justify-start p-2.5 bg-white">
-    <img src="/fimgs/202_482.x3.png" style="width: 40px; height: 40px;" />
-    <div class="flex flex-1 flex-col items-start justify-center p-2.5">
-      <div class="text-lg font-bold leading-normal text-green-800">
-        AVIAN CSR
+  <div class="flex self-stretch items-start justify-start p-2.5 ">
+    <div class="flex flex-1 flex-row items-center justify-center p-2.5">
+      <img src="/fimgs/452_4938.x1.png" style="margin-right: 10px;"/>
+      <div class="text-lg font-bold leading-normal text-white">
+        CSR TRACKING
       </div>
     </div>
   </div>
@@ -14,81 +15,65 @@
       {false && 
         <div class="flex self-stretch items-center justify-start">
           <div />
-          <button class="flex flex-1 space-x-1 items-center justify-start p-2.5" onClick={() => navigate("/admin/review")}>
-            <img
-              src="/fimgs/564_10798.x1.svg"
-              class="flex flex-col items-center justify-center p-1"
-              style="width: 30px; height: 30px;"
-            />
-            <div class="text-base font-medium leading-normal text-gray-600">
+          <button class="flex flex-1 space-x-1 items-center justify-start p-2.5" onClick={() => {}}>
+            <div class="text-base font-medium leading-normal text-white">
               Pesanan Review
             </div>
           </button>
         </div>
       }
-      <div class="flex flex-1 flex-col">
+      <div class="flex flex-1 flex-col" style="width: 16vw;">
         <div class="flex self-stretch flex-col items-start justify-start">
-          <button class="flex self-stretch items-start justify-start hover:bg-green-100" onClick={toggleMaster}>
-            <div class="bg-green-600" />
+          <button class="flex self-stretch items-start justify-start " onClick={toggleMaster}>
             <div class="flex flex-1 space-x-1 items-center justify-start p-2.5">
-              <img
-                src="/fimgs/201_12.x1.svg"
-                class="rounded-lg"
-                style="width: 30px; height: 30px;"
-              />
-              <div class="text-base font-medium leading-normal text-gray-600">
+              <div class="text-base font-light leading-normal text-gray-300">
                 MASTER DATA
               </div>
             </div>
-            <img
-              src="/fimgs/201_15.x1.svg"
-              class="rounded-lg"
-              style="width: 32px; height: 50px;"
-            />
-          </button>
-          <div class="flex self-stretch flex-col items-start justify-start bg-green-50 h-0 transition-height duration-500 ease-in-out overflow-hidden">
-            <button class="flex self-stretch flex-col items-center justify-start pl-10 hover:bg-green-100" onClick={() => navigate("/admin/master-data-kegiatan")}>
+          </button> 
+          <div class="flex self-stretch flex-col items-start justify-start transition-height duration-500 ease-in-out overflow-hidden">
+            <button class="flex self-stretch flex-col items-center justify-start " onClick={() => navigate("/admin/master-data-kegiatan")}>
               <div class="flex self-stretch items-center justify-start py-2.5">
-                <div class="text-sm leading-tight text-gray-600 ml-10">Kegiatan CSR</div>
+                <div class="text-sm leading-tight text-white ml-10">Kegiatan CSR</div>
               </div>
             </button>
-            <button class="flex self-stretch flex-col items-center justify-start pl-10 hover:bg-green-100" onClick={() => navigate("/admin/master-data-spesialis")}>
+            <button class="flex self-stretch flex-col items-center justify-start  " onClick={() => navigate("/admin/master-data-supplier")}>
               <div class="flex self-stretch items-center justify-start py-2.5">
-                <div class="text-sm leading-tight text-gray-600 ml-10">Supplier/div>
+                <div class="text-sm leading-tight text-white ml-10">Supplier</div>
               </div>
             </button>
-            <button class="flex self-stretch flex-col items-center justify-start pl-10 hover:bg-green-100" onClick={() => navigate("/admin/master-data-pasien")}>
+            <button class="flex self-stretch flex-col items-center justify-start  " onClick={() => navigate("/admin/master-data-area")}>
               <div class="flex self-stretch items-center justify-start py-2.5">
-                <div class="text-sm leading-tight text-gray-600 ml-10">Area Tirta</div>
+                <div class="text-sm leading-tight text-white ml-10">Area Tirta</div>
               </div>
             </button>
-            <button class="flex self-stretch flex-col items-center justify-start pl-10 hover:bg-green-100" onClick={() => navigate("/admin/master-data-analis")}>
+            <button class="flex self-stretch flex-col items-center justify-start  " onClick={() => navigate("/admin/master-data-cabang")}>
               <div class="flex self-stretch items-center justify-start py-2.5">
-                <div class="text-sm leading-tight text-gray-600 ml-10">Cabang</div>
+                <div class="text-sm leading-tight text-white ml-10">Cabang</div>
               </div>
             </button>
-            <button class="flex self-stretch flex-col items-center justify-start pl-10 hover:bg-green-100" onClick={() => navigate("/admin/master-data-lab")}>
+            <button class="flex self-stretch flex-col items-center justify-start  " onClick={() => navigate("/admin/master-data-covered-area")}>
               <div class="flex self-stretch items-center justify-start py-2.5">
-                <div class="text-sm leading-tight text-gray-600 ml-10">Covered Area</div>
+                <div class="text-sm leading-tight text-white ml-10">Covered Area</div>
               </div>
             </button>
-            <button class="flex self-stretch flex-col items-center justify-start pl-10 hover:bg-green-100" onClick={() => navigate("/admin/master-data-pemeriksaan-lab")}>
+            <button class="flex self-stretch flex-col items-center justify-start  " onClick={() => navigate("/admin/master-data-jenis-bantuan")}>
               <div class="flex self-stretch items-center justify-start py-2.5">
-                <div class="text-sm leading-tight text-gray-600 ml-10">
+                <div class="text-sm leading-tight text-white ml-10">
                   Jenis Bantuan
                 </div>
               </div>
             </button>
-            <button class="flex self-stretch flex-col items-center justify-start pl-10 hover:bg-green-100" onClick={() => navigate("/admin/master-data-kategori-biaya")}>
+            <button class="flex self-stretch flex-col items-center justify-start  " onClick={() => navigate("/admin/master-data-instansi-penerima")}>
               <div class="flex self-stretch items-center justify-start py-2.5">
-                <div class="text-sm leading-tight text-gray-600 ml-10">
+                <div class="text-sm leading-tight text-white ml-10">
                   Instansi Penerima
                 </div>
               </div>
             </button>
-            <button class="flex self-stretch flex-col items-center justify-start pl-10 hover:bg-green-100" onClick={() => navigate("/admin/master-data-kode-negara")}>
+            <button class="flex self-stretch flex-col items-center justify-start  " onClick={() => navigate("/admin/master-data-jenis-instansi")}>
               <div class="flex self-stretch items-center justify-start py-2.5">
-                <div class="text-sm leading-tight text-gray-600 ml-10">Jenis Instansi</div>
+                <div class="text-sm leading-tight text-white ml-10">Jenis Instansi</div>
               </div>
             </button>
           </div>
