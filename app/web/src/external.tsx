@@ -9,4 +9,6 @@ export default {
   qlist: () => [import('web.crud/src/list/QBaseList')],
   'w-sidebar': () => [import('./components/w-sidebar')],
   'w-topbar': () => [import('./components/w-topbar')],
+  'inp-text': () => [import('./components/inp-text')],
+  btn: () => [import('./components/btn')],
 }

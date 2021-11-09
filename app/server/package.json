@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {},
-  "dependencies": {},
+  "dependencies": {
+    "argon2": "^0.28.2"
+  },
   "types": "./src/index.ts",
   "main": "./build/index.js"
 }

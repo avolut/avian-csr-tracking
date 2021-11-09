@@ -5,17 +5,17 @@
       open: false,
     }}
     run={() => {
-      // if (
-      //   window.user.role === "guest" &&
-      //   window.location.pathname !== "/login"
-      // ) {
-      //   return (window.location.href = "/login");
-      // } else if (
-      //   window.user.role !== "guest" &&
-      //   window.location.pathname === "/login"
-      // ) {
-      //   return (window.location.href = "/");
-      // }
+      if (
+        window.user.role === "guest" &&
+        window.location.pathname !== "/login"
+      ) {
+        return (window.location.href = "/login");
+      } else if (
+        window.user.role !== "guest" &&
+        window.location.pathname === "/login"
+      ) {
+        return (window.location.href = "/");
+      }
 
       const titleHeader = {
         "/admin/master-data-kegiatan": "Kegiatan CSR",

@@ -1,1 +1,1 @@
-export const ext = {}
+export * as ext from './ext'
