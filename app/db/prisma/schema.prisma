@@ -124,7 +124,7 @@ model m_user {
   id          Int           @id @default(autoincrement())
   name        String        @db.VarChar(255)
   username    String        @db.VarChar(50)
-  password    String        @db.VarChar(50)
+  password    String        @db.VarChar
   last_login  DateTime      @db.Timestamp(6)
   m_user_role m_user_role[]
 }
