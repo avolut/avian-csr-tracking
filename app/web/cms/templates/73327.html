@@ -1,0 +1,117 @@
+<>
+  <effect meta={{ form: {} }} />
+  <admin
+    nav={["csr"]}
+    content={{
+      csr: {
+        table: "t_csr",
+        label: "CSR",
+        list: {
+          table: {
+            columns: [
+              ["no_kegiatan", { title: "No. Kegiatan" }],
+              ["tgl_kegiatan", { title: "Tanggal" }],
+              [
+                "id_pillar",
+                {
+                  title: "Pilar",
+                  width: 200,
+                  value: (item) => {
+                    return <span>{item.m_pillar.name}</span>;
+                  },
+                },
+              ],
+              [
+                "id_supplier",
+                {
+                  title: "Supply Dari",
+                  width: 200,
+                  value: (item) => {
+                    return <span>{item.m_supplier.nama_supplier}</span>;
+                  },
+                },
+              ],
+              [
+                "is_training",
+                {
+                  title: "Status",
+                  width: 200,
+                  value: (item) => {
+                    const color =
+                      item.is_training === "Y"
+                        ? "text-green-300"
+                        : "text-yellow-400";
+                    return (
+                      <span class={color}>
+                        {item.is_training === "Y" ? "Selesai" : "Draft"}
+                      </span>
+                    );
+                  },
+                },
+              ],
+              ["nama_project_csr", { title: "Nama Project" }],
+            ],
+          },
+          params: {
+            include: {
+              m_pillar: true,
+              m_supplier: true,
+              m_divisi: true,
+            },
+          },
+        },
+        form: {
+          params: {
+            include: {
+              m_pillar: true,
+              m_supplier: true,
+              m_divisi: true,
+              m_kegiatan: true,
+            },
+          },
+          create: {
+            title: "Tambah",
+          },
+          action: {
+            jsonEdit: false,
+          },
+          onLoad: (data) => {
+            runInAction(() => {
+              meta.form = data;
+            });
+          },
+          alter: {},
+          layout: [
+            "m_divisi",
+            [
+              <div class="pt-10">
+                <qform
+                  table={"t_csr"}
+                  title="Tentanf Kegiatan CSR"
+                  data={meta.form}
+                  action={{
+                    save: false,
+                    jsonEdit: false,
+                    delete: false,
+                    custom: [],
+                  }}
+                  alter={{
+                    m_pillar: {
+                      required: true,
+                      title: "Pilar CSR",
+                    },
+                    m_kegiatan: {
+                      required: true,
+                      title: "Kegiatan CSR",
+                    },
+                  }}
+                  layout={["m_pillar", "m_kegiatan"]}
+                />
+              </div>,
+            ],
+          ],
+        },
+      },
+    }}
+  />
+</>
