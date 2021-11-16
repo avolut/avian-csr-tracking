@@ -332,16 +332,21 @@ export const Actions = ({
                     </PrimaryButton>
                   )
                 case 'delete':
+                  const form: IBaseFormContext = state as any
+                  if (form.db.definition && form.db.definition.pk) {
+                    if (!form.db.data[form.db.definition.pk]) {
+                      return null
+                    }
+                  }
+
                   return (
                     <DefaultButton
                       className="delete"
                       key={name}
                       iconProps={{ iconName: 'Trash' }}
                       onClick={() => {
-                        const form: IBaseFormContext = state as any
-                        if (form.db.save) {
-                          if (confirm('Are you sure ?')) {
-                          }
+                        if (form.db.delete) {
+                          form.db.delete()
                         }
                       }}
                     >

@@ -721,29 +721,27 @@ export const createFormContext = (
         return null
       },
       delete: async () => {
-        if (state.db.definition) {
-          if (confirm(lang('Apakah Anda Yakin ?', 'id'))) {
-            state.db.loading = true
-            render()
+        if (confirm(lang('Apakah Anda Yakin ?', 'id'))) {
+          state.db.loading = true
+          render()
 
-            await db[state.db.tableName || ''].delete({
-              where: {
-                [state.db.definition.pk]: state.db.data[state.db.definition.pk],
-              },
-            })
+          await db[state.db.tableName || ''].delete({
+            where: {
+              [state.db.definition.pk]: state.db.data[state.db.definition.pk],
+            },
+          })
 
-            state.db.loading = false
+          state.db.loading = false
 
-            const parent = state.tree.parent as ICRUDContext
-
-            if (parent.crud) {
-              parent.crud.setMode('list')
-              const list = parent.tree.children.list as IBaseListContext
-
-              if (list) {
-                list.db.query()
+          if (state.tree.parent && (state.tree.parent as any).crud) {
+            const crud = state.tree.parent as ICRUDContext
+            if (crud.tree.children && crud.tree.children.list) {
+              const list = crud.tree.children.list as IBaseListContext
+              if (list.db.list) {
+                await list.db.query()
               }
             }
+            crud.crud.setMode('list')
           }
         }
       },
@@ -899,7 +897,7 @@ export const createFormContext = (
           delete data[pk]
 
           let savedData = null as any
-          console.log('okeokoke', data)
+
           if (state.db.data.__meta.isNew) {
             savedData = await db[state.db.tableName].create({
               data: data,
