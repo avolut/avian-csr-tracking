@@ -1,5 +1,19 @@
 <>
-  <effect meta={{ form: {} }} />
+  <effect
+    meta={{
+      form: {},
+      isTraining: [
+        {
+          value: "Y",
+          label: "Ya",
+        },
+        {
+          value: "N",
+          label: "Tidak",
+        },
+      ],
+    }}
+  />
   <admin
     nav={["csr"]}
     content={{
@@ -67,6 +81,10 @@
               m_supplier: true,
               m_divisi: true,
               m_kegiatan: true,
+              m_area_cabang: true,
+              m_cabang: true,
+              m_covered_area: true,
+              m_pulau: true,
             },
           },
           create: {
@@ -80,35 +98,41 @@
               meta.form = data;
             });
           },
-          alter: {},
+          alter: {
+            m_pillar: {
+              title: "Pilar CSR",
+              required: true,
+            },
+            m_kegiatan: {
+              title: "Kegiatan CSR",
+              required: true,
+            },
+            tgl_kegiatan: {
+              title: "Tanggal Kegiatan",
+              required: true,
+            },
+            is_training: {
+              title: "Training",
+              type: "select",
+              items: meta.isTraining,
+            },
+          },
           layout: [
             "m_divisi",
             [
-              <div class="pt-10">
-                <qform
-                  table={"t_csr"}
-                  title="Tentanf Kegiatan CSR"
-                  data={meta.form}
-                  action={{
-                    save: false,
-                    jsonEdit: false,
-                    delete: false,
-                    custom: [],
-                  }}
-                  alter={{
-                    m_pillar: {
-                      required: true,
-                      title: "Pilar CSR",
-                    },
-                    m_kegiatan: {
-                      required: true,
-                      title: "Kegiatan CSR",
-                    },
-                  }}
-                  layout={["m_pillar", "m_kegiatan"]}
-                />
+              <div>
+                <span class="font-bold text-base">Tentang Kegiatan CSR</span>
               </div>,
             ],
+            "m_pillar",
+            "m_kegiatan",
+            ["is_training", "tgl_kegiatan"],
+            "nama_project_csr",
+            "m_supplier",
+            ["m_area_tirta", "m_cabang"],
+            "m_covered_area",
+            ["m_pulau", "lokasi"],
+            ["longitude", "latitude"],
           ],
         },
       },
