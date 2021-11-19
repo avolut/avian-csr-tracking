@@ -145,7 +145,8 @@ const WFormSplitterInternal = ({
             : meta.size.current + (unit === 'percent' ? '%' : 'px')};
         `}
       >
-        <div className="split-master flex flex-1 absolute inset-0 overflow-auto">
+        {/* <div className="split-master flex flex-1 absolute inset-0 overflow-auto"> */}
+        <div className="split-master absolute inset-0 overflow-auto mb-5">
           {meta.master}
         </div>
       </div>
