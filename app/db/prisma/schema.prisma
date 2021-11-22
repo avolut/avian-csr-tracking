@@ -208,7 +208,7 @@ model t_csr {
   m_instansi_penerima     m_instansi_penerima       @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
   m_jenis_instansi        m_jenis_instansi          @relation(fields: [id_jenis_instansi], references: [id], onDelete: Cascade)
   m_kegiatan              m_kegiatan                @relation(fields: [id_kegiatan], references: [id], onDelete: Cascade)
-  m_pillar                m_pillar                  @relation(fields: [id_pillar], references: [id], onUpdate: Restrict)
+  m_pillar                m_pillar                  @relation(fields: [id_pillar], references: [id], onDelete: Cascade)
   m_pulau                 m_pulau                   @relation(fields: [id_pulau], references: [id], onDelete: Cascade)
   m_supplier              m_supplier                @relation(fields: [id_supplier], references: [id], onDelete: Cascade)
   t_csr_detail_bantuan    t_csr_detail_bantuan[]
@@ -234,12 +234,13 @@ model t_csr_detail_bantuan {
 }
 
 model t_csr_dokumentasi {
-  id       Int    @id(map: "m_dokumentasi_pkey") @default(autoincrement())
-  url_file String
-  tipe     String @db.VarChar(50)
-  caption  String @db.VarChar(255)
-  id_csr   Int
-  t_csr    t_csr  @relation(fields: [id_csr], references: [id], onDelete: Cascade)
+  id           Int      @id(map: "m_dokumentasi_pkey") @default(autoincrement())
+  url_file     String
+  tipe         String   @db.VarChar(50)
+  caption      String   @db.VarChar(255)
+  id_csr       Int
+  created_date DateTime @db.Timestamp(6)
+  t_csr        t_csr    @relation(fields: [id_csr], references: [id], onDelete: Cascade)
 }
 
 model t_csr_fasilitas_lainnya {

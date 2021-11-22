@@ -85,6 +85,8 @@
               m_cabang: true,
               m_covered_area: true,
               m_pulau: true,
+              t_csr_detail_bantuan: true,
+              t_csr_dokumentasi: true,
             },
           },
           create: {
@@ -116,6 +118,30 @@
               type: "select",
               items: meta.isTraining,
             },
+            value_biaya: {
+              suffix: "IDR",
+              type: "money",
+            },
+            t_csr_detail_bantuan: {
+              fieldProps: {
+                list: {
+                  table: {
+                    columns: [
+                      ["bantuan", { title: "Bantuan" }],
+                      ["merek", { title: "Merek" }],
+                    ],
+                  },
+                },
+                form: {
+                  create: {
+                    title: "Tambah",
+                  },
+                  action: {
+                    jsonEdit: false,
+                  },
+                },
+              },
+            },
           },
           layout: [
             "m_divisi",
@@ -133,6 +159,9 @@
             "m_covered_area",
             ["m_pulau", "lokasi"],
             ["longitude", "latitude"],
+            ["deskripsi_singkat"],
+            ["budget_by", "value_biaya"],
+            ["t_csr_detail_bantuan"],
           ],
         },
       },
