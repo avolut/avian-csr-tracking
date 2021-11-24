@@ -1,3 +1,4 @@
+import { waitUntil } from 'libs'
 import { get, keys } from 'lodash'
 import { Component } from 'react'
 import { IBaseContext } from '../../ext/types/__context'
@@ -36,6 +37,8 @@ export const initializeState = (
 
 export const saveState = (state: IBaseContext, parent: IBaseContext | null) => {
   if (!!parent) {
-    parent.tree.children[state.component.id] = state
+    waitUntil(() => state.component).then(() => {
+      parent.tree.children[state.component.id] = state
+    })
   }
 }

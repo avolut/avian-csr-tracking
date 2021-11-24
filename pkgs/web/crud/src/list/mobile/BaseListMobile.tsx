@@ -1,25 +1,17 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/react'
-import { db } from 'libs'
+import { css, jsx } from '@emotion/react'
 import {
-  Button,
-  List,
-  ListItem,
-  Progressbar,
-  SwipeoutButton,
-  SwipeoutActions,
+  Button, Progressbar
 } from 'framework7-react'
-import { waitUntil } from 'libs'
 import get from 'lodash.get'
 import { Context, isValidElement, useContext, useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom'
-import type { BaseWindow } from 'web.init/src/window'
-import { shortFormatDate } from 'web.utils/src/formatDate'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { shortFormatDate } from 'web-utils/src/formatDate'
+import { useRender } from 'web-utils/src/useRender'
 import { ICRUDContext } from '../../../../ext/types/__crud'
-import type {
+import {
   IBaseListContext,
-  IColumnSingleDef,
+  IColumnSingleDef
 } from '../../../../ext/types/__list'
 import { lang } from '../../lang/lang'
 import { Loading } from '../../view/loading'
@@ -52,7 +44,7 @@ export const BaseListMobile = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
   }
   const columns = state.table.columns
   const canCreate = state.header?.action?.create
-  let create = null
+  let create = null as any
   if (canCreate !== false) {
     if (typeof canCreate === 'function') {
       create = canCreate({ state, save: null, data: null })
@@ -73,7 +65,7 @@ export const BaseListMobile = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
             }}
             children={
               typeof create === 'string'
-                ? state.header.action.create
+                ? state.header?.action?.create
                 : lang('Tambah Baru', 'id')
             }
             {...((typeof create === 'object' && !isValidElement(create)
@@ -183,7 +175,7 @@ export const columnized = (
 
 const formatString = (val: any, state?: IBaseListContext, key?: string) => {
   let type = 'string'
-  const def = state.db.definition.columns[key]
+  const def = state?.db.definition?.columns[key || '']
   if (def) {
     type = def.type
     switch (type) {

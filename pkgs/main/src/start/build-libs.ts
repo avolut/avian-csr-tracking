@@ -1,20 +1,21 @@
-import { dirs } from 'boot'
+import { clearScreen } from 'boot'
+import { dirs, log } from 'boot'
 import { BuilderPool } from 'builder'
 import { waitUntil } from 'libs'
 import { join } from 'path'
-import { CustomGlobal } from '../start'
+import { MainGlobal } from '../start'
 import { ensureMain } from '../utils/ensureMain'
 import { ensureProject } from '../utils/ensureProject'
+import { runPnpm } from '../utils/pnpm'
 
-declare const global: CustomGlobal
+declare const global: MainGlobal
 
-export const buildLibs = async (
-  shouldYarn: Record<string, boolean>,
-  pool: BuilderPool,
-  mode: 'dev' | 'prod'
-) => {
+export const buildLibs = async (pool: BuilderPool, mode: 'dev' | 'prod') => {
   process.stdout.write(' • Libs')
-  shouldYarn['libs'] = await ensureProject('server', dirs.pkgs.libs)
+  if (await ensureProject('server', dirs.pkgs.libs)) {
+    runPnpm('i')
+  }
+
   await pool.add('libs', {
     root: dirs.pkgs.libs,
     in: join(dirs.pkgs.libs, 'src', 'index.tsx'),
@@ -24,10 +25,13 @@ export const buildLibs = async (
       mode === 'prod'
         ? undefined
         : async (event, path) => {
+            global.rootstamp = new Date().getTime()
             await pool.rebuild('libs')
-           
-            global.platform.ready = false;
-            pool.running['platform'].restart();
+
+            clearScreen()
+            log('boot', 'Development • Restarting Web Server')
+            await pool.rebuild('platform')
+            pool.send('platform', `start|${global.rootstamp}`)
           },
     onBuilt: async () => {
       await ensureMain(dirs.pkgs.libs)

@@ -2,9 +2,9 @@
 import { jsx } from '@emotion/react'
 import get from 'lodash.get'
 import { Context, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { niceCase } from 'web.utils/src/niceCase'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { niceCase } from 'web-utils/src/niceCase'
+import { useRender } from 'web-utils/src/useRender'
 import { IFilterItem, IFilterProp } from '../../../../ext/types/__filter'
 import { IBaseFilterDef, IBaseListContext } from '../../../../ext/types/__list'
 import { FilterBlank, queryFilterBlank } from './FilterBlank'
@@ -162,6 +162,7 @@ export const getFilterDef = (
 ): IBaseFilterDef => {
   let column = {
     type: '',
+    visible: 'auto' as const,
     default: { value: undefined as any, operator: undefined as any },
     title: niceCase(name),
     modifyQuery: undefined as any,

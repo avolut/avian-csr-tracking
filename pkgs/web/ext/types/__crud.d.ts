@@ -18,6 +18,7 @@ export interface ICRUDContext extends IBaseContext {
     path?: string
     onInit?: (props: { state: ICRUDContext }) => void
     title: string
+    listScroll: { x: number; y: number }
     mode: 'list' | 'form'
     formData: any
     setMode: (mode: ICRUDContext['crud']['mode'], data?: any) => Promise<void>

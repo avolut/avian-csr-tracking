@@ -1,13 +1,25 @@
+import { waitUntil } from './wait-until'
 import find from 'lodash.find'
-import { waitUntil } from 'libs/src/wait-until'
-import get from 'lodash.get'
+
+const toSnake = (str: string) =>
+  str[0].toLowerCase() +
+  str
+    .slice(1, str.length)
+    .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
+
+const dbPromises: Record<string, Promise<any>> = {}
+let isProxy = Symbol('isProxy')
 export const prepareDBClient = (dbname: string) => {
   let proxy = new Proxy(
     {},
     {
       get(_, name) {
         const post = async (params: any) => {
-          const url = '/__data'
+          let url = `/__data/${toSnake(params.action)}`
+
+          if (params.table) {
+            url += `...${params.table}`
+          }
 
           const options = {
             method: 'POST',
@@ -19,8 +31,8 @@ export const prepareDBClient = (dbname: string) => {
             body: JSON.stringify(params),
           }
 
-          const res = await fetch(url, options)
-          return await res.json()
+          const fetching = await fetch(url, options)
+          return await fetching.json()
         }
 
         if (name === 'query') {
@@ -67,7 +79,8 @@ export const prepareDBClient = (dbname: string) => {
           {},
           {
             get(_, sname) {
-              return async (...params: any[]) => {
+              if (sname === isProxy) return true
+              return async function (this: any, ...params: any[]) {
                 const w = window as any
 
                 const key = `${dbname}.${name.toString()}`
@@ -93,7 +106,6 @@ export const prepareDBClient = (dbname: string) => {
                   w.tableDefinitions[key] = 'loading'
                 }
 
-                // replaceNullWithUndefined(params)
                 const result = await post({
                   table: name,
                   db: dbname,
@@ -102,12 +114,11 @@ export const prepareDBClient = (dbname: string) => {
                 })
 
                 if (result && result.status === 'failed' && result.reason) {
-                  console.error(
-                    `db.${name.toString()}.${sname.toString()}() error: ${
+                  throw new Error(
+                    `db.${name.toString()}.${sname.toString()}() ${
                       result.reason
                     }`
                   )
-                  return result
                 }
 
                 if (sname === 'definition') {

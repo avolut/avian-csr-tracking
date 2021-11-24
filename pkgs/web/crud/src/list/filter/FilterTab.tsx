@@ -1,11 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
+import { waitUntil } from 'libs'
 import set from 'lodash.set'
-import { useContext, useRef } from 'react'
-import type {
+import { useContext, useEffect, useRef } from 'react'
+import { useRender } from 'web-utils/src/useRender'
+import {
   IFilterItemTab,
   IFilterItemText,
-  IFilterProp
+  IFilterProp,
 } from '../../../../ext/types/__filter'
 import { IBaseFilterDef } from '../../../../ext/types/__list'
 import { PureTab } from '../../form/web/WFormTab'
@@ -25,18 +27,37 @@ export const FilterTab = ({
   const state = useContext(ctx)
   const filter = state.filter.instances[name] as IFilterItemTab
   const def = getFilterDef(name, state)
-  const operator = filter.operator || 'contains'
   const _ = useRef({
     originalValue: filter.value,
   })
   const meta = _.current
 
-  const render = state.filter.instances[name].render
+  const render = useRender()
+  const renderParent = state.filter.instances[name].render
   const submit = async () => {
     onSubmit()
-    render()
+    renderParent()
     await state.db.query()
   }
+
+  useEffect(() => {
+    if (typeof filter.items === 'undefined') {
+      waitUntil(() => !state.db.loading && !state.db.partialLoading).then(
+        () => {
+          const uniqueTabs = {}
+          for (let row of state.db.list) {
+            if (typeof row[name] !== 'object') {
+              uniqueTabs[row[name].toLowerCase().trim()] = row[name]
+            }
+          }
+          filter.items = Object.values(uniqueTabs)
+          render()
+        }
+      )
+    }
+  }, [])
+
+  if (!filter.items) return null
 
   return children({
     name,
@@ -49,7 +70,7 @@ export const FilterTab = ({
             .pure-tab {
               border-bottom: 0px !important;
 
-              .tab-item {
+              .top .tab-item {
                 border-top-left-radius: 2px !important;
                 border-top-right-radius: 2px !important;
                 padding: 6px 10px 14px 10px !important;
@@ -59,7 +80,7 @@ export const FilterTab = ({
         >
           <PureTab
             active={filter.value || ''}
-            position="top"
+            position={filter.position || 'top'}
             onChange={async (tab) => {
               if (filter.value === tab) {
                 filter.value = ''

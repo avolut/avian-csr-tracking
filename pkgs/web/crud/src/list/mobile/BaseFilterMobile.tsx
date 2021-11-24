@@ -1,10 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { Button, Searchbar } from 'framework7-react'
-import throttle from 'lodash.throttle'
 import { Context, isValidElement, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import { ICRUDContext } from '../../../../ext/types/__crud'
 import { IBaseListContext } from '../../../../ext/types/__list'
 import { lang } from '../../lang/lang'
@@ -24,6 +23,21 @@ export const BaseFilterMobile = ({
   const meta = _.current
   const render = useRender()
   useEffect(() => {
+
+    const firstCol = state.table.columns[0]
+    if (firstCol) {
+      if (!state.db.params) {
+        state.db.params = {}
+      }
+      if (!state.db.params.where) {
+        state.db.params.where = {} as any
+      }
+
+      const where = state.db.params.where
+      if (where[firstCol] && where[firstCol].contains) {
+        state.filter.quickSearch = where[firstCol].contains
+      }
+    }
     meta.init = true
     render()
   }, [])
@@ -31,7 +45,7 @@ export const BaseFilterMobile = ({
   if (!meta.init) return null
 
   const canCreate = state.header?.action?.create
-  let create = null
+  let create = null as any
   if (canCreate !== false) {
     if (typeof canCreate === 'function') {
       create = canCreate({ state, save: null, data: null })
@@ -73,7 +87,7 @@ export const BaseFilterMobile = ({
                     text-transform: initial;
                   `}
                 >
-                  {typeof state.header.action.create === 'string'
+                  {typeof state.header?.action?.create === 'string'
                     ? state.header.action.create
                     : lang('Tambah', 'id')}
                 </span>
@@ -95,9 +109,10 @@ export const BaseFilterMobile = ({
           render()
           state.component.render()
         }}
+        value={state.filter.quickSearch || ''}
         searchContainer=".search-list"
         searchIn=".item-link"
-        placeholder="Cari"
+        placeholder={`${state.filter.quickSearchTitle || 'Cari'}`}
         disableButton={false}
         clearButton={true}
         css={css`
@@ -107,9 +122,30 @@ export const BaseFilterMobile = ({
         `}
         onChange={(e) => {
           const text = e.target.value
-          state.filter.quickSearch = text
-          render()
-          state.component.render()
+          const firstCol = state.table.columns[0]
+          if (firstCol) {
+            if (!state.db.params.where) {
+              state.db.params.where = {} as any
+            }
+
+            const where = state.db.params.where
+
+            if (text) {
+              where[firstCol] = {
+                contains: text,
+                mode: 'insensitive',
+              }
+            } else {
+              delete where[firstCol]
+            }
+            state.db.paging.reset()
+            state.filter.quickSearch = text
+            state.db.query()
+          } else {
+            state.filter.quickSearch = text
+            render()
+            state.component.render()
+          }
         }}
       >
         {create}

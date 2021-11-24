@@ -1,6 +1,7 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/react'
-import { db } from 'libs'
+import { css, jsx } from '@emotion/react'
+import { db, waitUntil } from 'libs'
+import { default as cloneDeep, default as deepClone } from 'lodash.clonedeep'
 import get from 'lodash.get'
 import set from 'lodash.set'
 import {
@@ -11,29 +12,26 @@ import {
   useEffect,
   useRef,
 } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { niceCase } from 'web.utils/src/niceCase'
-import { picomatch } from 'web.utils/src/picomatch'
-import { removeCircular } from 'web.utils/src/removeCircular'
-import { useRender } from 'web.utils/src/useRender'
-import type {
+import { BaseWindow } from 'web-init/src/window'
+import { niceCase } from 'web-utils/src/niceCase'
+import { picomatch } from 'web-utils/src/picomatch'
+import { useRender } from 'web-utils/src/useRender'
+import {
   ITableColumn,
   ITableDefinitions,
   ITableRelation,
 } from '../../../ext/types/qlist'
 import { ICRUDContext } from '../../../ext/types/__crud'
-import type {
+import {
   IBaseFieldContext,
   IBaseFormContext,
   IBaseFormProps,
   IFormAlterField,
   IFormLayout,
 } from '../../../ext/types/__form'
-import { IBaseListContext } from '../../../ext/types/__list'
 import { initializeState } from '../context-state'
 import { generateStateID } from '../CRUD'
 import { lang } from '../lang/lang'
-import { populateList } from '../list/BaseList'
 import { detectType } from '../utils/detect-type'
 import { Loading } from '../view/loading'
 import { BaseField } from './BaseField'
@@ -74,7 +72,7 @@ export const BaseForm = (props: IBaseFormProps) => {
   }, [data])
 
   useEffect(() => {
-    if (meta.init) {
+    if (meta.init && header) {
       meta.state.config.header = header
       render()
     }
@@ -110,10 +108,6 @@ export const BaseForm = (props: IBaseFormProps) => {
     return null
   }
 
-  if (typeof meta.state.db.data === 'object') {
-    defineRowMeta(meta.state)
-  }
-
   const FormWrapper = window.platform === 'web' ? WFormWrapper : MFormWrapper
   return (
     <meta.ctx.Provider value={meta.state}>
@@ -127,31 +121,6 @@ export const BaseForm = (props: IBaseFormProps) => {
       </FormWrapper>
     </meta.ctx.Provider>
   )
-}
-
-const defineRowMeta = (state: IBaseFormContext) => {
-  state.db.data.__defineGetter__('__meta', function () {
-    return {
-      get isNew() {
-        if (state.db.definition) {
-          return !state.db.data[state.db.definition.pk]
-        }
-      },
-      get pk() {
-        if (state.db.definition) return state.db.data[state.db.definition.pk]
-      },
-      get state() {
-        return state
-      },
-      get raw() {
-        const data = {}
-        for (let [k, v] of Object.entries(state.db.data)) {
-          if (!k.startsWith('__')) data[k] = v
-        }
-        return data
-      },
-    }
-  })
 }
 
 export const initializeForm = async (
@@ -187,8 +156,9 @@ export const initializeForm = async (
       })
 
       for (let i of layoutCols) {
+        const type = detectType(mdb.data[i]) || 'string'
         columns[i] = {
-          type: detectType(mdb.data[i]) || 'string',
+          type,
           name: i,
           pk: false,
           nullable: true,
@@ -201,6 +171,10 @@ export const initializeForm = async (
 
   if (mdb.definition) {
     if (typeof mdb.data === 'object') {
+      if (mdb.data.__crudLoad === 'new') {
+        mdb.data = {}
+      }
+
       if (mdb.data.__crudLoad) {
         mdb.loading = true
         render()
@@ -215,7 +189,7 @@ export const initializeForm = async (
             params.where = {}
           }
 
-          if (params && params.where) {
+          if (params && params.where && mdb.definition) {
             params.where[mdb.definition.pk] =
               type === 'number'
                 ? parseInt(mdb.data.__crudLoad)
@@ -254,9 +228,6 @@ export const initializeForm = async (
   }
 
   if (mf.onLoad) {
-    if (!!mdb.data && !!mdb.data.__meta) {
-      defineRowMeta(state)
-    }
     mf.onLoad(mdb.data, state)
   }
 }
@@ -386,21 +357,36 @@ export const generateFieldsForLayout = async (
 
         let colName = s
         if (!s.startsWith('::') && s.indexOf(':') > 0) {
-          colName = s.split(':').shift()
+          colName = s.split(':').shift() || ''
         }
         const col = state.db.definition.columns[colName]
         if (col) {
           type = col.type
           required = !col.nullable
+        } else {
+          const rel = state.db.definition.rels[colName]
+          if (rel) {
+            const type =
+              rel.relation === 'Model.BelongsToOneRelation'
+                ? 'belongs-to'
+                : 'has-many'
+            if (type === 'belongs-to') {
+              const from = rel.join.from.split('.').pop()
+              const colFrom = state.db.definition.columns[from || '']
+              if (colFrom) {
+                required = !colFrom.nullable
+              }
+            }
+          }
         }
 
         let colTitle = niceCase(colName)
         if (colName.indexOf('.') > 0 || state.db.definition.rels[colName]) {
           const frel = colName.split('.')
           colTitle = niceCase(frel[frel.length - 1])
-          let lastRel = null as ITableRelation
+          let lastRel = null as unknown as ITableRelation
           let lastDef = state.db.definition
-          let relCol = null as ITableColumn
+          let relCol = null as unknown as ITableColumn
           for (let relName of frel) {
             if (lastDef) {
               const result = await getRelation(relName, lastDef)
@@ -435,6 +421,14 @@ export const generateFieldsForLayout = async (
           }
         }
 
+        let undoValue = undefined
+        if (colName.indexOf('.') > 0) {
+          const undoName = colName.split('.').shift() || ''
+          undoValue = cloneDeep(get(state.db.data, undoName))
+        } else {
+          undoValue = cloneDeep(get(state.db.data, colName))
+        }
+
         const fieldState: IBaseFieldContext = {
           title: colTitle,
           name: colName,
@@ -442,6 +436,7 @@ export const generateFieldsForLayout = async (
           error: '',
           required,
           type,
+          undoValue,
           get value() {
             if (typeof colName === 'string') {
               return get(state.db.data, colName)
@@ -510,6 +505,9 @@ export const generateFieldsForLayout = async (
           }
         }
 
+        if (fieldState.type === 'info') {
+          fieldState.readonly = true
+        }
         fields[colName] = {
           state: fieldState,
         }
@@ -646,7 +644,7 @@ export const createFormContext = (
       },
       alter: alter || {},
       layout: layout || [],
-      validate: () => {},
+      validate: async () => {},
       onSave,
       onLoad,
       onInit,
@@ -676,8 +674,8 @@ export const createFormContext = (
           return [state.db.saveErrorMsg]
         }
 
-        let msg = []
-        const errors = state.db.lastErrors || {}
+        let msg: any[] = []
+        const errors = state.db.previousErrors || {}
         for (let [k, v] of Object.entries(errors)) {
           for (let e of v) {
             msg.push(e)
@@ -705,7 +703,7 @@ export const createFormContext = (
           finalParams = state.db.params
         }
 
-        if (Object.keys(finalParams).length > 0) {
+        if (Object.keys(finalParams).length > 0 && state.db.tableName) {
           const res = await db[state.db.tableName].findFirst(finalParams)
           if (!state.db.data) {
             state.db.data = {} as any
@@ -718,30 +716,28 @@ export const createFormContext = (
           }
           return res
         }
-        return null
+
+        return {}
       },
       delete: async () => {
-        if (confirm(lang('Apakah Anda Yakin ?', 'id'))) {
-          state.db.loading = true
-          render()
+        if (state.db.definition) {
+          if (confirm(lang('Apakah Anda Yakin ?', 'id'))) {
+            state.db.loading = true
+            render()
 
-          await db[state.db.tableName || ''].delete({
-            where: {
-              [state.db.definition.pk]: state.db.data[state.db.definition.pk],
-            },
-          })
+            await db[state.db.tableName || ''].delete({
+              where: {
+                [state.db.definition.pk]: state.db.data[state.db.definition.pk],
+              },
+            })
 
-          state.db.loading = false
+            state.db.loading = false
 
-          if (state.tree.parent && (state.tree.parent as any).crud) {
-            const crud = state.tree.parent as ICRUDContext
-            if (crud.tree.children && crud.tree.children.list) {
-              const list = crud.tree.children.list as IBaseListContext
-              if (list.db.list) {
-                await list.db.query()
-              }
+            const parent = state.tree.parent as ICRUDContext
+
+            if (parent.crud) {
+              parent.crud.setMode('list')
             }
-            crud.crud.setMode('list')
           }
         }
       },
@@ -749,43 +745,52 @@ export const createFormContext = (
         const errors = {}
         for (let [name, field] of Object.entries(state.config.fields)) {
           if (field.state.required) {
-            const required = resolveValueAsync({
+            const required = await resolveValueAsync({
               definer: field.state.required,
               args: [{ state: state, row: state.db.data, col: name }],
               default: false,
             })
 
             const value = get(state.db.data, name)
+
             if (
-              required &&
-              (value === undefined || value === null || value === '')
+              (required &&
+                (value === undefined ||
+                  value === null ||
+                  value === '' ||
+                  (typeof value !== 'boolean' && !value))) ||
+              (typeof value === 'object' && Object.keys(value).length === 0)
             ) {
               if (!errors[name]) {
                 errors[name] = []
               }
               errors[name].push(
                 lang(
-                  '[field] harus diisi.',
+                  '[field] cannot be blank',
                   {
                     field:
                       typeof field.state.title === 'string'
                         ? field.state.title
                         : niceCase(name),
                   },
-                  'id'
+                  'en'
                 )
               )
             }
           }
+
+          if (field.state.error && !errors[name]) {
+            errors[name] = [field.state.error]
+          }
         }
 
-        state.db.lastErrors = errors
+        state.db.previousErrors = errors
         return errors
       },
       save: async () => {
-        const pk = state.db.definition.pk
+        const pk = state.db.definition?.pk || ''
 
-        const exposedSave = async (data?: any) => {
+        const exposedSave: IBaseFormContext['db']['save'] = async (options) => {
           state.db.saveErrorMsg = ''
           state.db.saveStatus = 'saving'
           if (state.config.header && state.config.header.render) {
@@ -804,115 +809,91 @@ export const createFormContext = (
             return false
           }
 
+          let data = get(options, 'data')
           if (!data) {
-            data = state.db.data.__meta.raw
+            data = deepClone(state.db.data)
+          } else {
+            data = deepClone(data)
           }
-          let def = state.db.definition?.columns
-          for (let [k, value] of Object.entries(data)) {
-            if (
-              !state.db.definition.rels[k] &&
-              !state.db.definition.columns[k]
-            ) {
-              delete data[k]
-            }
-            if (def && def[k] && typeof data[k] !== def[k].type) {
-              if (def[k].type === 'number') {
-                let cols = parseFloat(data[k])
-                set(state.db.data, k, cols)
-                data[k] = cols
-              } else if (def[k].type === 'boolean') {
-                data[k] = data[k] === "true"
+
+          if (state.db.definition) {
+            for (let [k, value] of Object.entries(data)) {
+              if (
+                !state.db.definition.rels[k] &&
+                !state.db.definition.columns[k]
+              ) {
+                delete data[k]
+              }
+
+              if (value === null) {
+                delete data[k]
               }
             }
-            if (
-              value === null ||
-              value === undefined ||
-              (Array.isArray(value) && value.length === 0)
-            ) {
-              delete data[k]
-            }
-          }
 
-          for (let [_, v] of Object.entries(state.db.definition.rels)) {
-            if (v.relation === 'Model.BelongsToOneRelation') {
-              const from = v.join.from.split('.').pop()
-              const to = v.join.to.split('.').pop()
-              delete data[from]
+            for (let [relName, v] of Object.entries(state.db.definition.rels)) {
+              if (v.relation === 'Model.BelongsToOneRelation') {
+                const from = v.join.from.split('.').pop() || ''
+                const to = v.join.to.split('.').pop() || ''
+                delete data[from]
 
-              const m = data[v.modelClass]
-              if (m) {
-                if (
-                  m.disconnect ||
-                  m.create ||
-                  (m.connect && v.modelClass === _) ||
-                  m.connectOrCreate
-                ) {
-                  if (m.disconnect && !data[from]) {
-                    delete data[v.modelClass]
-                  }
-                  delete data[from]
-                } else {
-                  const rel = (await db[
-                    v.modelClass
-                  ].definition()) as ITableDefinitions
-
-                  let key = Object.keys(data[v.modelClass])[0]
-                  if (data[v.modelClass] && data[v.modelClass][rel.pk]) {
-                    // if (Object.keys(data[v.modelClass]).length === 1) {
-                    data[v.modelClass] = {
-                      connect: {
-                        [to]: data[v.modelClass][to],
-                      },
-                    }
-                    // } else {
-                    //   data[v.modelClass] = {
-                    //     update: data[v.modelClass],
-                    //   }
-                    // }
-                  } else if (
-                    data[v.modelClass] &&
-                    data[v.modelClass][key] &&
-                    key !== 'connect'
+                const m = data[relName]
+                if (m) {
+                  if (
+                    m.disconnect ||
+                    m.create ||
+                    m.connect ||
+                    m.connectOrCreate
                   ) {
-                    data[v.modelClass] = {
-                      connect: {
-                        [to]: data[v.modelClass][key],
-                      },
+                    if (m.disconnect && !data[from]) {
+                      delete data[relName]
                     }
-                  } else if (data[_] && data[_][rel.pk]) {
-                    data[_] = {
-                      connect: {
-                        [to]: data[_][to],
-                      },
+                    delete data[from]
+                  } else {
+                    const rel = (await db[
+                      v.modelClass
+                    ].definition()) as ITableDefinitions
+
+                    if (data[relName] && data[relName][rel.pk]) {
+                      data[relName] = {
+                        connect: {
+                          [to]: data[relName][to],
+                        },
+                      }
                     }
                   }
                 }
+              } else {
+                delete data[relName]
               }
-            } else {
-              delete data[v.modelClass]
             }
           }
-
           const pkVal = data[pk]
           delete data[pk]
 
           let savedData = null as any
 
-          if (state.db.data.__meta.isNew) {
-            savedData = await db[state.db.tableName].create({
-              data: data,
-            })
-          } else {
-            savedData = await db[state.db.tableName].update({
-              data,
-              where: {
-                [pk]: pkVal,
-              },
-            })
+          if (state.db.definition) {
+            try {
+              if (!state.db.data[state.db.definition.pk]) {
+                savedData = await db[state.db.tableName || ''].create({
+                  data: data,
+                })
+              } else {
+                savedData = await db[state.db.tableName || ''].update({
+                  data,
+                  where: {
+                    [pk]: pkVal,
+                  },
+                })
+              }
+            } catch (e: any) {
+              savedData = { status: 'failed', reason: e.message }
+              console.error(e)
+            }
           }
 
           if (savedData && savedData.status === 'failed') {
-            state.db.saveStatus = 'failed'
+            state.db.saveStatus = 'save-error'
             state.db.saveErrorMsg = savedData.reason
             render()
             return false
@@ -921,20 +902,11 @@ export const createFormContext = (
             state.db.saveStatus = 'success'
             render()
 
-            if (state.tree.parent && (state.tree.parent as any).crud) {
-              const crud = state.tree.parent as ICRUDContext
-              if (crud.tree.children && crud.tree.children.list) {
-                const list = crud.tree.children.list as IBaseListContext
-                if (list.db.list) {
-                  // for (let [idx, row] of Object.entries(list.db.list) as any) {
-                  //   if (row[pk] === savedData[pk]) {
-                  //     weakUpdate(list.db.list[idx], state.db.data)
-                  //   }
-                  // }
-                  await list.db.query()
-                }
+            if (get(options, 'back', true) === true) {
+              if (state.tree.parent && (state.tree.parent as any).crud) {
+                const parent = state.tree.parent as ICRUDContext
+                await parent.crud.setMode('list')
               }
-              crud.crud.setMode('list')
             }
 
             return true
@@ -944,7 +916,7 @@ export const createFormContext = (
         if (state.config.onSave) {
           const res: any = await state.config.onSave({
             state,
-            data: state.db.data.__meta.raw,
+            data: state.db.data,
             save: exposedSave,
             saving: (saving?: boolean) => {
               state.db.saveStatus =
@@ -978,3 +950,5 @@ const parseParams = (props: any) => {
   }
   return params
 }
+
+export default BaseForm

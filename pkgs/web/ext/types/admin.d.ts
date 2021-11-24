@@ -11,6 +11,7 @@ export type IAdminSingle = {
   mode?: 'form' | 'list'
   onInit?: ({ state: ICRUDContext }) => void
   list?: {
+    action?: IBaseListProps['action']
     query?: IBaseListProps['query']
     header?: IBaseListProps['header']
     title?: IBaseListProps['title']

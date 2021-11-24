@@ -1,7 +1,7 @@
 export const lang = (
   text: string,
   args: Record<string, string> | 'en' | 'id',
-  currentLang?: 'id' | 'en'
+  recordedLang?: 'id' | 'en'
 ) => {
   let result = text
   for (let [i, v] of Object.entries(args)) {

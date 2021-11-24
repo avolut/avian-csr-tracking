@@ -2,11 +2,11 @@
 import { css, jsx } from '@emotion/react'
 import { waitUntil } from 'libs'
 import { memo, useEffect, useRef } from 'react'
-import { useRender } from 'web.utils/src/useRender'
+import { useRender } from 'web-utils/src/useRender'
 import { findPage } from '../core/load-page'
 import { renderCore } from '../core/render'
 import { DevBar } from '../devbar/DevBar'
-import type { BaseWindow } from '../window'
+import { BaseWindow } from '../window'
 declare const window: BaseWindow
 
 export const WebMain = () => {
@@ -21,47 +21,32 @@ export const WebMain = () => {
   })
   const meta = _.current
   const render = useRender()
-  window.globalStateID = 1
 
-  useEffect(() => {
-    window.webApp = {
-      render: (url: string) => {
-        meta.url = url
-        const page = findPage(url)
-        if (page) {
-          if (meta.current === 'page') {
-            meta.next.comp = memo(() => renderCore({ NotFound: PageNotFound }))
-            render()
-
-            waitUntil(() => !!meta.next.ref).then(() => {
-              meta.page.ref.style.display = 'none'
-              meta.next.ref.style.display = 'flex'
-              meta.current = 'next'
-              meta.page.comp = null
-              render()
-            })
-          } else {
-            meta.page.comp = memo(() => renderCore({ NotFound: PageNotFound }))
-            render()
-
-            waitUntil(() => !!meta.page.ref).then(() => {
-              meta.next.ref.style.display = 'none'
-              meta.page.ref.style.display = 'flex'
-              meta.current = 'page'
-              meta.next.comp = null
-              render()
-            })
+  window.webApp = {
+    render: (url: string, init = false) => {
+      meta.url = url
+      const page = findPage(url)
+      if (page) {
+        if (!page.component) {
+          page.component = () => {
+            return renderCore({ NotFound: PageNotFound, init })
           }
         }
-      },
-    }
-  }, [])
 
-  if (!meta.page.comp && !meta.next.comp) {
-    meta.page.comp = memo(() => renderCore({ NotFound: PageNotFound }))
+        meta.page.comp = page.component
+        if (meta.page.comp && !meta.page.comp.displayName) {
+          Object.defineProperty(meta.page.comp, 'displayName', { value: url })
+        } 
+        render()
+      }
+    },
+  }
+
+  if (!meta.page.comp) {
+    window.webApp.render(meta.url, true)
+    return null
   }
   const Page = meta.page.comp
-  const Next = meta.next.comp
 
   const rootCSS = css`
     > div {
@@ -82,18 +67,6 @@ export const WebMain = () => {
           <Page />
         </div>
       )}
-      {Next && (
-        <div
-          ref={(e) => (meta.next.ref = e)}
-          className={`web ${
-            meta.current === 'next' ? 'flex' : 'hidden'
-          } flex-1 items-stretch`}
-          css={rootCSS}
-        >
-          <Next />
-        </div>
-      )}
-
       {window.is_dev && <DevBar />}
     </>
   )

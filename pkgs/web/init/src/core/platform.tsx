@@ -1,11 +1,10 @@
-import type { BaseWindow } from '../window'
+import { BaseWindow } from '../window'
 import { unpackBase } from './unpack'
 
 declare const window: BaseWindow
 
 export const defineCMS = async () => {
-  unpackBase()
-  await reloadAllComponents()
+  await unpackBase()
 }
 
 export const reloadAllComponents = async () => {
@@ -16,7 +15,6 @@ export const reloadAllComponents = async () => {
     const { extendExternals } = await import('../mobile/mobile-ext')
     final = { ...final, ...extendExternals() }
   }
-
 
   for (let [k, v] of Object.entries(final)) {
     window.cms_components[k] = {
@@ -51,10 +49,7 @@ export const detectPlatform = async () => {
       }
     }
 
-    if (
-      location.pathname.indexOf('/dev') === 0 ||
-      location.pathname.indexOf('/figma') === 0
-    ) {
+    if (location.pathname.indexOf('/figma') === 0) {
       window.platform = 'web'
     }
   }

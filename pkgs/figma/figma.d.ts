@@ -9,7 +9,7 @@ declare global {
     [key: string]: string
   }
 
-  interface PluginAPI {
+  export interface PluginAPI {
     readonly apiVersion: '1.0.0'
     readonly command: string
 

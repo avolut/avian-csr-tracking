@@ -1,10 +1,10 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import { useRef } from 'react'
-import { useRender } from 'web.utils/src/useRender'
-import useFps from './useFps'
 import { Callout } from '@fluentui/react'
+import { useEffect, useRef } from 'react'
+import { useRender } from 'web-utils/src/useRender'
 import { Tester } from './tester/Tester'
+import useFps from './useFps'
 
 export const DevBar = () => {
   const _ = useRef({
@@ -13,12 +13,27 @@ export const DevBar = () => {
       el: null as null | HTMLDivElement,
       show: false,
     },
-    show: false,
+    show: localStorage.baseDevBar,
   })
+
   const meta = _.current
   const { currentFps } = useFps()
   const render = useRender()
 
+  useEffect(() => {
+    const keydown = function (e: KeyboardEvent) {
+      if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+        meta.show = !meta.show
+        localStorage.baseDevBar = meta.show ? 'y' : ''
+        e.preventDefault()
+        render()
+      }
+    }
+    document.addEventListener('keydown', keydown, true)
+    return () => {
+      document.removeEventListener('keydown', keydown, true)
+    }
+  }, [])
   if (!meta.show) return null
 
   return (
@@ -81,7 +96,8 @@ export const DevBar = () => {
         <div
           className="flex items-center justify-center border-gray-600 border-l"
           onClick={() => {
-            meta.show = false; 
+            meta.show = false
+            localStorage.baseDevBar = meta.show ? 'y' : ''
             render()
           }}
         >

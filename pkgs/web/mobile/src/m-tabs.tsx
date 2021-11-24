@@ -86,6 +86,7 @@ export default (props) => {
   useEffect(() => {
     applyOnClick()
   })
+
   useEffect(() => {
     if (!window.mobileTabsActive) {
       window.mobileTabsActive = {}

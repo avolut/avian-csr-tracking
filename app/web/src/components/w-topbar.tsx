@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { useComponent } from 'web.utils/component'
+import { useComponent } from 'web-utils/component'
 
 export default ({ children, title, open, onClickOpen }) => {
   const date = new Date()
@@ -32,5 +32,5 @@ export default ({ children, title, open, onClickOpen }) => {
     '/app/web/src/components/w-topbar',
     { date, formatDate, title, open, onClickOpen }
   )
-  return eval(_component.render)
+  return new Function(_component.render).bind(_component)()
 }

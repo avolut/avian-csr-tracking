@@ -7,9 +7,9 @@ import get from 'lodash.get'
 import set from 'lodash.set'
 import { useContext, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { niceCase } from 'web.utils/src/niceCase'
-import { useRender } from 'web.utils/src/useRender'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { niceCase } from 'web-utils/src/niceCase'
+import { useRender } from 'web-utils/src/useRender'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 import CRUD from '../../../CRUD'
 import { deepUpdate, weakUpdate } from '../../BaseForm'
 import { labelText } from '../../web/fields/WBelongsTo'
@@ -117,10 +117,24 @@ export const MBelongsTo = (props: IBaseFieldProps) => {
       ? props.name.split('.').shift()
       : props.name) || props.name
 
-  const rel = form.db.definition?.rels[relName]
+  const state = (form.config.fields[props.name] || {}).state
+  let rel = form.db.definition?.rels[relName]
+  if (!rel && get(state, 'items.table')) {
+    const items = state.items
+    if (typeof items === 'object' && !Array.isArray(items) && items.table) {
+      rel = {
+        join: {
+          from: '',
+          to: '',
+        },
+        relation: 'Model.BelongsToOneRelation',
+        modelClass: items.table,
+      }
+    }
+  }
+
   const to = rel?.join.to.split('.').pop() || ''
   const from = rel?.join.from.split('.').pop() || ''
-  const state = (form.config.fields[props.name] || {}).state
 
   const required = resolveValue({
     definer: state.required,
@@ -202,6 +216,44 @@ export const MBelongsTo = (props: IBaseFieldProps) => {
   }
   const crudform = (state as any).form || undefined
 
+  const content = (
+    <Sheet
+      opened={meta.opened}
+      css={css`
+        display: ${meta.opened ? 'none' : 'flex'};
+        flex-direction: column;
+        height: 90vh;
+
+        > .sheet-modal-inner {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+      `}
+      onSheetClosed={() => {
+        meta.opened = false
+        render()
+      }}
+      swipeToClose
+      className={`${sheet.class} h-full`}
+      swipeHandler={`.${sheet.class} .form-title`}
+    >
+      <div className="block-title form-title">{sheet.title}</div>
+      {meta.opened && rel && (
+        <CRUD
+          content={
+            {
+              [sheet.title]: {
+                table: rel.modelClass,
+                list: crudlist,
+                form: crudform,
+              },
+            } as any
+          }
+        />
+      )}
+    </Sheet>
+  )
 
   return (
     <>
@@ -257,45 +309,7 @@ export const MBelongsTo = (props: IBaseFieldProps) => {
           </div>
         )}
       </List>
-      {createPortal(
-        <Sheet
-          opened={meta.opened}
-          css={css`
-            display: ${meta.opened ? 'none' : 'flex'};
-            flex-direction: column;
-            height: 90vh;
-
-            > .sheet-modal-inner {
-              display: flex;
-              flex-direction: column;
-              height: 100%;
-            }
-          `}
-          onSheetClosed={() => {
-            meta.opened = false
-            render()
-          }}
-          swipeToClose
-          className={`${sheet.class} h-full`}
-          swipeHandler={`.${sheet.class} .form-title`}
-        >
-          <div className="block-title form-title">{sheet.title}</div>
-          {meta.opened && rel && (
-            <CRUD
-              content={
-                {
-                  [sheet.title]: {
-                    table: rel.modelClass,
-                    list: crudlist,
-                    form: crudform,
-                  },
-                } as any
-              }
-            />
-          )}
-        </Sheet>,
-        document.getElementById('framework7-root') as any
-      )}
+      {createPortal(content, document.getElementById('framework7-root') as any)}
     </>
   )
 }

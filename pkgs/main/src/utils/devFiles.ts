@@ -61,18 +61,13 @@ export const webPkgs = {
     '@emotion/core': '^11.0.0',
     '@emotion/react': '^11.1.5',
     mobx: '^6.1.8',
-    'mobx-react-lite': '^3.2.0',
+    'mobx-react-lite': '^3.2.1',
     react: '^17.0.2',
     'react-dom': '^17.0.2',
   },
 }
 
 export const webFiles = {
-  cms: {
-    templates: {},
-    structures: {},
-    components: {},
-  },
   public: {
     'favicon.ico': [dirs.pkgs.main, 'favicon.ico'],
     'index.html': `
@@ -137,15 +132,15 @@ module.exports = {
     'global.ts': `export const globalVar = {}`,
     'external.tsx': `// make sure to export default component not export const
 export default {
-  'render-html': () => [import('web.utils/components/RenderHTML')],
-  'html-head': () => [import('web.utils/components/HtmlHead')],
-  'hello-world': () => [import('web.utils/components/HelloWorld')],
-  loading: () => [import('web.crud/src/legacy/Loading')],
-  admin: () => [import('web.crud/src/CRUD')],
-  qform: () => [import('web.crud/src/form/BaseForm')],
-  qlist: () => [import('web.crud/src/list/QBaseList')],
+  'render-html': () => [import('web-utils/components/RenderHTML')],
+  'html-head': () => [import('web-utils/components/HtmlHead')],
+  'hello-world': () => [import('web-utils/components/HelloWorld')],
+  loading: () => [import('web-crud/src/legacy/Loading')],
+  admin: () => [import('web-crud/src/CRUD')],
+  qform: () => [import('web-crud/src/form/BaseForm')],
+  qlist: () => [import('web-crud/src/list/QBaseList')],
 }`,
-    'index.tsx': `import { initApp } from 'web.init/src/initApp'
+    'index.tsx': `import { initApp } from 'web-init/src/initApp'
 import './index.css'
 initApp()   
 `,

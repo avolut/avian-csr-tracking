@@ -3,8 +3,8 @@ import { css, jsx } from '@emotion/react'
 import { Button, Progressbar } from 'framework7-react'
 import set from 'lodash.set'
 import { useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import { IBaseFieldProps } from '../../../../../ext/types/__form'
 import { resolveValue } from './Minfo'
 
@@ -64,7 +64,7 @@ export const MFile = ({ ctx, internalChange, name }: IBaseFieldProps) => {
 
   const unggah = state.readonly ? null : (
     <div className=" relative flex-1">
-      <Button fill bgColor="green" className="capitalize">
+      <Button fill bgColor="blue" className="capitalize">
         {meta.value ? 'UNGGAH FILE BARU ↑' : 'UNGGAH FILE ↑'}
       </Button>
 

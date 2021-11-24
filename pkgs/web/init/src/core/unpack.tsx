@@ -1,9 +1,11 @@
+import { waitUntil } from 'libs'
 import { Unpackr } from 'msgpackr/unpack'
-import type { BaseWindow } from '../window'
-import { generateLayout } from './gen-layout'
+import { BaseWindow } from '../window'
 
 declare const window: BaseWindow
-export const unpackBase = () => {
+export const unpackBase = async () => {
+  await waitUntil(() => window.cms_base_pack)
+
   if (window.cms_base_pack) {
     const unpackr = new Unpackr({})
     const result = unpackr.unpack(new Uint8Array(window.cms_base_pack))
@@ -18,10 +20,6 @@ export const unpackBase = () => {
       } else {
         window[k] = v
       }
-    }
-
-    for (let v of Object.values(window.cms_layouts)) {
-      v.component = generateLayout(v.source)
     }
   }
 }

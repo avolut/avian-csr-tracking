@@ -2,99 +2,129 @@
 import { css, jsx } from '@emotion/react'
 import Page from 'framework7-react/esm/components/page'
 import { db, dbAll, waitUntil } from 'libs'
+import get from 'lodash.get'
 import { observer, useLocalObservable } from 'mobx-react-lite'
-import React, { Fragment, lazy, Suspense, useEffect, useRef } from 'react'
-import { api } from 'web.utils/src/api'
-import { useRender } from 'web.utils/src/useRender'
-import { Link } from 'web.view/src/Link'
+import React, { Fragment, lazy, Suspense, useEffect } from 'react'
+import * as appBase from 'web-app/base'
+import { api } from 'web-utils/src/api'
+import { useRender } from 'web-utils/src/useRender'
+import { Link } from 'web-view/src/Link'
 import mLink from '../../../mobile/src/m-link'
-import type { BaseWindow } from '../window'
+import { BaseWindow } from '../window'
+import { deepObserve } from './mobx/deep-observe'
 import { formatJsxChildren } from './utils'
-
 declare const window: BaseWindow
+declare const apbase: typeof appBase
 
 export const generatePage = (
-  source: string,
+  cms_page: any,
   opt: { params: any; updateParams: (newdata: any) => void }
 ) => {
-  let cms_page: any
-  // updateParams will be executed on ssr in eval below
-  let { params, updateParams } = opt
-  eval(source)
+  const { params } = opt
+  cms_page.params = params
+  window.params = params
 
-  if (cms_page) {
-    return () => {
-      const _ = useRef({
-        component: null as React.FC | null,
-        meta: cms_page.child_meta,
-        cms: null as ReturnType<typeof renderCMS> | null,
-        render: () => {},
-        renderCount: 0,
+  const _ = {
+    init: false,
+    mobx: {} as {
+      observe: any
+      data: any
+      renderTimeout: any
+    },
+    observable: null as any,
+    reload: () => {},
+    cache: null as null | ReturnType<typeof renderCMS>,
+  }
+  return observer(({ init }: any) => {
+    const render = useRender()
+    const internal = _
+
+    if (!internal.mobx.data) {
+      internal.mobx.data =
+        typeof cms_page.child_meta === 'object' ? cms_page.child_meta : {}
+    }
+
+    internal.observable = useLocalObservable(() => internal.mobx.data)
+
+    const mobxObserve = () => {
+      if (internal.mobx.observe) {
+        internal.mobx.observe()
+      }
+      internal.mobx.observe = deepObserve(internal.observable, (changes) => {
+        if (internal.mobx.renderTimeout) {
+          clearTimeout(internal.mobx.renderTimeout)
+        }
+        internal.mobx.data = toJS(internal.observable)
+
+        internal.mobx.renderTimeout = setTimeout(() => {
+          internal.cache = loadCache('mobx changed')
+          if (internal.cache.loading) {
+            internal.cache.loading().then(async () => {
+              internal.cache = loadCache('finished loading components')
+              while (internal.cache.loading) {
+                await internal.cache.loading
+                internal.cache = loadCache('finished loading components')
+              }
+              render()
+            })
+          } else {
+            render()
+          }
+        })
       })
-      const internal = _.current
-      internal.render = useRender()
-      internal.cms = renderCMS(cms_page, internal.meta, {
+    }
+
+    const loadCache = (debugLog?: string) => {
+      // if (debugLog) console.log('[page]', (debugLog || '').trim())
+
+      return renderCMS(cms_page, internal.observable, {
+        debugLog: 'gen-page',
         defer: true,
         type: 'page',
         params,
-        render: () => {},
+        render,
       })
-
-      const refreshPage = () => {
-        internal.component = observer(() => {
-          const meta = useLocalObservable(() => internal.meta)
-          const render = useRender()
-          try {
-            const result = renderCMS(cms_page, meta, {
-              defer: false,
-              type: 'page',
-              params,
-              render,
-            })
-            result.effects.forEach((e) => {
-              useEffect(() => {
-                if (!result.loading) {
-                  try {
-                    return e.run({
-                      dev: false,
-                      db: db,
-                      dbAll: dbAll,
-                      api: api,
-                    })
-                  } catch (e) {
-                    console.error(e)
-                  }
-                }
-              }, e.deps || [])
-            })
-
-            if (result.loading) {
-              result.loading().then(render)
-            }
-
-            return result.page
-          } catch (e) {
-            return null;
-          }
-        })
-        internal.render()
-        internal.renderCount++
-      }
-
-      // execute initial page render loading
-      if (internal.renderCount === 0 && internal.cms.loading) {
-        internal.cms.loading().then(refreshPage)
-      }
-
-      const Page = internal.component
-      if (Page) return <Page />
-      refreshPage()
-      return internal.cms.page
     }
-  }
+    if (internal.cache === null) {
+      internal.cache = loadCache('init')
+      if (internal.cache.loading) {
+        internal.cache.loading().then(async () => {
+          internal.cache = loadCache('finished loading components')
+          while (internal.cache.loading) {
+            await internal.cache.loading
+            internal.cache = loadCache('finished loading components')
+          }
+          render()
+        })
+      } else {
+        render()
+      }
+    } else if (!internal.init && internal.cache.loadingCount === 0) {
+      internal.init = true
+      render()
+    }
 
-  return () => <></>
+    internal.cache.effects.forEach((e) => {
+      useEffect(() => {
+        waitUntil(() => internal.init).then(() => {
+          mobxObserve()
+
+          e.run({
+            meta: internal.observable,
+            dev: false,
+            db: db,
+            dbAll: dbAll,
+            api: api,
+          })
+        })
+      }, [...(e.deps || [])])
+    })
+
+    return internal.cache.page
+  })
 }
+
+const componentNoJSX = {}
 
 export const renderCMS = (
   cmsPage: (
@@ -109,10 +139,14 @@ export const renderCMS = (
     user: any,
     params: any,
     css: any,
-    meta: any
+    meta: any,
+    base: any,
+    children?: any
   ) => any,
   meta: any,
   opt: {
+    debugLog?: string
+    children?: any
     type: 'component' | 'layout' | 'page'
     defer: boolean
     params: any
@@ -129,7 +163,7 @@ export const renderCMS = (
   const h = (tag: string, props: any, ...children: any[]) => {
     let finalProps: any = undefined
 
-    if (tag === 'img' && props.src.indexOf('/fimgs/') === 0) {
+    if (tag === 'img' && get(props, 'src', '').indexOf('/fimgs/') === 0) {
       if (!window.figmaImageCaches) {
         window.figmaImageCaches = {}
       }
@@ -159,12 +193,14 @@ export const renderCMS = (
               }
               def.component = result
 
-              if (localStorage[`ccx-${tag}`]) {
-                def.template.code = localStorage[`ccx-${tag}`]
-              } else {
-                const res = await fetch(`/components/${tag}.ccx`)
-                def.template.code = await res.text()
-                localStorage[`ccx-${tag}`] = def.template.code
+              if (!def.template.code && !componentNoJSX[tag]) {
+                const res = await fetch(`/__component/${tag}.js`)
+                const text = await res.text()
+                if (text === 'null') {
+                  componentNoJSX[tag] = true
+                } else {
+                  def.template.code = text
+                }
               }
 
               def.template.loading = false
@@ -209,6 +245,7 @@ export const renderCMS = (
       }
       component = def.component
     }
+
     if (props) {
       finalProps = {}
       for (let [k, v] of Object.entries(props)) {
@@ -218,6 +255,8 @@ export const renderCMS = (
               finalProps['css'] = css`
                 ${v}
               `
+            } else if (typeof v === 'object' && !!(v as any).styles) {
+              finalProps['css'] = v
             }
             break
           case 'class':
@@ -241,7 +280,7 @@ export const renderCMS = (
       }
     }
 
-    if (tag === 'fragment') {
+    if (tag === 'fragment' || tag === 'fnode') {
       component = Fragment
     }
     if (tag === 'effect') {
@@ -254,8 +293,14 @@ export const renderCMS = (
       return ''
     }
 
-    if (component && component !== Fragment) {
+    if (component) {
       if (!finalProps) finalProps = {}
+
+      if (component === Fragment) {
+        for (let k of Object.keys(finalProps)) {
+          if (k !== 'key') delete finalProps[k]
+        }
+      }
     }
     const result = jsx(
       component ? component : tag,
@@ -271,24 +316,34 @@ export const renderCMS = (
 
   let page = <></>
 
-  try {
-    page = cmsPage(
-      db,
-      api,
-      window.action,
-      window.runInAction,
-      h,
-      window.fragment,
-      {},
-      {},
-      window.user,
-      params,
-      css,
-      meta
+  const baseRunner: typeof base = (effect, content) => {
+    return (
+      <>
+        {h('effect', { meta: effect.meta, run: effect.init })}
+        {content(
+          { meta: meta as any, children: opt.children },
+          (cmsPage as any).__extract
+        )}
+      </>
     )
-  } catch (e) {
-    console.error(cmsPage.toString(), '\n\n', e)
   }
+
+  page = cmsPage(
+    db,
+    api,
+    window.action,
+    window.runInAction,
+    h,
+    window.fragment,
+    {},
+    {},
+    window.user,
+    params,
+    css,
+    meta,
+    baseRunner,
+    opt.children
+  )
 
   const loadingCount = Object.keys(loading).length
   if (loadingCount > 0 && opt.defer) {
@@ -305,6 +360,13 @@ export const renderCMS = (
     loading:
       loadingCount > 0
         ? async () => {
+            // if (window.is_dev)
+            //   console.log(
+            //     '[base] loading:',
+            //     Object.keys(loading)
+            //       .map((e) => `<${e}/>`)
+            //       .join(' ')
+            //   )
             await Promise.all(Object.values(loading))
             return true
           }

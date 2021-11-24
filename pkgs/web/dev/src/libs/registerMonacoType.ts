@@ -1,6 +1,6 @@
-import { extendExternals } from 'web.init/src/mobile/mobile-ext'
-import { api } from 'web.utils/src/api'
-import type { BaseWindow } from '../../../init/src/window'
+import { extendExternals } from 'web-init/src/mobile/mobile-ext'
+import { api } from 'web-utils/src/api'
+import { BaseWindow } from '../../../init/src/window'
 
 declare const window: BaseWindow
 export const registerMonacoType = async (monaco) => {
@@ -11,7 +11,7 @@ export const registerMonacoType = async (monaco) => {
     types: await api('__data/types', undefined),
     global: await api('__data/global', undefined),
   }
-
+  
   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
     ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
     // isolatedModules: true,
@@ -47,7 +47,6 @@ export const registerMonacoType = async (monaco) => {
 
 
   const types = Object.keys(ts.types)
-
   ts.react =
     `
     ${Object.values(ts.types).join('\n')}

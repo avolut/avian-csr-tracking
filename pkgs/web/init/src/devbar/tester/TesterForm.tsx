@@ -4,10 +4,10 @@ import { DefaultButton, Spinner, TextField } from '@fluentui/react'
 import Editor, { loader, useMonaco } from '@monaco-editor/react'
 import { waitUntil } from 'libs/src/wait-until'
 import { useEffect, useRef } from 'react'
-import { api } from 'web.utils/src/api'
-import { useRender } from 'web.utils/src/useRender'
-import type { BaseWindow } from '../../window'
-import type { ISingleTest } from './Tester'
+import { api } from 'web-utils/src/api'
+import { useRender } from 'web-utils/src/useRender'
+import { BaseWindow } from '../../window'
+import { ISingleTest } from './Tester'
 
 declare const window: BaseWindow
 
@@ -192,7 +192,12 @@ export const TesterForm = ({
           )}
         </div>
       </div>
-      <Editor
+    </div>
+  )
+}
+
+{
+  /* <Editor
         css={css`
           .margin {
             margin: 0px !important;
@@ -221,7 +226,5 @@ export const TesterForm = ({
         defaultLanguage={'javascript'}
         language={'javascript'}
         defaultValue={test.code}
-      />
-    </div>
-  )
+      /> */
 }

@@ -1,0 +1,1 @@
+require("./pkgs/platform.js")

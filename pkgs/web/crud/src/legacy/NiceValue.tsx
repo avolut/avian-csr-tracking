@@ -6,7 +6,7 @@ import trim from 'lodash.trim'
 import { action } from 'mobx'
 import { Observer, useLocalObservable } from 'mobx-react-lite'
 import React from 'react'
-import { picomatch } from 'web.utils/src/picomatch'
+import { picomatch } from 'web-utils/src/picomatch'
 import EmptyCell from './EmptyValue'
 
 const NiceValue = ({
@@ -186,7 +186,7 @@ const NiceValue = ({
                                       fontSize: 13,
                                       whiteSpace: 'nowrap',
                                     }}
-                                    className="select-none hover:bg-green-100"
+                                    className="select-none hover:bg-blue-100"
                                   >
                                     {startCase(key)}
                                   </td>
@@ -201,7 +201,7 @@ const NiceValue = ({
                                       wordWrap: 'break-word',
                                       whiteSpace: 'pre-wrap',
                                     }}
-                                    className="hover:bg-green-100"
+                                    className="hover:bg-blue-100"
                                   >
                                     <div
                                       style={{

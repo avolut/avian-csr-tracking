@@ -2,20 +2,17 @@
 
 import { css, jsx } from '@emotion/react'
 import { db, waitUntil } from 'libs'
-import cloneDeep from 'lodash.clonedeep'
 import get from 'lodash.get'
 import { createContext, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { niceCase } from 'web.utils/src/niceCase'
-import { removeCircular } from 'web.utils/src/removeCircular'
-import { useRender } from 'web.utils/src/useRender'
-import type { ITableDefinitions } from '../../../ext/types/qlist'
+import { BaseWindow } from 'web-init/src/window'
+import { niceCase } from 'web-utils/src/niceCase'
+import { removeCircular } from 'web-utils/src/removeCircular'
+import { useRender } from 'web-utils/src/useRender'
+import { ITableDefinitions } from '../../../ext/types/qlist'
 import { ICRUDContext } from '../../../ext/types/__crud'
 import { IBaseFormContext } from '../../../ext/types/__form'
-import type {
-  IBaseListContext,
-  IBaseListProps,
-} from '../../../ext/types/__list'
+import { IBaseListContext, IBaseListProps } from '../../../ext/types/__list'
+import { dbAll } from '../../../init/node_modules/db/src'
 import { initializeState, saveState } from '../context-state'
 import { generateStateID } from '../CRUD'
 import { deepUpdate, weakUpdate } from '../form/BaseForm'
@@ -42,6 +39,7 @@ export const BaseList = (props: IBaseListProps) => {
     platform: platformProp,
     onLoad,
     lateQuery,
+    beforeQuery,
     wrapList,
     onInit,
     children,
@@ -70,7 +68,7 @@ export const BaseList = (props: IBaseListProps) => {
 
   let platform: 'web' | 'mobile' = platformProp as any
   if (!platform) {
-    platform = window.platform
+    window.platform = window.platform
   }
 
   useEffect(() => {
@@ -135,7 +133,7 @@ export const BaseList = (props: IBaseListProps) => {
       meta.init = true
 
       if (meta.queryOnInit) {
-        await meta.state.db.query()
+        await meta.state.db.query('on init ' + meta.state.db.tableName)
       }
     })()
 
@@ -178,7 +176,7 @@ export const BaseList = (props: IBaseListProps) => {
     <meta.ctx.Provider value={meta.state}>
       {showFilter ? (
         <>
-          {platform === 'web' &&
+          {window.platform === 'web' &&
             {
               topbar: (
                 <div className="flex flex-col flex-1 self-stretch">
@@ -198,8 +196,32 @@ export const BaseList = (props: IBaseListProps) => {
                   </div>
                 </div>
               ),
+              sideleft: (
+                <div
+                  className="flex flex-row flex-1 self-stretch"
+                  css={css`
+                    /* .divider {
+                      display: none;
+                    } */
+                    .filter-container {
+                      .pure-tab {
+                        margin-right: -1px;
+                      }
+                    }
+                  `}
+                >
+                  {showFilter && (
+                    <div className="filter-container flex items-stretch justify-between border-r border-gray-300">
+                      <Filter ctx={meta.ctx} />
+                    </div>
+                  )}
+                  <div className="flex flex-1 item-center relative">
+                    <Table ctx={meta.ctx} />
+                  </div>
+                </div>
+              ),
             }[get(meta, 'state.filter.web.mode')]}
-          {platform === 'mobile' && (
+          {window.platform === 'mobile' && (
             <div className="flex flex-col flex-1 self-stretch relative">
               <Filter ctx={meta.ctx} />
               <Table ctx={meta.ctx} />
@@ -228,7 +250,6 @@ const prepareFilter = async (state: IBaseListContext) => {
   const params = state.db.params
   const filter = state.filter
   const final = JSON.parse(JSON.stringify(params || {}, removeCircular())) || {}
-
   if (!filter.instances) {
     filter.instances = {}
   }
@@ -314,6 +335,15 @@ const initializeList = async (state: IBaseListContext) => {
       } else {
         mflt.columns = defaultCols
       }
+
+      if (mflt.alter) {
+        for (let [key, _] of Object.entries(mflt.alter)) {
+          if (!mflt.columns[key]) {
+            mflt.columns.unshift([key, { title: niceCase(key) }])
+          }
+        }
+      }
+
       if (!mflt.instances) {
         mflt.instances = {}
       }
@@ -330,10 +360,6 @@ const initializeList = async (state: IBaseListContext) => {
     if (!mflt.instances) {
       mflt.instances = {}
     }
-
-    if (mtbl.columns.length <= 1) {
-      mtbl.web.showHeader = false
-    }
   }
 }
 
@@ -348,7 +374,7 @@ const initializeComponent = async (
     component.Table = window.baseListComponent[platform].Table
     component.Filter = window.baseListComponent[platform].Filter
   } else {
-    if (platform === 'web') {
+    if (window.platform === 'web') {
       if (!component.Table)
         component.Table = (await import('./web/BaseListWeb')).BaseListWeb
       if (!component.Filter)
@@ -509,6 +535,9 @@ const createListContext = (
     action,
     params,
     onLoad,
+    scroll,
+    onScroll,
+    beforeQuery,
     lateQuery,
     wrapList,
     onInit,
@@ -532,11 +561,29 @@ const createListContext = (
   let enableFilter = !!filter
 
   if (filter === undefined) {
-    if (platform === 'web') {
+    if (window.platform === 'web') {
       enableFilter = !customRenderRow
     } else {
       enableFilter = true
     }
+  }
+
+  const getState = () => {
+    let state = meta.state
+    if (state.tree.parent) {
+      if (state.tree.parent.tree.children.list) {
+        state = state.tree.parent.tree.children.list as IBaseListContext
+      }
+    }
+    return state
+  }
+
+  let mfilter: any = filter
+  if (get(mobile, 'searchTitle')) {
+    if (!mfilter) {
+      mfilter = {}
+    }
+    mfilter.quickSearchTitle = get(mobile, 'searchTitle')
   }
 
   const result: IBaseListContext = {
@@ -548,12 +595,14 @@ const createListContext = (
     filter: {
       ...{
         enable: enableFilter,
-        web: {
-          mode: 'topbar',
-        },
         render: () => {},
       },
-      ...filter,
+      ...mfilter,
+      web: {
+        selector: true,
+        mode: 'topbar',
+        ...get(filter, 'web', {}),
+      },
     } as any,
     header: {
       ...{
@@ -572,6 +621,8 @@ const createListContext = (
       },
       editable,
       columns,
+      lastScroll: scroll,
+      onScroll: onScroll,
       onRowClick,
       wrapRow,
       customRenderRow,
@@ -580,46 +631,149 @@ const createListContext = (
     db: {
       definition: null,
       sql: query || '',
+      beforeQuery,
       lateQuery,
-      query: async () => {
-        const mdb = meta.state.db
-        const mtbl = meta.state.table
+      queryTimeout: null as unknown as ReturnType<typeof setTimeout>,
+      paging: {
+        take: 150,
+        skip: 0,
+        fetching: false,
+        allRowFetched: false,
+        reset: () => {
+          const state = getState()
+          const mdb = state.db
+          mdb.paging.skip = 0
+          mdb.paging.fetching = false
+          mdb.paging.allRowFetched = false
+          mdb.paging.fetching = false
+        },
+        loadNext: async () => {
+          const state = getState()
+          const mdb = state.db
+          if (!mdb.paging.allRowFetched) {
+            mdb.paging.skip += mdb.paging.take
+            mdb.paging.fetching = true
+            mdb.query()
+          }
+        },
+      },
+      query: async (reason?: string) => {
+        const state = getState()
+        const mdb = state.db
+
+        if (state.db.beforeQuery) {
+          state.db.beforeQuery(state)
+        }
+
+        const mtbl = state.table
         if (mtbl.customRenderRow) {
           mtbl.web.showHeader = false
         }
 
-        const finalParams = await prepareFilter(meta.state)
+        const finalParams = await prepareFilter(state)
+
         if (!!mdb.tableName) {
           // preparation
           mdb.loading = true
           if (!mdb.definition) {
-            await initializeList(meta.state)
+            await initializeList(state)
           }
           render()
 
-          // load db result
-          const result = await db[mdb.tableName].findMany(finalParams)
+          // load db result, partially
+          const include = finalParams.include
+          const hasInclude = !!include && Object.keys(include).length > 0
+          delete finalParams.include
+
+          finalParams.skip = mdb.paging.skip
+          finalParams.take = mdb.paging.take
+
+          let result = await db[mdb.tableName].findMany(finalParams)
+
+          if (mdb.paging.fetching) {
+            if (result.length === 0) {
+              mdb.paging.allRowFetched = true
+            }
+            result = [...mdb.list, ...result]
+            mdb.paging.fetching = false
+          }
+
+          const rowMap = {}
+
+          if (hasInclude && mdb.definition) {
+            for (let row of result) {
+              rowMap[row[mdb.definition.pk]] = row
+              for (let [k, v] of Object.entries(include)) {
+                const rel = mdb.definition.rels[k]
+                if (!row[k] && rel) {
+                  if (rel.relation === 'Model.BelongsToOneRelation') {
+                    row[k] = {}
+
+                    const deepFill = (row, v) => {
+                      if (typeof v === 'object' && !!v) {
+                        for (let sk of Object.keys(v)) {
+                          if (sk === 'where' || sk === 'orderBy') continue
+                          if (sk === 'include' || sk === 'select') {
+                            deepFill(row, v[sk])
+                          } else {
+                            row[sk] = {}
+                            deepFill(row[sk], v[sk])
+                          }
+                        }
+                      }
+                    }
+                    deepFill(row[k], v)
+                  } else if (rel.relation === 'Model.HasManyRelation')
+                    row[k] = []
+                }
+              }
+            }
+            mdb.partialLoading = true
+          }
           mdb.list = result
+          mdb.loading = false
+          render()
+
+          if (hasInclude && mdb.definition) {
+            const pk = mdb.definition.pk
+            const relParams = { ...finalParams }
+
+            relParams.select = { [pk]: true, ...include }
+            relParams.where = {
+              [pk]: {
+                in: mdb.list.map((e) => e[pk]),
+              },
+            }
+
+            const relRows = await db[mdb.tableName].findMany(relParams)
+            for (const row of relRows) {
+              const id = row[mdb.definition.pk]
+              for (let [k, v] of Object.entries(row)) {
+                rowMap[id][k] = v
+              }
+            }
+            mdb.partialLoading = false
+            render()
+          }
         } else if (mdb.sql) {
           // preparation
           mdb.loading = true
           render()
 
           // load db result
-          const sql =
-            typeof mdb.sql === 'string' ? mdb.sql : mdb.sql(meta.state)
+          const sql = typeof mdb.sql === 'string' ? mdb.sql : mdb.sql(state)
 
           const result = await db.query(
             typeof sql === 'string' ? sql : await sql
           )
 
           mdb.list = result
-          if (!mdb.definition) await initializeList(meta.state)
+          if (!mdb.definition) await initializeList(state)
         } else if (mdb.list !== undefined) {
         }
 
         if (onLoad) {
-          onLoad(mdb.list, meta.state)
+          onLoad(mdb.list, state)
         }
 
         // done
@@ -627,7 +781,8 @@ const createListContext = (
         render()
       },
       setSort: (column) => {
-        const mdb = meta.state.db
+        const state = getState()
+        const mdb = state.db
 
         const defaultOrderBy = baseListFormatOrder(
           get(mdb, 'defaultParams.orderBy')
@@ -687,8 +842,10 @@ const createListContext = (
         return meta.rawList
       },
       set list(value: any[]) {
-        meta.rawList = populateList(value, meta.rawList, meta.state)
+        const state = getState()
+        meta.rawList = populateList(value, meta.rawList, state)
       },
+      partialLoading: false,
       loading: true,
     },
     tree: {

@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import type { BaseWindow } from 'web.init/src/window'
+import { BaseWindow } from 'web-init/src/window'
 
 declare const window: BaseWindow
 export const useComponent = (
@@ -23,21 +23,20 @@ export const useComponent = (
         extract.push(`const ${k} = _component.extract["${k}"];`)
       }
     }
-    
 
     return {
       render: `\
-(() => {
+  const _component = this;
   ${extract.join('\n  ')}
   const params = _component.extract.params || {};
   ${def.template.code}
-  return ccx_component();
-})()
+  const finalResult = ccx_component(_component.extract);
+  return finalResult;
 `,
       extract: passthrough,
     }
   } else {
-    console.error(def);
+    console.error(`[ERROR] Failed to load component <${name} />, code not found.`)
   }
 
   return {

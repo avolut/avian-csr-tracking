@@ -1,11 +1,12 @@
-import { MSection } from './MSection'
-import { MInfo } from './Minfo'
-import { MUnknown } from './MUnknown'
 import { MBelongsTo } from './MBelongsTo'
-import { MText } from './MText'
-import { MSelect } from './MSelect'
+import { MCustomPopup } from './MCustomPopup'
 import { MDate } from './MDate'
 import { MFile } from './MFile'
+import { MInfo } from './Minfo'
+import { MSection } from './MSection'
+import { MSelect } from './MSelect'
+import { MText } from './MText'
+import { MUnknown } from './MUnknown'
 
 export default {
   unknown: MUnknown,
@@ -18,6 +19,7 @@ export default {
   multiline: MText,
   string: MText,
   select: MSelect,
+  'custom-popup': MCustomPopup,
   date: MDate,
   file: MFile,
   'belongs-to': MBelongsTo,

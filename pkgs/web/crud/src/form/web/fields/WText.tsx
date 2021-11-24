@@ -2,8 +2,8 @@
 import { jsx, css } from '@emotion/react'
 import { TextField } from '@fluentui/react'
 import { useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import type { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import type { IBaseFieldProps } from '../../../../../ext/types/__form'
 import set from 'lodash.set'
 import get from 'lodash.get'
@@ -38,22 +38,27 @@ export const WText = ({ name, internalChange, ctx }: IBaseFieldProps) => {
   let autoAdjustHeight = true
   if (state.type === 'password') type = 'password'
   if (!meta.init) return <>not init</>
-  if(state.type === 'multiline' && (state.name === 'cctv' || state.name == 'ews')){
-    rows = 20
-    autoAdjustHeight = false
-  }
 
   return (
     <>
       <TextField
+        name={name}
         css={css`
           .ms-TextField-fieldGroup,
           textarea {
             min-height: 30px !important;
           }
         `}
+        {...state.fieldProps}
         value={meta.value}
         type={type}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && state.type !== 'multiline') {
+            e.stopPropagation()
+            e.preventDefault()
+            state.parent?.db.save()
+          }
+        }}
         multiline={state.type === 'multiline'}
         autoAdjustHeight={autoAdjustHeight}
         rows={rows}
@@ -63,6 +68,7 @@ export const WText = ({ name, internalChange, ctx }: IBaseFieldProps) => {
             state.render()
           }
         }}
+        canRevealPassword={true}
         onFocus={() => {
           if (state.type === 'money') {
             meta.value = meta.value.replace(/\D/g, '')

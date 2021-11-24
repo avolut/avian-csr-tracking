@@ -26,7 +26,7 @@ export const ensureProject = async (
     ...(opt ? opt.files : {}),
   }
 
-  let shouldYarn = false
+  let shouldPnpmInstall = false
 
   const walk = async (
     items: Record<string, string | any>,
@@ -46,12 +46,12 @@ export const ensureProject = async (
       } else {
         if (!(await pathExists(wpath))) {
           await writeFile(wpath, v.trim())
-          shouldYarn = true
+          shouldPnpmInstall = true
         }
       }
     }
   }
 
   await walk(files, [])
-  return shouldYarn
+  return shouldPnpmInstall
 }

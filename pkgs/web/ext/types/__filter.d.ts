@@ -49,7 +49,7 @@ export interface IFilterItemTab extends IFilterBase {
   value: string
   type: 'tab'
   items: (string | { label: string; value: string })[]
-  operator: ''
+  position: 'top' | 'left'
 }
 
 export interface IFilterItemInvisible extends IFilterBase {

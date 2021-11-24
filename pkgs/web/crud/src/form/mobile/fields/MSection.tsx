@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { useContext } from 'react'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 
 export const MSection = ({ ctx, name }: IBaseFieldProps) => {
   const form = useContext(ctx)

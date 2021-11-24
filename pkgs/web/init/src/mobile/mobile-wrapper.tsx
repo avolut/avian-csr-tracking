@@ -32,6 +32,14 @@ export const MobileWrapper = ({ children }) => {
           padding: 2px 0px;
         }
 
+        .framework7-root > .view > .page-next,
+        .framework7-root > .view > .page-previous,
+        .framework7-root > .view > .page-current {
+          & > .page-content > .page > .page-content > div {
+            height: 100%;
+          }
+        }
+
         .f7-icons,
         .framework7-icons {
           font-family: 'Framework7 Icons';
@@ -77,7 +85,7 @@ export const MobileWrapper = ({ children }) => {
             border-top-left-radius: 15px;
             border-top-right-radius: 15px;
             &.no-line {
-              background: #F9FAFB;
+              background: #f9fafb;
               border-bottom: 0px;
               min-height: 35px;
             }

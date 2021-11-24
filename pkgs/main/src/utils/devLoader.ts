@@ -2,9 +2,6 @@ import { dirs } from 'boot'
 import { Plugin } from 'esbuild'
 import { lstat, pathExists, readdir, readJSON, stat } from 'fs-extra'
 import { join } from 'path'
-import { CustomGlobal } from '../start'
-
-declare const global: CustomGlobal
 export const devLoader: Plugin = {
   name: 'dev-loader',
   setup: async function (build) {

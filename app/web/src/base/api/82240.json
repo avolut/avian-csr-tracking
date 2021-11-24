@@ -1,0 +1,6 @@
+{
+  "id": "82240",
+  "name": "update-password",
+  "type": "API",
+  "url": "/api/update-password"
+}

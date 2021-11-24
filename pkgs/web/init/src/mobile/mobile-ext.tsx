@@ -33,5 +33,9 @@ export const extendExternals = () => {
     'm-cardcontent': () => [require('../../../mobile/src/m-cardcontent')],
     'm-cardfooter': () => [require('../../../mobile/src/m-cardfooter')],
     'm-cardheader': () => [require('../../../mobile/src/m-cardheader')],
+    'm-app-bar': () => [require('../../../mobile/src/m-app-bar')],
+    'm-panel': () => [require('../../../mobile/src/m-panel')],
+    'm-swiper': () => [require('../../../mobile/src/m-swiper')],
+    'm-swiper-slide': () => [require('../../../mobile/src/m-swiper-slide')],
   }
 }

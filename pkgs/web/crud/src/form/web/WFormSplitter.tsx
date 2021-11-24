@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/react'
 import { ReactElement, useEffect, useRef } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
-import { useRender } from 'web.utils/src/useRender'
+import { useRender } from 'web-utils/src/useRender'
 
 import { DndProvider } from 'react-dnd'
 import { TouchBackend } from 'react-dnd-touch-backend'
@@ -17,6 +17,9 @@ interface IWFormSplitter {
 }
 
 export const WFormSplitter = (props: IWFormSplitter) => {
+  if (props.mode === 'left' || props.mode === 'right') {
+    return <WFormSplitterInternal {...props} enabled={false} />
+  }
   return (
     <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
       <WFormSplitterInternal {...props} />
@@ -145,8 +148,7 @@ const WFormSplitterInternal = ({
             : meta.size.current + (unit === 'percent' ? '%' : 'px')};
         `}
       >
-        {/* <div className="split-master flex flex-1 absolute inset-0 overflow-auto"> */}
-        <div className="split-master absolute inset-0 overflow-auto mb-5">
+        <div className="split-master flex flex-1 absolute inset-0 overflow-auto">
           {meta.master}
         </div>
       </div>

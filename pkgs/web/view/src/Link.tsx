@@ -2,7 +2,7 @@
 import { css, jsx } from '@emotion/react'
 import throttle from 'lodash.throttle'
 import { forwardRef, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
+import { BaseWindow } from 'web-init/src/window'
 
 declare const window: BaseWindow
 

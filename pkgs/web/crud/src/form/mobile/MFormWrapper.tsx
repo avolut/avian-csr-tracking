@@ -1,13 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import Button from 'web.mobile/src/m-button'
+import Button from 'web-mobile/src/m-button'
 import { Context, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import { lang } from '../../lang/lang'
-import type { IBaseFormContext } from '../../../../ext/types/__form'
-import type { ICRUDContext } from '../../../../ext/types/__crud'
-import type { IBaseListContext } from '../../../../ext/types/__list'
+import { IBaseFormContext } from '../../../../ext/types/__form'
+import { ICRUDContext } from '../../../../ext/types/__crud'
+import { IBaseListContext } from '../../../../ext/types/__list'
 
 declare const window: BaseWindow
 
@@ -48,6 +48,7 @@ export const MFormWrapper = ({
       <div className="flex flex-col h-full w-full">
         <div className="flex flex-1 flex-col pb-20 overflow-y-auto relative">
           {state.config.header.action &&
+            typeof state.config.header.action !== 'function' &&
             state.config.header.action.save !== false && (
               <div
                 className="absolute z-10 pointer-events-none bottom-0 inset-x-0"
@@ -63,7 +64,7 @@ export const MFormWrapper = ({
               ></div>
             )}
           <div
-            className="absolute inset-0 overflow-x-hidden"
+            className="form-content absolute inset-0 overflow-x-hidden"
             css={css`
               background-color: #f9fafb;
             `}
@@ -128,6 +129,7 @@ export const MFormWrapper = ({
         </div>
 
         {state.config.header.action &&
+          typeof state.config.header.action !== 'function' &&
           state.config.header.action.save !== false && (
             <div
               className="flex flex-row items-stretch"
@@ -166,7 +168,7 @@ export const MFormWrapper = ({
                       list.table.render()
                     } else {
                       await parent.crud.setMode('list')
-                      list.db.query()
+                      list.db.query('change mode to list')
                     }
                   }
                 }}

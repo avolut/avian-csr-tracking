@@ -4,7 +4,7 @@ import { IColumn } from '@fluentui/react'
 import format from 'date-fns/format'
 import get from 'lodash.get'
 import { Context, useContext } from 'react'
-import { useRender } from 'web.utils/src/useRender'
+import { useRender } from 'web-utils/src/useRender'
 import {
   IBaseListContext,
   IBaseListRowMeta

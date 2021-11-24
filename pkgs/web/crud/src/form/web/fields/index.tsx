@@ -1,6 +1,6 @@
 import { WBelongsTo } from './WBelongsTo'
 import { WDate } from './WDate'
-import { WDateTIme } from './WDateTIme'
+import { WDateTime } from './WDateTime'
 import { WInfo } from './Winfo'
 import { WSelect } from './WSelect'
 import { WText } from './WText'
@@ -17,7 +17,7 @@ export default {
   money: WText,
   multiline: WText,
   date: WDate,
-  datetime: WDateTIme,
+  datetime: WDateTime,
   select: WSelect,
   boolean: WBoolean,
   'belongs-to': WBelongsTo,
@@ -25,5 +25,5 @@ export default {
   info: WInfo,
   section: WSection,
   decimal: WText,
-  file: WFileUpload
+  file: WFileUpload,
 }

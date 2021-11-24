@@ -2,8 +2,8 @@
 import { jsx, css } from '@emotion/react'
 import { Label } from '@fluentui/react'
 import { useContext } from 'react'
-import { niceCase } from 'web.utils/src/niceCase'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { niceCase } from 'web-utils/src/niceCase'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 
 export const WSection = ({ ctx, name }: IBaseFieldProps) => {
   const form = useContext(ctx)

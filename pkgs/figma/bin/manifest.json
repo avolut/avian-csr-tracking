@@ -4,6 +4,9 @@
   "name": "Figma Base",
   "main": "plugin.js",
   "ui": "ui.html",
+  "editorType": [
+    "figma"
+  ],
   "enablePrivatePluginApi": true,
   "relaunchButtons": [
     {

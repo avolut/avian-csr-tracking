@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/react'
 import { Sheet } from 'framework7-react'
 import { useRef, useEffect } from 'react'
-import { useRender } from 'web.utils/src/useRender'
+import { useRender } from 'web-utils/src/useRender'
 import { createPortal } from 'react-dom'
 
 export default (rawProps) => {

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { useComponent } from 'web.utils/component'
+import { useComponent } from 'web-utils/component'
 
 interface IProps {
   children: any
@@ -27,5 +27,5 @@ export default ({
     style,
     disabled,
   })
-  return eval(_component.render)
+  return new Function(_component.render).bind(_component)()
 }

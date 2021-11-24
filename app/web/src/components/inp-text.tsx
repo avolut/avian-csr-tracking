@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/react";
-import { useComponent } from "web.utils/component";
+import { useComponent } from "web-utils/component";
 import { TextField } from "@fluentui/react";
 
 interface IProps {
@@ -21,5 +21,5 @@ interface IProps {
 export default (props: IProps) => {
   // errors={props.errors}
   const _component = useComponent("inp-text","/app/web/src/components/inp-text",{ TextField, props });
-  return eval(_component.render)
+  return new Function(_component.render).bind(_component)()
 }

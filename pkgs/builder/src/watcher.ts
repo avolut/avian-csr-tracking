@@ -1,5 +1,6 @@
 import chokidar from 'chokidar'
 import { Stats } from 'fs'
+import { Builder } from '.'
 
 export type TFsEventName = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir'
 
@@ -7,11 +8,14 @@ export class Watcher {
   dirs: string[]
   private watcher: any
   private _lastChangedFile: { filename?: string; timestamp?: number } = {}
+  private _builder: any
 
   constructor(
     dirs: string[],
-    onChange: (event: string, path: string) => Promise<void>
+    onChange: (event: string, path: string, builder?: Builder) => Promise<void>,
+    builder?: Builder
   ) {
+    this._builder = builder
     this.dirs = dirs
     this.watcher = chokidar
       .watch(this.dirs, {
@@ -33,11 +37,10 @@ export class Watcher {
             return
           }
         }
-
         this._lastChangedFile.filename = filepath
         this._lastChangedFile.timestamp = Date.now()
 
-        onChange(eventName, filepath)
+        onChange(eventName, filepath, this._builder)
       })
   }
 

@@ -1,169 +1,142 @@
-import { dirs } from 'boot'
+import { dirs, log } from 'boot'
 import { BuilderPool } from 'builder'
-import { ensureDir, pathExists, remove } from 'fs-extra'
+import esbuild from 'esbuild'
+import execa from 'execa'
+import { pathExists, readFile, remove } from 'fs-extra'
+import klaw from 'klaw'
+import { padEnd } from 'lodash'
+import MemoryFS from 'memory-fs'
 import { join } from 'path'
-import tailwind from 'tailwindcss'
+import { publicBundle } from 'src/bundler/public/public'
+import { aliasLoader } from 'src/utils/aliasLoader'
+import { cssLoader } from 'src/utils/cssLoader'
 import webpack from 'webpack'
-import Webpackbar from 'webpackbar'
-import type { CustomGlobal } from '../start'
-import { copyDir } from '../utils/copyDir'
-import { overrideWebIndex } from '../utils/overrideWebIndex'
-import { InjectManifest } from 'workbox-webpack-plugin'
-import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import { bundlePublicExtra, TailwindExportStream } from './build-web-dev'
 
-declare const global: CustomGlobal
+export const buildWebProd = async (pool: BuilderPool, mode: 'dev' | 'prod') => {
+  process.stdout.write(' • Web\n')
 
-export const buildWebProd = async (
-  shouldYarn: Record<string, boolean>,
-  pool: BuilderPool,
-  mode: 'dev' | 'prod'
-) => {
-  process.stdout.write(' • Web\n\n')
+  if (await pathExists(join(dirs.build, 'prod')))
+    await remove(join(dirs.build, 'prod'))
+  try {
+    log('prod', padEnd('Running ESBuild', 30, '.'), false)
+    await Promise.all([buildProd(), runTailwind()])
+    process.stdout.write('[DONE]\n')
 
-  await ensureDir(join(dirs.app.web, 'build'))
-  if (await pathExists(join(dirs.app.web, 'build', 'web'))) {
-    await remove(join(dirs.app.web, 'build', 'web'))
+    log('prod', padEnd('Bundling', 30, '.'), false)
+    await bundle()
+    process.stdout.write('[DONE]\n')
+
+    // await publicBundle.db.compressAll('public')
+    // process.stdout.write('[DONE]\n')
+  } catch (e) {
+    console.log('')
+    console.error(e)
   }
-  const start = new Promise<void>((resolve) => {
-    const twconfig = require(join(dirs.app.web, 'tailwind.config.js'))
+}
 
-    webpack(
-      {
-        entry: join(dirs.app.web, 'src', 'index.tsx'),
-        target: 'web',
-        mode: 'production',
-        // mode: 'development',
-        // devtool: 'eval',
-        module: {
-          rules: [
-            {
-              test: /\.js$/,
-              enforce: 'pre',
-              use: ['source-map-loader'],
-            },
-            {
-              test: /\.css$/i,
-              use: [
-                {
-                  loader: MiniCssExtractPlugin.loader,
-                  options: {
-                    publicPath: join(dirs.app.web, 'public'),
-                  },
-                },
-                {
-                  loader: 'css-loader',
-                  options: {
-                    importLoaders: true,
-                    url: false,
-                  },
-                },
-                {
-                  loader: 'postcss-loader',
-                  options: {
-                    postcssOptions: {
-                      plugins: [
-                        tailwind({
-                          ...twconfig,
-                          mode: 'jit',
-                          enabled: true,
-                          purge: {
-                            enabled: true,
-                            content: [
-                              join(dirs.pkgs.web, '**/*.tsx'),
-                              join(dirs.app.web, 'src', '**/*.tsx'),
-                              join(dirs.app.web, 'src', '**/*.html'),
-                              join(dirs.app.web, 'cms', '**/*.html'),
-                            ],
-                          },
-                        }),
-                        ['postcss-preset-env', {}],
-                      ],
-                    },
-                  },
-                },
-              ],
-            },
-            {
-              test: /\.tsx?$/,
-              use: [
-                {
-                  loader: 'babel-loader',
-                  options: {
-                    cacheDirectory: true,
-                    presets: [
-                      [
-                        '@babel/preset-env',
-                        {
-                          targets: {
-                            chrome: '45',
-                          },
-                        },
-                      ],
-                      ['@babel/preset-react'],
-                      [
-                        '@babel/preset-typescript',
-                        { isTSX: true, allExtensions: true },
-                      ],
-                    ],
-                    plugins: [['@babel/transform-runtime']],
-                  },
-                },
-              ],
-            },
-          ],
-        },
-        resolve: {
-          extensions: ['.tsx', '.ts', '.js'],
-        },
-        plugins: [
-          new MiniCssExtractPlugin(),
-          // new InjectManifest({
-          //   swSrc: join(
-          //     dirs.pkgs.web,
-          //     'init',
-          //     'src',
-          //     'web',
-          //     'service-worker.ts'
-          //   ),
-          //   swDest: 'sw.js',
-          // }),
-          new Webpackbar({}),
-        ],
-        output: {
-          filename: '[name].[fullhash].js',
-          path: join(dirs.app.web, 'build', 'web'),
-        },
-      },
-      (err: any, stats) => {
-        if (err) {
-          console.error(err.stack || err)
-          if (err.details) {
-            console.error(err.details)
-          }
-          return
-        }
+const bundle = async () => {
+  await Promise.all([bundlePublicExtra()])
+}
 
-        const info = stats.toJson()
+const buildProd = async () => {
+  const buildResult = await esbuild.build({
+    entryPoints: [join(dirs.app.web, 'src', 'index.tsx')],
+    platform: 'browser',
+    chunkNames: 'chunks/[name]-[hash]',
+    splitting: true,
+    bundle: true,
+    format: 'esm',
+    target: 'es6',
+    minify: true,
+    pure: ['getNodeInfo'],
+    treeShaking: true,
+    metafile: true,
+    outdir: join(dirs.build, 'prod', 'esm'),
+    plugins: [
+      aliasLoader({
+        from: /\@emotion\/react/,
+        to: join(
+          dirs.pkgs.web,
+          'init',
+          'node_modules',
+          '@emotion/react',
+          'dist',
+          'emotion-react.umd.min.js'
+        ),
+      }),
+      cssLoader(),
+    ],
+  })
 
-        if (stats.hasErrors()) {
-          for (let e of info.errors) {
-            console.log(`
-
-Path  : ${e.moduleName}
-Error : ${e.message.substr(0, 500)}
-
-`)
-          }
-        }
-        resolve()
-        console.log('')
-      }
+  klaw(join(dirs.build, 'prod', 'esm')).on('data', async (item) => {
+    if (!item.stats.isFile()) return
+    const path = item.path.substring(join(dirs.build, 'prod', 'esm').length + 1)
+    publicBundle.db.save(
+      'public',
+      'app/web/build/web/' + path,
+      await readFile(item.path)
     )
   })
-  await start
-  await copyDir(
-    join(dirs.app.web, 'public'),
-    join(dirs.app.web, 'build', 'web')
+
+  process.stdout.write('[DONE]\n')
+  log('prod', padEnd('Running Webpack', 30, '.'), false)
+
+  await convertToES5()
+}
+
+const runTailwind = async () => {
+  const tw = execa(
+    join(dirs.pkgs.main, 'node_modules', '.bin', 'tailwindcss'),
+    ['--minify', '-i', join(dirs.app.web, 'src', 'index.css')],
+    {
+      cwd: join(dirs.app.web),
+    }
   )
-  await overrideWebIndex(mode)
+
+  tw.stdout?.pipe(new TailwindExportStream())
+}
+
+export async function convertToES5() {
+  return new Promise<void>((resolve) => {
+    const fs = new MemoryFS()
+    const compiler = webpack({
+      mode: 'production',
+      target: ['web', 'es5'],
+      entry: [join(dirs.build, 'prod', 'esm', 'index.js')],
+      output: {
+        path: join(dirs.build, 'prod', 'es5'),
+        filename: 'index.js',
+        asyncChunks: true,
+      },
+      plugins: [
+        new webpack.DefinePlugin({
+          'process.env.NODE_ENV': 'production',
+          'process.env.DEBUG': false,
+        }),
+      ],
+    })
+
+    compiler.outputFileSystem = fs
+    compiler.run(function (err, stats) {
+      if (err) {
+        console.log('')
+        console.error(err)
+        return true
+      }
+      if (!!stats?.compilation.errors && stats?.compilation.errors.length > 0) {
+        console.log('')
+        console.log(stats?.compilation.errors)
+        return true
+      }
+      for (let [path, _] of Object.entries(stats?.compilation.assets || {})) {
+        publicBundle.db.save(
+          'public',
+          'app/web/build/web/old/' + path,
+          fs.readFileSync(join(dirs.build, 'prod', 'es5', path))
+        )
+      }
+      resolve()
+    })
+  })
 }

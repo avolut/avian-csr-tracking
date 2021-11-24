@@ -3,9 +3,9 @@ import { jsx } from '@emotion/react'
 import { DatePicker } from '@fluentui/react'
 import { parseISO } from 'date-fns/esm'
 import { useContext } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { shortFormatDate } from 'web.utils/src/formatDate'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { BaseWindow } from 'web-init/src/window'
+import { shortFormatDate } from 'web-utils/src/formatDate'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 import set from 'lodash.set'
 declare const window: BaseWindow
 

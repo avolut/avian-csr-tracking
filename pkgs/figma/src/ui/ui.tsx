@@ -3,6 +3,7 @@ import { observer, useLocalObservable } from 'mobx-react-lite'
 import React, { useEffect, useRef } from 'react'
 import { render } from 'react-dom'
 import 'twind/shim'
+console.clear()
 
 const App = observer(() => {
   const meta = useLocalObservable(() => ({
@@ -27,6 +28,7 @@ const App = observer(() => {
       if (data) {
         if (data.type === 'figma-ready') {
           runInAction(() => (meta.init = true))
+          console.log('[HMR] FigmaBase Initialized.')
         }
         if (
           data.pluginMessage &&

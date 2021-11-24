@@ -1,28 +1,17 @@
 import React, { lazy, Suspense } from 'react'
 import { render } from 'react-dom'
 import { injectCSS } from '../../../utils/src/inject'
-import type { BaseWindow } from '../window'
+import { BaseWindow } from '../window'
 import { WebMain } from './web-main'
 
 declare const window: BaseWindow
 export const webInit = async () => {
-  await injectCSS(window.is_dev ? '/index.css' : '/main.css')
+  await injectCSS('/index.css')
 
   switch (true) {
-    case location.pathname.indexOf('/dev') === 0:
+    case window.is_dev && location.pathname.indexOf('/figma') === 0:
       {
-        const Dev = lazy(() => import('web.dev/src/Dev'))
-        render(
-          <Suspense fallback={null}>
-            <Dev />
-          </Suspense>,
-          document.getElementById('root')
-        )
-      }
-      break
-    case location.pathname.indexOf('/figma') === 0:
-      {
-        const Figma = lazy(() => import('web.dev/src/figma/Figma'))
+        const Figma = lazy(() => import('../../../dev/src/DevFigma'))
         render(
           <Suspense fallback={null}>
             <Figma />

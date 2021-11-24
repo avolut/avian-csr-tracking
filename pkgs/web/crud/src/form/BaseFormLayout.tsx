@@ -1,11 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { Context, Fragment, ReactElement } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import { BaseField } from './BaseField'
 import { generateFieldsForLayout, weakUpdate } from './BaseForm'
-import type { IBaseFormContext, IFormLayout } from '../../../ext/types/__form'
+import { IBaseFormContext, IFormLayout } from '../../../ext/types/__form'
 
 declare const window: BaseWindow
 
@@ -23,7 +23,7 @@ export const RecursiveLayout = (props: {
     if (typeof s === 'string') {
       let colName = s
       let overrideTitle = ''
-      if (!!s && !s.startsWith('::') && s.indexOf(':') > 0) {
+      if (!s.startsWith('::') && s.indexOf(':') > 0) {
         colName = s.split(':').shift() || ''
         overrideTitle = s.split(':').pop() || ''
       }
@@ -185,7 +185,7 @@ export const extractColFromLayout = async (props: {
             layout: (lyt) => {
               const result = extractColFromLayout({ layout: lyt, state, ctx })
               resolve(result)
-              return null
+              return <></>
             },
             state,
             update: () => {},

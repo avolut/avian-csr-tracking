@@ -1,15 +1,29 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { Icon, Label } from '@fluentui/react'
-import { Context, FC, useContext, useEffect, useRef } from 'react'
-import { niceCase } from 'web.utils/src/niceCase'
-import { useRender } from 'web.utils/src/useRender'
-import type { IAdminSingle } from '../../../../ext/types/admin'
-import type { ITableRelation } from '../../../../ext/types/qlist'
+import React, { Context, FC, useContext, useEffect, useRef } from 'react'
+import { niceCase } from 'web-utils/src/niceCase'
+import { useRender } from 'web-utils/src/useRender'
+import { IAdminSingle } from '../../../../ext/types/admin'
+import { ITableRelation } from '../../../../ext/types/qlist'
+import { IBaseFormContext } from '../../../../ext/types/__form'
 import CRUD from '../../CRUD'
 import { weakUpdate } from '../BaseForm'
-import type { IBaseFormContext } from '../../../../ext/types/__form'
 import { WFormSplitter } from './WFormSplitter'
+
+const TabNotAvailable = () => {
+  return (
+    <div className="flex flex-1 items-center flex-col justify-center opacity-75">
+      <Icon
+        iconName="PageLink"
+        css={css`
+          font-size: 32px;
+        `}
+      />
+      <Label className="text-center">Tab Not Available</Label>
+    </div>
+  )
+}
 
 export const WFormTab = ({ ctx }: { ctx: Context<IBaseFormContext> }) => {
   const state = useContext(ctx)
@@ -58,8 +72,11 @@ export const WFormTab = ({ ctx }: { ctx: Context<IBaseFormContext> }) => {
                 form: {
                   onLoad: async (row, opt) => {
                     if (typeof row[toTable] !== 'object') row[toTable] = {}
-                    row[toTable][to] = fromId
-                    // row[from] = fromId
+                    row[toTable] = {
+                      connect: {
+                        [from]: fromId,
+                      },
+                    }
                   },
                 },
                 list: {
@@ -79,21 +96,10 @@ export const WFormTab = ({ ctx }: { ctx: Context<IBaseFormContext> }) => {
                       [title]: crudProp,
                     }}
                     parentCtx={ctx}
-                    id={e}
                   />
                 )
               }
-              return (
-                <div className="flex flex-1 items-center flex-col justify-center opacity-75">
-                  <Icon
-                    iconName="PageLink"
-                    css={css`
-                      font-size: 32px;
-                    `}
-                  />
-                  <Label className="text-center">Tab Not Available</Label>
-                </div>
-              )
+              return <TabNotAvailable />
             }
             return null
           })
@@ -101,8 +107,18 @@ export const WFormTab = ({ ctx }: { ctx: Context<IBaseFormContext> }) => {
       } else if (typeof e === 'object') {
         meta.tabs.push(e.title)
         meta.contents.push(() => {
-          const TabComponent = e.component
-          return <TabComponent state={state} />
+          let final = <TabNotAvailable />
+          try {
+            const TabComponent = e.component
+            final = (
+              <ErrorBoundary>
+                <TabComponent state={state} />
+              </ErrorBoundary>
+            )
+          } catch (e) {
+            console.error(e)
+          }
+          return final
         })
       }
       return null
@@ -168,7 +184,7 @@ export const PureTab = ({
     })
     render()
 
-    if (position === 'left' || position === 'right') {
+    if (!meta.init && (position === 'left' || position === 'right')) {
       setTimeout(() => {
         if (meta.el) {
           const el = meta.el
@@ -176,10 +192,10 @@ export const PureTab = ({
           if (
             el.parentElement &&
             el.parentElement.parentElement &&
-            el.offsetWidth < c.offsetWidth + 20
+            el.offsetWidth < c.offsetWidth + 5
           ) {
             el.parentElement.parentElement.style.minWidth =
-              c.offsetWidth + 10 + 'px'
+              c.offsetWidth + 5 + 'px'
           }
           c.style.position = 'absolute;'
         }
@@ -231,7 +247,7 @@ export const PureTab = ({
               border-color: #ececeb;
               border-color: #cecece;
               border-right-color: white;
-              border-left-color: #0d4e98;
+              border-left-color: #bebebe;
               background: rgb(255, 255, 255);
               background: linear-gradient(
                 -90deg,
@@ -293,7 +309,7 @@ export const PureTab = ({
         }
 
         &.top {
-          border-bottom: 1px solid #0d4e98;
+          border-bottom: 1px solid #bebebe;
           .tab-item {
             border-bottom: 0px;
             margin: 0px 0px 0px 5px;
@@ -301,7 +317,7 @@ export const PureTab = ({
             color: #777;
 
             &.active {
-              border-color: #0d4e98;
+              border-color: #bebebe;
               background: rgb(255, 255, 255);
               background: linear-gradient(
                 0deg,
@@ -323,7 +339,7 @@ export const PureTab = ({
         }
 
         &.right {
-          border-left: 1px solid #0d4e98;
+          border-left: 1px solid #bebebe;
 
           .tab-inner {
             align-self: stretch;
@@ -345,7 +361,7 @@ export const PureTab = ({
             text-align: left;
 
             &.active {
-              border-color: #0d4e98;
+              border-color: #bebebe;
               background: rgb(255, 255, 255);
               background: linear-gradient(
                 90deg,
@@ -366,7 +382,7 @@ export const PureTab = ({
           }
         }
         &.left {
-          border-right: 1px solid #0d4e98;
+          border-right: 1px solid #bebebe;
           .tab-inner {
             display: flex;
             align-self: stretch;
@@ -376,25 +392,42 @@ export const PureTab = ({
             overflow-x: hidden;
           }
           .tab-item {
-            width: 97%;
-            height: 35px;
-            line-height: 28px;
-            color: #777;
-            border-right: 0px;
-            margin-top: 3px;
-            padding: 3px 10px;
-            align-items: center;
-            text-align: right;
+            width: 100%;
+            border: 0px;
+            height: 40px;
+            line-height: 40px;
+            border-bottom: 1px solid #bebebe;
+            padding: 0px 10px;
 
+            color: #787878;
             &.active {
-              border-color: #0d4e98;
+              border-color: #bebebe;
               background: rgb(255, 255, 255);
               background: linear-gradient(
-                270deg,
+                90deg,
                 rgba(255, 255, 255, 1) 30%,
                 #e4edf5 100%
               );
               color: #0d4e98;
+
+              &:before {
+                transition: all 0.2s;
+                height: 100%;
+                top: 0px;
+                position: absolute;
+                content: '';
+                display: block;
+                left: 0px;
+                bottom: 0px;
+                width: 2px;
+                background: #6099da;
+              }
+            }
+            &.active:hover {
+              &:before {
+                height: 70%;
+                top: 15%;
+              }
             }
             &.active::after {
               content: '';
@@ -409,14 +442,14 @@ export const PureTab = ({
         }
 
         &.bottom {
-          border-top: 1px solid #0d4e98;
+          border-top: 1px solid #bebebe;
           .tab-item {
             border-top: 0px;
             margin: 0px 0px 0px 5px;
             padding: 3px 8px;
 
             &.active {
-              border-color: #0d4e98;
+              border-color: #bebebe;
               background: rgb(255, 255, 255);
               background: linear-gradient(
                 180deg,
@@ -460,7 +493,7 @@ export const PureTab = ({
               }}
               className={`${
                 meta.current.tab === e ? 'active' : ''
-              } tab-item whitespace-nowrap border border-gray-300 hover:bg-green-100`}
+              } tab-item whitespace-nowrap border border-gray-300 hover:bg-blue-100`}
             >
               {e}
             </Label>
@@ -530,4 +563,22 @@ export const PureTab = ({
       )}
     </div>
   )
+}
+
+class ErrorBoundary extends React.Component<any, any> {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  componentDidCatch(error, info) {
+    this.setState({ hasError: true })
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null
+    }
+    return this.props.children
+  }
 }

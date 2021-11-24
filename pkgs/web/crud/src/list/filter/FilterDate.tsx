@@ -6,7 +6,7 @@ import setDate from 'date-fns/esm/set'
 import { db } from 'libs'
 import set from 'lodash.set'
 import { useContext, useRef } from 'react'
-import { shortFormatDate } from 'web.utils/src/formatDate'
+import { shortFormatDate } from 'web-utils/src/formatDate'
 import { IFilterItemText, IFilterProp } from '../../../../ext/types/__filter'
 import { IBaseFilterDef } from '../../../../ext/types/__list'
 import { getFilterDef } from './FilterSingle'
@@ -47,7 +47,7 @@ export const FilterDate = ({
     onSubmit()
     render()
     if (meta.originalValue !== filter.value) {
-      state.db.query()
+      state.db.query('filter date')
     }
   }
   return children({

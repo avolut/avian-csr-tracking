@@ -1,6 +1,6 @@
-import { matchRoute } from 'libs'
-import type { BaseWindow } from '../window'
-import get from 'lodash.get'
+import { matchRoute, waitUntil } from 'libs'
+import { BaseWindow } from '../window'
+import { generatePage } from './gen-page'
 declare const window: BaseWindow
 
 export const findPage = (url: string) => {
@@ -9,84 +9,75 @@ export const findPage = (url: string) => {
     console.warn(`[BASE] Failed to load page for url: ${url} `)
   }
 
-
   for (let [k, v] of Object.entries(window.cms_pages)) {
-    const params = matchRoute(url, k)
+    if (k) {
+      const params = matchRoute(url, k)
 
-    if (params) {
-      return { url: k, ...v, params }
+      if (params) {
+        v.params = params;
+        return v
+      }
     }
   }
 
-  console.warn(`[BASE] Page not found: ${url}`, window.cms_pages)
+  console.warn(
+    `[BASE] Page not found: ${url}, Available urls are: \n\n -`,
+    Object.keys(window.cms_pages).join('\n - ')
+  )
   return false
 }
 
-export const loadPage = async (found: ReturnType<typeof findPage>) => {
+export const loadPageRenderer = async (found: ReturnType<typeof findPage>) => {
+  if (!window.cms_base_pack) {
+    await waitUntil(() => window.cms_base_pack)
+  }
   if (found) {
-    let source = window.cms_pages[found.url].source
-    if (!source) {
-      const ssr = found.ssr
-      found.source = await fetchPageById(found.id, {
-        ssr: window.pageRendered === undefined ? false : ssr,
-      })
-      window.cms_pages[found.url].source = source
+    let render = window.cms_pages[found.url].render
+    if (!render) {
+      const id = found.id
+      if (found.id) {
+        const injectScript = new Promise<any>((resolve) => {
+          const d = document.createElement('script')
+          d.src = `/__page/${id}.js`
+          d.id = `page-${id}`
+          d.onload = () => {
+            resolve(window.cms_pages[found.url].render)
+          }
+          document.getElementsByTagName('head')[0].appendChild(d)
+        })
+        found.render = await injectScript
+      }
     }
     return found
   }
   return false
 }
 
-export function fetchPageById(
-  id: string,
-  opt: {
-    ssr: boolean
-    params?: any
+type ValueOf<T> = T[keyof T]
+export const loadLayout = async (
+  layout: ValueOf<BaseWindow['cms_layouts']>
+) => {
+  if (!window.cms_base_pack) {
+    await waitUntil(() => window.cms_base_pack)
   }
-): Promise<string> {
-  return new Promise((resolve) => {
-    function failureListener(err) {
-      console.log('Request failed', err)
-    }
-    let resolved = false
-
-    if (!window.is_dev && localStorage[`csx-${id}`] && !get(opt, 'ssr')) {
-      if (localStorage[`build-id`] !== window.build_id) {
-        console.info(
-          `[BASE] Build ID mismatch, local (${
-            localStorage[`build-id`]
-          }) server (${window.build_id}),  clearing cache...`
-        )
-        for (let i of Object.keys(localStorage)) {
-          if (
-            i.indexOf('csx-') === 0 ||
-            i.indexOf('ccx-') === 0 ||
-            i.indexOf('dbdef-') === 0
-          ) {
-            localStorage.removeItem(i)
+  if (layout) {
+    let render = window.cms_layouts[layout.id].render
+    if (!render) {
+      const id = layout.id
+      if (layout.id) {
+        const injectScript = new Promise<any>((resolve) => {
+          const d = document.createElement('script')
+          d.src = `/__layout/${id}.js`
+          d.id = `layout-${id}`
+          d.onload = () => {
+            resolve(window.cms_layouts[layout.id].render)
           }
-        }
-        localStorage['build-id'] = window.build_id
-      } else {
-        resolve(localStorage[`csx-${id}`])
-        resolved = true
-        return
+          document.getElementsByTagName('head')[0].appendChild(d)
+        })
+        layout.render = await injectScript
       }
     }
-
-    var request = new XMLHttpRequest()
-    request.onload = function (this: any) {
-      localStorage[`csx-${id}`] = this.responseText
-      if (!resolved) {
-        resolve(this.responseText)
-      }
-    }
-
-    request.onerror = failureListener
-    request.open('post', `/__cms/${id}/${opt.ssr ? 'ssr' : 'page'}.csx`, true)
-
-    request.setRequestHeader('x-cpx-ssr', opt.ssr ? 'yes' : 'no')
-    request.setRequestHeader('x-cpx-request', 'yes')
-    request.send()
-  })
+    return layout
+  }
+  return false
 }

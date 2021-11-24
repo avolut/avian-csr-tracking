@@ -11,8 +11,8 @@ import {
 import { waitUntil } from 'libs'
 import get from 'lodash.get'
 import { Context, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import { IBaseListContext } from '../../../../../ext/types/__list'
 import { PureSelect } from '../../../form/web/fields/WSelect'
 import { Actions } from '../../../form/web/WFormWrapper'
@@ -37,7 +37,9 @@ export const BaseFilterTopBar = ({
     orderedColumns: [] as string[],
     get visibleFilters() {
       return meta.orderedColumns.filter(
-        (e) => state.filter.instances[e].visible
+        (e) =>
+          state.filter.instances[e].visible ||
+          get(state.filter, `alter.${e}.visible`) === true
       )
     },
     renderedFilters: [] as any[],
@@ -238,7 +240,7 @@ export const BaseFilterTopBar = ({
                       filter.value = undefined
                       renderFilters()
 
-                      await state.db.query()
+                      await state.db.query('filter submit')
                       renderFilters()
                     }}
                     className="flex items-center rounded-sm border cursor-pointer"
@@ -247,7 +249,7 @@ export const BaseFilterTopBar = ({
                       border-top-left-radius: 0px;
                       border-bottom-left-radius: 0px;
                       padding: 0px 8px 0px 8px;
-                      border-color: #0d4e98;
+                      border-color: #bebebe;
                       background: rgb(255, 255, 255);
                       background: linear-gradient(
                         0deg,
@@ -290,45 +292,47 @@ export const BaseFilterTopBar = ({
   return (
     <div className="flex flex-1 flex-row justify-between">
       <div className="flex items-center relative">
-        <div
-          ref={(e) => {
-            if (e) {
-              meta.el.filterBtn = e as any
-            }
-          }}
-        >
-          <DefaultButton
-            iconProps={{ iconName: 'BacklogList' }}
-            onClick={() => {
-              meta.picker = true
-              renderFilters()
+        {get(state, 'filter.web.selector') && (
+          <div
+            ref={(e) => {
+              if (e) {
+                meta.el.filterBtn = e as any
+              }
             }}
-            css={css`
-              padding: 0px 8px 0px 5px;
-              color: #555;
-              border-color: #ccc;
-              height: 30px;
-              min-width: unset;
-              border-top-left-radius: 0px;
-              border-bottom-left-radius: 0px;
-              border-left: 0px;
-              .ms-Button-textContainer {
-                display: flex;
-                align-self: stretch;
-                align-items: center;
-              }
-              .ms-Button-label {
-                display: flex;
-                font-size: 13px;
-                align-items: center;
-                padding: 0px 0px 2px 0px;
-                margin: 0px;
-              }
-            `}
           >
-            {meta.visibleFilters.length <= 0 && 'Filter'}
-          </DefaultButton>
-        </div>
+            <DefaultButton
+              iconProps={{ iconName: 'BacklogList' }}
+              onClick={() => {
+                meta.picker = true
+                renderFilters()
+              }}
+              css={css`
+                padding: 0px 8px 0px 5px;
+                color: #555;
+                border-color: #ccc;
+                height: 30px;
+                min-width: unset;
+                border-top-left-radius: 0px;
+                border-bottom-left-radius: 0px;
+                border-left: 0px;
+                .ms-Button-textContainer {
+                  display: flex;
+                  align-self: stretch;
+                  align-items: center;
+                }
+                .ms-Button-label {
+                  display: flex;
+                  font-size: 13px;
+                  align-items: center;
+                  padding: 0px 0px 2px 0px;
+                  margin: 0px;
+                }
+              `}
+            >
+              {meta.visibleFilters.length <= 0 && 'Filter'}
+            </DefaultButton>
+          </div>
+        )}
 
         {meta.picker && (
           <Callout
@@ -346,6 +350,13 @@ export const BaseFilterTopBar = ({
               `}
             >
               {meta.orderedColumns.map((col, idx) => {
+                const alterVisible = get(state.filter, `alter.${col}.visible`)
+                if (
+                  typeof alterVisible !== 'undefined' &&
+                  alterVisible !== 'auto'
+                )
+                  return null
+
                 return (
                   <Label
                     key={idx}
@@ -388,11 +399,14 @@ export const BaseFilterTopBar = ({
         ref={(e) => {
           if (e && meta.container !== e) {
             meta.container = e
-            renderFilters()
+
+            waitUntil(
+              () => meta.container && meta.container.offsetWidth > 0
+            ).then(renderFilters)
           }
         }}
       >
-        {meta.container && (
+        {meta.container && meta.container.offsetWidth > 0 && (
           <Actions
             width={meta.container.offsetWidth}
             state={state}

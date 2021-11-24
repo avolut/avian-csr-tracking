@@ -7,7 +7,7 @@ export interface IBaseContext {
   tree: {
     parent: IBaseContext | null
     root: IBaseContext
-    children: Record<string, IBaseContext>
+    children: Record<string, IBaseContext | null>
     getPath: () => string
   }
 }

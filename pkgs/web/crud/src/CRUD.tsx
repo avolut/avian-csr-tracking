@@ -1,16 +1,16 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/react'
+import { jsx } from '@emotion/react'
 import { waitUntil } from 'libs'
 import get from 'lodash.get'
 import set from 'lodash.set'
 import { createContext, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { niceCase } from 'web.utils/src/niceCase'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { niceCase } from 'web-utils/src/niceCase'
+import { useRender } from 'web-utils/src/useRender'
 import { ICRUD, ICRUDContext } from '../../ext/types/__crud'
 import { initializeState, saveState } from './context-state'
 import { CRUDBody } from './CRUDBody'
-import { deepUpdate, weakUpdate } from './form/BaseForm'
+import { deepUpdate } from './form/BaseForm'
 
 declare const window: BaseWindow
 
@@ -27,29 +27,29 @@ export const CRUD = (props: ICRUD) => {
     selectedId: '',
     state: {
       component: {
-        id: props.id || generateStateID(),
+        id: generateStateID(),
         type: 'crud',
         render,
       },
       crud: {
         content: {},
+        listScroll: { y: 0, x: 0 },
         setMode: async (mode, data) => {
+          window.preventPopChange = true
           meta.state.crud.mode = mode
           if (!data && mode === 'form') {
             console.warn('[WARN] You set crud.setMode with empty data')
           }
+          meta.state.tree.children[mode] = null
 
           if (mode === 'form') {
-            meta.state.tree.children.form = null
             for (let i of Object.keys(meta.state.crud.formData)) {
               delete meta.state.crud.formData[i]
             }
             deepUpdate(meta.state.crud.formData, data)
-            for (let [k, v] of Object.entries(data)) {
-              if (k.startsWith('_')) {
-                meta.state.crud.formData[k] = v
-              }
-            }
+          } else {
+            const parent = meta.state.tree.parent as ICRUDContext
+            if (!parent) location.hash = ''
           }
           meta.state.component.render()
 
@@ -59,16 +59,9 @@ export const CRUD = (props: ICRUD) => {
 
           return
         },
-        mode: !props.defaultMode
-          ? ((!parent && location.hash.length > 1 ? 'form' : 'list') as any)
-          : props.defaultMode,
+        mode: 'list',
         title: '',
-        formData:
-          !parent && location.hash.length > 1
-            ? {
-                __crudLoad: location.hash.substr(1),
-              }
-            : {},
+        formData: {},
       },
       tree: {
         root: null as any,
@@ -80,6 +73,12 @@ export const CRUD = (props: ICRUD) => {
 
   const meta = _.current
 
+  if (!parent && location.hash.length > 1 && !window.preventPopChange) {
+    meta.state.crud.mode = 'form'
+    meta.state.crud.formData = {
+      __crudLoad: location.hash.substr(1),
+    }
+  }
   const current = meta.current
 
   useEffect(() => {
@@ -100,15 +99,15 @@ export const CRUD = (props: ICRUD) => {
       }
 
       meta.state.crud.title = title
-      ;(window as any).r = render
       render()
     })()
     return () => {
-      saveState(meta.state, parent as any)
+      // saveState(meta.state, parent as any)
     }
   }, [props.content])
 
   if (!meta.init) return null
+
   return (
     <>
       <meta.ctx.Provider value={meta.state}>
@@ -143,15 +142,18 @@ const initializeContent = (contents: ICRUD['content']) => {
 }
 
 export const generateStateID = () => {
-  if (!window.globalStateID) {
-    window.globalStateID = 1
+  if (!window.crudStateID) {
+    window.crudStateID = 0
+  }
+  if (window.crudStateID > 99999999999) {
+    window.crudStateID = 0
   }
 
-  return leftPad(window.globalStateID++ || 1, 6)
+  return leftPad(window.crudStateID++ || 1, 13)
 }
 
-function leftPad(n, len) {
-  return new Array(len - String(n).length + 1).join('0').concat(n)
+function leftPad(number: number, length: number) {
+  return (Array(length).join('0') + number).slice(-length)
 }
 
 export default CRUD

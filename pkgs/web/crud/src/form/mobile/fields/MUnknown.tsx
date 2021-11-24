@@ -2,9 +2,9 @@
 import { css, jsx } from '@emotion/react'
 import { List, ListInput } from 'framework7-react'
 import { useContext } from 'react'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 
-import { removeCircular } from 'web.utils/src/removeCircular'
+import { removeCircular } from 'web-utils/src/removeCircular'
 export const MUnknown = ({ ctx, name }: IBaseFieldProps) => {
   const form = useContext(ctx)
   const field = form.config.fields[name]

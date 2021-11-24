@@ -3,10 +3,10 @@ import { css, jsx } from '@emotion/react'
 import { Callout, Icon, Label, Spinner, TextField } from '@fluentui/react'
 import { waitUntil } from 'libs'
 import { ReactElement, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import { BaseList } from '../../../list/BaseList'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 import { WBox } from './Winfo'
 import set from 'lodash.set'
 declare const window: BaseWindow
@@ -53,7 +53,7 @@ export const PureSelect = (props: {
   onDropDown?: (value: string | number) => void
   loading?: boolean
   className?: any
-  items: (string | { value: string; label: string })[]
+  items: (string | { value: string; label: string; el?: ReactElement })[]
 }) => {
   const { items, value, loading, onDropDown, onChange } = props
   const render = useRender()
@@ -117,7 +117,7 @@ export const PureSelect = (props: {
       <WBox className="pure-select">
         <div className="flex items-center">
           <Spinner />
-          <Label className="text-xs text-green-300 ml-2">Loading...</Label>
+          <Label className="text-xs text-blue-300 ml-2">Loading...</Label>
         </div>
       </WBox>
     )
@@ -156,139 +156,142 @@ export const PureSelect = (props: {
         }
       `}
     >
-      <Icon
-        iconName="ChevronDown"
-        className="absolute bg-white bottom-0 top-0 flex items-center justify-center right-0 m-1 pointer-events-none z-10"
-        css={css`
-          padding: 1px 8px;
-        `}
-      />
-      {meta.el && (
-        <div
-          className="absolute inset-0 z-10 pointer-events-none flex bg-white"
+      <>
+        <Icon
+          iconName="ChevronDown"
+          className="absolute bg-white bottom-0 top-0 flex items-center justify-center right-0 m-1 pointer-events-none z-10"
           css={css`
-            right: 40px;
-            margin: 2px;
-            label {
-              font-size: 14px;
-            }
+            padding: 1px 8px;
           `}
-        >
-          <Label className="flex-1 flex self-stretch items-center px-2">
-            {meta.el}
-          </Label>
-        </div>
-      )}
-      <TextField
-        value={meta.label || ''}
-        spellCheck={false}
-        onFocus={(e) => {
-          e.target.setSelectionRange(0, e.target.value.length)
-          meta.el = null
-          render()
-        }}
-        onBlur={() => {
-          setTimeout(() => {
-            if (!meta.picked) {
-              meta.picked = false
-              let sel: any = ''
-              for (let i of items) {
-                if (getValue(i) == value) sel = i
+        />
+        {meta.el && (
+          <div
+            className="absolute inset-0 z-10 pointer-events-none flex bg-white"
+            css={css`
+              right: 40px;
+              margin: 2px;
+              label {
+                font-size: 14px;
               }
-
-              meta.open = false
-              if (sel && getLabel(sel) !== meta.label) {
-                if (meta.items !== items) {
-                  meta.items = items
+            `}
+          >
+            <Label className="flex-1 flex self-stretch items-center px-2">
+              {meta.el}
+            </Label>
+          </div>
+        )}
+        <TextField
+          value={meta.label || ''}
+          spellCheck={false}
+          autoComplete="off"
+          onFocus={(e) => {
+            e.target.setSelectionRange(0, e.target.value.length)
+            meta.el = null
+            render()
+          }}
+          onBlur={() => {
+            setTimeout(() => {
+              if (!meta.el && !meta.picked) {
+                meta.picked = false
+                let sel: any = ''
+                for (let i of items) {
+                  if (getValue(i) == value) sel = i
                 }
-                meta.label = getLabel(sel)
-                meta.el = getEl(sel)
-                render()
+
+                meta.open = false
+                if (sel && getLabel(sel) !== meta.label) {
+                  if (meta.items !== items) {
+                    meta.items = items
+                  }
+                  meta.label = getLabel(sel)
+                  meta.el = getEl(sel)
+                  render()
+                } else {
+                  meta.el = getEl(sel)
+                  render()
+                }
+              }
+            }, 500)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowUp') {
+              if (!meta.open) {
+                meta.open = true
+                if (onDropDown) onDropDown(value)
+              }
+              e.preventDefault()
+              e.stopPropagation()
+              meta.selectedIndex =
+                meta.selectedIndex <= 0
+                  ? meta.items.length - 1
+                  : meta.selectedIndex - 1
+              render()
+
+              focusSelected()
+            } else if (e.key === 'ArrowDown') {
+              if (!meta.open) {
+                meta.open = true
+              }
+              e.preventDefault()
+              e.stopPropagation()
+              meta.selectedIndex =
+                meta.selectedIndex < meta.items.length - 1
+                  ? meta.selectedIndex + 1
+                  : 0
+
+              render()
+
+              focusSelected()
+            } else if (e.key === 'Enter') {
+              e.preventDefault()
+              e.stopPropagation()
+
+              if (!meta.open) {
+                meta.open = true
+                if (onDropDown) onDropDown(value)
               } else {
-                meta.el = getEl(sel)
-                render()
-              }
-            }
-          }, 500)
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowUp') {
-            if (!meta.open) {
-              meta.open = true
-              if (onDropDown) onDropDown(value)
-            }
-            e.preventDefault()
-            e.stopPropagation()
-            meta.selectedIndex =
-              meta.selectedIndex <= 0
-                ? meta.items.length - 1
-                : meta.selectedIndex - 1
-            render()
-
-            focusSelected()
-          } else if (e.key === 'ArrowDown') {
-            if (!meta.open) {
-              meta.open = true
-            }
-            e.preventDefault()
-            e.stopPropagation()
-            meta.selectedIndex =
-              meta.selectedIndex < meta.items.length - 1
-                ? meta.selectedIndex + 1
-                : 0
-
-            render()
-
-            focusSelected()
-          } else if (e.key === 'Enter') {
-            e.preventDefault()
-            e.stopPropagation()
-
-            if (!meta.open) {
-              meta.open = true
-              if (onDropDown) onDropDown(value)
-            } else {
-              meta.open = false
-              let sel = meta.items[meta.selectedIndex]
-              if (!sel) {
-                sel = meta.items[0]
-              }
-
-              if (sel) {
-                if (onChange) {
-                  onChange(getValue(sel))
+                meta.open = false
+                let sel = meta.items[meta.selectedIndex]
+                if (!sel) {
+                  sel = meta.items[0]
                 }
-                meta.label = getLabel(sel)
+
+                if (sel) {
+                  if (onChange) {
+                    onChange(getValue(sel))
+                  }
+                  meta.label = getLabel(sel)
+                }
               }
+              render()
             }
-            render()
-          }
-        }}
-        onChange={(_, text) => {
-          if (typeof text === 'string') {
+          }}
+          onChange={(_, text) => {
+            if (typeof text === 'string') {
+              meta.open = true
+              if (onDropDown) onDropDown(value)
+              meta.label = text
+              meta.el = null
+              meta.items =
+                text.length > 0
+                  ? items.filter((row) => {
+                      return fuzzyMatch(meta.label, getLabel(row))
+                    })
+                  : items
+              render()
+            }
+          }}
+          onClick={() => {
             meta.open = true
             if (onDropDown) onDropDown(value)
-            meta.label = text
-            meta.el = null
-            meta.items =
-              text.length > 0
-                ? items.filter((row) => {
-                    return fuzzyMatch(meta.label, getLabel(row))
-                  })
-                : items
             render()
-          }
-        }}
-        onClick={() => {
-          meta.open = true
-          if (onDropDown) onDropDown(value)
-          render()
 
-          setTimeout(() => {
-            focusSelected()
-          }, 300)
-        }}
-      />
+            setTimeout(() => {
+              focusSelected()
+            }, 300)
+          }}
+        />
+      </>
       {meta.open && meta.ref && (
         <Callout
           isBeakVisible={false}

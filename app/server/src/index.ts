@@ -1,1 +1,1 @@
-export * as ext from './ext'
+export const ext = { Password: require('./bcrypt') }

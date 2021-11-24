@@ -2,7 +2,7 @@
 import { jsx, css } from '@emotion/react'
 import { Modal } from '@fluentui/react'
 import { ReactElement, useRef } from 'react'
-import { useRender } from 'web.utils/src/useRender'
+import { useRender } from 'web-utils/src/useRender'
 
 export const Popup = ({
   btn,

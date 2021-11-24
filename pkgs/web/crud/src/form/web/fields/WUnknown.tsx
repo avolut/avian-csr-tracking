@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
 import { useContext } from 'react'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 import { WBox } from './Winfo'
 
 export const WUnknown = ({ ctx, name }: IBaseFieldProps) => {

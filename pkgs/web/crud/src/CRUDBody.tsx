@@ -1,55 +1,55 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
-import { Context, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
-import { IAdminSingle } from '../../ext/types/admin'
-import { ICRUDContext } from '../../ext/types/__crud'
-import { CRUDBodyForm } from './CRUDBodyForm'
-import { CRUDBodyList } from './CRUDBodyList'
-import { Sheet } from 'framework7-react'
-import { createPortal } from 'react-dom'
+import { css, jsx } from "@emotion/react";
+import { Context, useContext, useEffect, useRef } from "react";
+import { BaseWindow } from "web-init/src/window";
+import { useRender } from "web-utils/src/useRender";
+import { IAdminSingle } from "../../ext/types/admin";
+import { ICRUDContext } from "../../ext/types/__crud";
+import { CRUDBodyForm } from "./CRUDBodyForm";
+import { CRUDBodyList } from "./CRUDBodyList";
+import { Sheet } from "framework7-react";
+import { createPortal } from "react-dom";
 
-declare const window: BaseWindow
+declare const window: BaseWindow;
 
 export const CRUDBody = ({
   content,
   ctx,
 }: {
-  content: IAdminSingle
-  ctx: Context<ICRUDContext>
+  content: IAdminSingle;
+  ctx: Context<ICRUDContext>;
 }) => {
   const _ = useRef({
     init: false,
-  })
-  const state = useContext(ctx)
-  const meta = _.current
-  const render = useRender()
+  });
+  const state = useContext(ctx);
+  const meta = _.current;
+  const render = useRender();
   useEffect(() => {
-    if (!state.crud.title) state.crud.title = content.title
+    if (!state.crud.title) state.crud.title = content.title || "";
     if (!state.crud.mode)
-      state.crud.mode = content.mode || ('list' as 'list' | 'form')
-    meta.init = true
-    render()
-  }, [])
+      state.crud.mode = content.mode || ("list" as "list" | "form");
+    meta.init = true;
+    render();
+  }, []);
 
-  if (!meta.init) return null
-  if (window.platform === 'mobile') {
+  if (!meta.init) return null;
+  if (window.platform === "mobile") {
     return (
       <div className="admin-cms flex flex-1 flex-col self-stretch">
         <CRUDBodyList ctx={ctx} content={content} />
         <MobileFormWrapper state={state}>
-          {state.crud.mode === 'form' && (
+          {state.crud.mode === "form" && (
             <CRUDBodyForm ctx={ctx} content={content} />
           )}
         </MobileFormWrapper>
       </div>
-    )
+    );
   }
 
   return (
     <div
-      className={state.crud.mode + ' admin-cms flex flex-1 absolute inset-0'}
+      className={state.crud.mode + " admin-cms flex flex-1 absolute inset-0"}
       css={css`
         .admin-list,
         .admin-form {
@@ -73,44 +73,45 @@ export const CRUDBody = ({
         }
       `}
     >
-      {state.crud.mode === 'list' && (
+      {state.crud.mode === "list" && (
         <div className="admin-list flex flex-col">
           <CRUDBodyList ctx={ctx} content={content} />
         </div>
       )}
-      {state.crud.mode === 'form' && (
+      {state.crud.mode === "form" && (
         <div className="admin-form flex flex-col items-stretch">
           <CRUDBodyForm ctx={ctx} content={content} />
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 const MobileFormWrapper = ({ children, state }) => {
-  const _ = useRef({ el: null as HTMLDivElement | null })
-  const meta = _.current
-  const render = useRender()
+  const _ = useRef({ el: null as HTMLDivElement | null });
+  const meta = _.current;
+  const render = useRender();
 
+  const f7Root = document.querySelector("#framework7-react") as any;
   return (
     <>
       <Sheet
         style={{
-          height: '95vh',
-          borderTopLeftRadius: '15px',
-          borderTopRightRadius: '15px',
+          height: "95vh",
+          borderTopLeftRadius: "15px",
+          borderTopRightRadius: "15px",
         }}
         backdrop={true}
-        containerEl={document.querySelector('#framework7-react')}
-        opened={state.crud.mode === 'form'}
-        onSheetClosed={() => state.crud.setMode('list')}
+        containerEl={f7Root}
+        opened={state.crud.mode === "form"}
+        onSheetClosed={() => state.crud.setMode("list")}
         swipeToClose={true}
         swipeHandler={`.form-title`}
       >
         <div
           ref={(e) => {
             if (e) {
-              meta.el = e
+              meta.el = e;
             }
           }}
           className={`base-form-sheet flex flex-1 absolute inset-0 `}
@@ -132,7 +133,7 @@ const MobileFormWrapper = ({ children, state }) => {
                 position: absolute;
                 top: 11px;
                 left: 50%;
-                content: '«';
+                content: "«";
                 color: transparent;
                 pointer-events: none;
                 border-radius: 99px;
@@ -147,5 +148,5 @@ const MobileFormWrapper = ({ children, state }) => {
       </Sheet>
       {meta.el && createPortal(children, meta.el)}
     </>
-  )
-}
+  );
+};

@@ -1,5 +1,5 @@
 import trim from 'lodash.trim'
-import type { BaseWindow } from '../../init/src/window'
+import { BaseWindow } from '../../init/src/window'
 declare const window: BaseWindow
 
 export const loadExt = async (inputURL: string) => {
@@ -8,7 +8,7 @@ export const loadExt = async (inputURL: string) => {
 
   if (inputURL.indexOf('http') === 0) {
     const urlarr = url.split('/')
-    let nurl = []
+    let nurl: any = []
     for (let i of urlarr) {
       if (i === '__ext' || nurl.length > 0) {
         nurl.push(i)
@@ -34,7 +34,7 @@ export const loadExt = async (inputURL: string) => {
     return window.imported[url]
   }
 
-  let result = null
+  let result: any = null
 
   if (!window.is_dev) {
     window.imported[url] = new Promise(async (resolve) => {
@@ -48,7 +48,8 @@ export const loadExt = async (inputURL: string) => {
 
       ;(() => {
         const exports = {}
-        eval(src)
+        ;(0, eval)(src)
+
         result = exports
 
         if (result.default) {

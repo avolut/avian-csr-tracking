@@ -20,9 +20,9 @@ import { waitUntil } from 'libs'
 import get from 'lodash.get'
 import throttle from 'lodash.throttle'
 import { Context, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { niceCase } from 'web.utils/src/niceCase'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { niceCase } from 'web-utils/src/niceCase'
+import { useRender } from 'web-utils/src/useRender'
 import { IBaseListContext } from '../../../../ext/types/__list'
 import { Loading } from '../../view/loading'
 import { baseListFormatOrder } from '../BaseList'
@@ -35,8 +35,13 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
   const _ = useRef({
     ref: null as any,
     onScroll: (ev) => {
-      if (meta.init && ev && ev.scrollTop) {
-        state.table.lastScroll = ev.scrollTop
+      if (meta.init && ev && ev.scrollTop && state.table.lastScroll) {
+        state.table.lastScroll.y = ev.scrollTop
+        state.table.lastScroll.x = ev.scrollLeft
+        if (state.table.onScroll) {
+          state.table.onScroll(ev)
+        }
+
         state.filter.render()
       }
     },
@@ -123,7 +128,7 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
   const grid = state.grid
   if (grid && grid.colSize > 0) {
     items = []
-    let row = []
+    let row: any[] = []
     for (let i of state.db.list) {
       if (row.length < grid.colSize) {
         row.push(i)
@@ -167,7 +172,7 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
         }
       `}
     >
-      {state.db.loading && (
+      {(state.db.loading || state.db.partialLoading) && (
         <>
           <ProgressIndicator
             css={css`
@@ -216,8 +221,10 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
             e.unsubscribe(meta.onScroll)
             e.subscribe(meta.onScroll)
             setTimeout(() => {
-              if (e.contentContainer)
-                e.contentContainer.scrollTop = state.table.lastScroll
+              if (e.contentContainer && state.table.lastScroll) {
+                e.contentContainer.scrollLeft = state.table.lastScroll.x
+                e.contentContainer.scrollTop = state.table.lastScroll.y
+              }
             })
           }
         }}
@@ -270,7 +277,7 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
           onColumnHeaderClick={(_, col) => {
             if (col && col.fieldName) {
               if (state.db.setSort(col.fieldName)) {
-                state.db.query()
+                state.db.query('sort')
               }
             }
           }}
@@ -291,6 +298,7 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
           onShouldVirtualize={() => true}
           compact={true}
           onRenderRow={(rowProps, defaultRender) => {
+            if (!rowProps) return null
             meta.lateQuery(rowProps.item)
 
             if (state.grid) {
@@ -313,7 +321,9 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
                           idx={rowProps.itemIndex}
                           rowProps={rowProps}
                         >
-                          {(rp) => defaultRender(rp)}
+                          {(rp) =>
+                            (defaultRender && defaultRender(rp)) || <></>
+                          }
                         </BaseListWebRow>
                       )
                     })}
@@ -329,14 +339,20 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
                 idx={rowProps.itemIndex}
                 rowProps={rowProps}
               >
-                {(rp) => defaultRender(rp)}
+                {(rp) => (defaultRender && defaultRender(rp)) || <></>}
               </BaseListWebRow>
             )
           }}
           onRenderItemColumn={(row, idx, column) => {
-            return (
-              <BaseListWebCol ctx={ctx} row={row} idx={idx} colDef={column} />
-            )
+            if (column)
+              return (
+                <BaseListWebCol
+                  ctx={ctx}
+                  row={row}
+                  idx={idx || 0}
+                  colDef={column}
+                />
+              )
           }}
         />
       </ScrollablePane>

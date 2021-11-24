@@ -2,7 +2,7 @@
 import { jsx, css } from '@emotion/react'
 import { useContext } from 'react'
 import NiceValue from '../../../legacy/NiceValue'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 
 export const WInfo = ({ ctx, name }: IBaseFieldProps) => {
   const form = useContext(ctx)

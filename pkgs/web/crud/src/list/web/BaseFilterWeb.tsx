@@ -2,9 +2,10 @@
 import { jsx } from '@emotion/react'
 import { waitUntil } from 'libs'
 import { Context, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import { IBaseListContext } from '../../../../ext/types/__list'
+import { BaseFilterSideLeft } from './filter/BaseFilterSideLeft'
 import { BaseFilterTopBar } from './filter/BaseFilterTopBar'
 
 declare const window: BaseWindow
@@ -25,8 +26,11 @@ export const BaseFilterWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
     })()
   }, [])
   const state = useContext(ctx)
+
   if (!meta.init) return null
 
   if (state.filter.web.mode === 'topbar') return <BaseFilterTopBar ctx={ctx} />
+  if (state.filter.web.mode === 'sideleft')
+    return <BaseFilterSideLeft ctx={ctx} />
   return null
 }

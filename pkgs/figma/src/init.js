@@ -20,17 +20,32 @@ const dirs = {
 
 const plugin = async () => {
   const rebuild = async () => {
+    const outfile = join(dirs.build, 'plugin.js')
     await build({
       entryPoints: [join(dirs.plugin, 'plugin.ts')],
-      outfile: join(dirs.build, 'plugin.js'),
+      outfile,
       bundle: true,
       // logLevel: 'silent',
       platform: 'browser',
       minify: true,
+      keepNames: true,
       treeShaking: true,
       format: 'iife',
+      target: 'es6',
       nodePaths: [join(dirs.root, 'node_modules')],
     })
+
+    //     let out = await readFile(outfile, 'utf-8')
+
+    //     out = out.substr(0, out.length - 6)
+    //     await writeFile(outfile, `${out}
+
+    // setTimeout(() => {
+    //   console.log(glbo)
+    // })
+
+    // })();
+    // `)
 
     manifest()
     log('Plugin', 'Rebuilt')
@@ -57,6 +72,7 @@ const ui = async () => {
         '.ttf': 'file',
       },
       // logLevel: 'silent',
+      pure: ['getNodeInfo'],
       platform: 'browser',
       minify: true,
       treeShaking: true,
@@ -108,6 +124,7 @@ const manifest = async () => {
           name: 'Figma Base',
           main: 'plugin.js',
           ui: 'ui.html',
+          editorType: ['figma'],
           enablePrivatePluginApi: true,
           relaunchButtons: [{ command: 'open', name: 'Open Figma Base' }],
         },

@@ -12,6 +12,7 @@ import {
 export interface IBaseFilterDef {
   title: string
   type: string
+  visible: boolean | 'auto'
   default: {
     value: any
     operator: any
@@ -57,8 +58,10 @@ export interface IBaseListContext extends IBaseContext {
   filter: {
     enable: boolean
     web: {
+      selector: boolean
       mode: 'topbar' | 'sideleft' | 'sideright' | 'popup'
     }
+    quickSearchTitle?: string
     quickSearch?: string
     alter: Record<string, Partial<IBaseFilterDef>>
     instances: Record<string, IFilterItem>
@@ -79,6 +82,11 @@ export interface IBaseListContext extends IBaseContext {
     mobile: {
       mode: 'list' | 'slider'
       scroll: boolean
+      searchTitle?: string
+      checkbox?: boolean
+      checked?: Record<any, any>
+      onChecked?: (checked: any[]) => void
+      onSwipeoutDeleted: (props: { row: any }) => void
       swipeout:
         | boolean
         | ((row: any, comps: { Swipe: any; Edit: any; Delete: any }) => any)
@@ -97,7 +105,8 @@ export interface IBaseListContext extends IBaseContext {
       state: IBaseListContext
     }) => boolean | object
 
-    lastScroll?: number
+    lastScroll?: { x: number; y: number }
+    onScroll?: (e: any) => void
 
     columns:
       | IColumnSingleDef[]
@@ -120,6 +129,8 @@ export interface IBaseListContext extends IBaseContext {
       state: IBaseListContext
     }) => React.ReactElement
 
+    isRowClickable?: boolean
+
     onRowClick?: (
       row: Record<string, any>,
       idx: number,
@@ -127,7 +138,7 @@ export interface IBaseListContext extends IBaseContext {
       state: IBaseListContext
     ) => void | Promise<void | boolean> | boolean
 
-    render: () => void
+    render: (reason?: string) => void
 
     customRenderRow?: (props: {
       row: any
@@ -139,6 +150,15 @@ export interface IBaseListContext extends IBaseContext {
   }
   db: {
     tableName: string
+    beforeQuery?: (state: IBaseListContext) => void
+    paging: {
+      skip: 0
+      take: 150
+      fetching: boolean
+      allRowFetched: boolean
+      reset: () => void
+      loadNext: () => Promise<void>
+    }
     lateQuery?:
       | Record<
           string,
@@ -148,14 +168,16 @@ export interface IBaseListContext extends IBaseContext {
           ]
         >
       | ((props: { rows: any; state: IBaseListContext }) => Promise<void>)
-    list: Record<string, any & { __meta: IBaseListRowMeta }>[]
+    list: Record<string, any>[]
     params: any
     defaultParams: any
     loading: boolean
+    partialLoading: boolean
     sql: string | ((state: IBaseListContext) => Promise<string> | string)
     definition: ITableDefinitions | null
     setSort: (col: string) => boolean
-    query: () => Promise<void>
+    queryTimeout: ReturnType<typeof setTimeout>
+    query: (reason?: string) => Promise<void>
   }
 }
 export interface IBaseListProps {
@@ -168,15 +190,18 @@ export interface IBaseListProps {
   table?: IBaseListContext['db']['tableName']
   list?: IBaseListContext['db']['list']
   query?: IBaseListContext['db']['sql']
+  scroll?: IBaseListContext['table']['lastScroll']
+  onScroll?: IBaseListContext['table']['onScroll']
   params?: IBaseListContext['db']['params']
   filter?: IBaseListContext['filter'] | false
-  mobile?: IBaseListContext['table']['mobile']
+  mobile?: Partial<IBaseListContext['table']['mobile']>
   web?: IBaseListContext['table']['web']
   wrapList?: IBaseListContext['table']['wrapList']
   wrapRow?: IBaseListContext['table']['wrapRow']
   platform?: 'web' | 'mobile'
   editable?: IBaseListContext['table']['editable']
   lateQuery?: IBaseListContext['db']['lateQuery']
+  beforeQuery?: IBaseListContext['db']['beforeQuery']
   columns?: IBaseListContext['table']['columns']
   onRowClick?: IBaseListContext['table']['onRowClick']
   onInit?: (state: IBaseListContext) => void | Promise<void>

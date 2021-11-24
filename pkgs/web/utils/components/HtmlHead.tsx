@@ -1,6 +1,6 @@
-import { useComponent } from "web.utils/component";
+/** @jsx jsx */
+import { css, jsx } from '@emotion/react'
 
 export default ({ children }) => {
-  const _component = useComponent("html-head","/pkgs/web/utils/components/HtmlHead",{});
-  return eval(_component.render);
+  return <></>
 }

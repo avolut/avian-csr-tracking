@@ -4,11 +4,11 @@ import { DefaultButton, Icon, Modal, Spinner } from '@fluentui/react'
 import { setIconOptions } from '@fluentui/react/lib/Styling'
 import { matchRoute, waitUntil } from 'libs'
 import { memo, useEffect, useRef } from 'react'
-import { BaseList } from 'web.crud/src/list/BaseList'
-import { api } from 'web.utils/src/api'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseList } from 'web-crud/src/list/BaseList'
+import { api } from 'web-utils/src/api'
+import { useRender } from 'web-utils/src/useRender'
 import { initFluent } from '../../web/initFluent'
-import type { BaseWindow } from '../../window'
+import { BaseWindow } from '../../window'
 import { TesterForm } from './TesterForm'
 declare const window: BaseWindow
 
@@ -73,6 +73,17 @@ export const Tester = memo(() => {
     }[],
   })
 
+  const newTest = () => {
+    meta.current = {
+      isNew: true,
+      page_id: page.detail.id,
+      name: '',
+      code: '',
+    }
+    meta.openingModal = true
+    render()
+  }
+
   const meta = _.current
   const render = useRender()
 
@@ -91,7 +102,10 @@ export const Tester = memo(() => {
   }
   useEffect(() => {
     initFluent().then(() => {
-      waitUntil(() => (window as any).fluentInit).then(reload)
+      waitUntil(() => (window as any).fluentInit).then(() => {
+        reload()
+        newTest()
+      })
     })
   }, [])
   if (!meta.init || !page) return null
@@ -118,16 +132,7 @@ export const Tester = memo(() => {
           page={page}
           meta={meta}
           render={render}
-          newTest={() => {
-            meta.current = {
-              isNew: true,
-              page_id: page.detail.id,
-              name: '',
-              code: '',
-            }
-            meta.openingModal = true
-            render()
-          }}
+          newTest={newTest}
           reload={reload}
           back={() => {
             meta.showAllPage = true

@@ -4,6 +4,7 @@ import { Runner } from './runner'
 import uniqid from 'uniqid'
 
 export type ParentThread = {
+  notify: (msg: any) => Promise<any>
   sendTo: (name: string, msg: any) => Promise<any>
 }
 
@@ -17,10 +18,20 @@ export const expose = (child: WorkerThread) => {
     parentPort.on('message', async (raw) => {
       const type = raw.substr(0, 5)
       const msg = raw.substr(5)
+
       switch (type) {
+        default:
+          parentPort?.postMessage(raw)
+          break
         case 'init!':
           child.start(
             {
+              notify: async (msg) => {
+                parentPort?.postMessage(
+                  `send!${JSON.stringify({ name: 'main', msg })}`
+                )
+              },
+
               sendTo: async (name: string, msg: any) => {
                 parentPort?.postMessage(`send!${JSON.stringify({ name, msg })}`)
               },
@@ -41,12 +52,18 @@ export const expose = (child: WorkerThread) => {
 
 export class Thread extends Worker {
   msgPending: Record<string, (value: unknown) => void> = {}
+  public path = ''
   constructor(runner: Runner, args?: any) {
     super(runner.path)
+    this.path = runner.path
+
     this.on('message', async (raw: string) => {
       const type = raw.substr(0, 5)
       const msg = raw.substr(5)
       switch (type) {
+        default:
+          await runner.pool?.send('platform', raw)
+          break
         case 'send!':
           const json: { name: string; msg: any } = JSON.parse(msg)
           await runner.pool?.send(json.name, json.msg)

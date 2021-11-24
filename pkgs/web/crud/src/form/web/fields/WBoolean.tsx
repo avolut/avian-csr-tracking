@@ -1,10 +1,10 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/react'
+import { jsx, css } from '@emotion/react'
 import { Toggle } from '@fluentui/react'
 import set from 'lodash.set'
 import { useContext } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { BaseWindow } from 'web-init/src/window'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 declare const window: BaseWindow
 export const WBoolean = ({ name, internalChange, ctx }: IBaseFieldProps) => {
   const form = useContext(ctx)
@@ -15,9 +15,19 @@ export const WBoolean = ({ name, internalChange, ctx }: IBaseFieldProps) => {
 
   return (
     <Toggle
+      css={css`
+        margin: 0px;
+        padding: 0px 0px;
+        height: 34px;
+
+        align-items: center;
+        display: flex;
+        border-radius: 2px;
+      `}
       defaultChecked={!!state.value}
       onText="Yes"
       offText="No"
+      
       onChange={(_, value) => {
         set(form.db.data, name, value)
         if (typeof state.onChange === 'function')

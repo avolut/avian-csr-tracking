@@ -1,10 +1,11 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
+import { waitUntil } from 'libs'
 import get from 'lodash.get'
-import type { Context } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import type { IAdminSingle } from '../../ext/types/admin'
-import type { ICRUDContext } from '../../ext/types/__crud'
+import { Context, useContext } from 'react'
+import { BaseWindow } from 'web-init/src/window'
+import { IAdminSingle } from '../../ext/types/admin'
+import { ICRUDContext } from '../../ext/types/__crud'
 import { weakUpdate } from './form/BaseForm'
 import { BaseList } from './list/BaseList'
 
@@ -30,10 +31,11 @@ export const CRUDBodyList = ({
   if (get(content, 'list.table.create') !== undefined) {
     action.create = get(content, 'list.table.create')
   }
+  const state = useContext(ctx)
 
   let mobile = {
     ...{ mode: 'list' as any, swipeout: true },
-    ...(get(content, 'list.table.mobile') || {}),
+    ...(get(content, 'list.table') || {}),
   }
   if (get(content, 'list.table.swipeout') !== undefined) {
     mobile.swipeout = get(content, 'list.table.swipeout')
@@ -49,6 +51,13 @@ export const CRUDBodyList = ({
       header={get(content, 'list.header')}
       title={get(content, 'list.title')}
       params={get(content, 'list.params', {})}
+      onScroll={(e) => {
+        state.crud.listScroll = {
+          x: e.scrollLeft,
+          y: e.scrollTop,
+        }
+      }}
+      scroll={state.crud.listScroll}
       onLoad={get(content, 'list.onLoad') || get(content, 'list.table.onLoad')}
       onInit={get(content, 'list.onInit')}
       filter={get(content, 'list.filter')}
@@ -61,10 +70,21 @@ export const CRUDBodyList = ({
       action={action}
       onRowClick={async (row, idx, ev, state) => {
         const parent = state.tree.parent as ICRUDContext
-
         const onRowClick = get(content, 'list.table.onRowClick')
+
+        if (state.db.partialLoading) {
+          state.db.loading = true
+          state.table.render()
+
+          waitUntil(() => !state.db.partialLoading)
+
+          return
+        }
+
         if (onRowClick) {
           if (!(await onRowClick(row, idx, ev, state))) {
+            state.table.isRowClickable = false
+            state.component.render()
             return
           }
         }
@@ -80,6 +100,7 @@ export const CRUDBodyList = ({
           state.db.definition &&
           row[state.db.definition.pk]
         ) {
+          window.preventPopChange = true
           location.hash = row[state.db.definition.pk]
         }
         parent.crud.setMode('form', row)

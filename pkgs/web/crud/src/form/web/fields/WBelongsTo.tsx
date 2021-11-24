@@ -5,13 +5,15 @@ import find from 'lodash.find'
 import get from 'lodash.get'
 import set from 'lodash.set'
 import { useContext, useEffect, useRef } from 'react'
-import { useRender } from 'web.utils/src/useRender'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { fastDeepEqual } from 'web-utils/src/fastDeepEqual'
+import { useRender } from 'web-utils/src/useRender'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 import { PureSelect } from './WSelect'
 
 export const WBelongsTo = (props: IBaseFieldProps) => {
   const render = useRender()
   const _ = useRef({
+    silentLoading: false,
     loading: false,
     rawItems: [] as any,
     items: [] as any,
@@ -115,14 +117,28 @@ export const WBelongsTo = (props: IBaseFieldProps) => {
 
   useEffect(() => {
     meta.queryLabel()
-  }, [])
 
-  if (meta.labelLoaded) {
+    meta.silentLoading = true
     const params = meta.getParams()
-    if (JSON.stringify(params) !== JSON.stringify(meta.params)) {
+    if (!fastDeepEqual(params, JSON.stringify(meta.params))) {
       meta.params = params
       meta.query()
     }
+  }, [])
+
+  if (
+    form.db.data[relName] &&
+    form.db.data[relName][to] !== form.db.data[from]
+  ) {
+    form.db.data[from] = form.db.data[relName][to]
+  }
+
+  if (!form.db.data[relName]) {
+    form.db.data[from] = form.db.data[relName]
+  }
+
+  if (form.db.data[from] !== meta.value) {
+    meta.value = form.db.data[from]
   }
 
   return (
@@ -132,12 +148,14 @@ export const WBelongsTo = (props: IBaseFieldProps) => {
           if (!state.value) {
             state.value = {}
           }
+
           if (typeof state.onChange === 'function')
             state.onChange(value, {
               state: form,
               row: form.db.data,
               col: props.name,
             })
+
           if (typeof form.db.data[relName] === 'object') {
             for (let row of meta.rawItems) {
               if (row[to] === value) {
@@ -149,8 +167,9 @@ export const WBelongsTo = (props: IBaseFieldProps) => {
           meta.value = value
           props.internalChange(value)
         }}
-        loading={!!(meta.loading || !state)}
+        loading={!meta.silentLoading && !!(meta.loading || !state)}
         onDropDown={() => {
+          meta.silentLoading = false
           const params = meta.getParams()
           if (JSON.stringify(params) !== JSON.stringify(meta.params)) {
             meta.params = params

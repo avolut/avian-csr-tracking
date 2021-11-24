@@ -1,34 +1,49 @@
 {
-  "name": "web.crud",
+  "name": "web-crud",
   "version": "1.0.0",
   "types": "./src/index.tsx",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "scripts": {
-    "postinstall": "patch-package"
-  },
   "dependencies": {
-    "@fluentui/react": "^8.27.0",
+    "@emotion/react": "^11.5.0",
+    "@fluentui/react": "^8.41.0",
+    "@react-dnd/asap": "^4.0.0",
+    "@react-dnd/invariant": "^2.0.0",
+    "@react-dnd/shallowequal": "^2.0.0",
     "buffer": "^6.0.3",
-    "date-fns": "^2.19.0",
-    "jodit-react": "^1.0.74",
+    "date-fns": "^2.24.0",
+    "framework7-react": "^6.3.7",
+    "jodit-react": "^1.1.1",
+    "libs": "workspace:^",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.find": "^4.6.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2",
     "lodash.sortby": "^4.7.0",
+    "lodash.startcase": "^4.4.0",
     "lodash.throttle": "^4.1.1",
-    "lodash.trim": "^4.5.1"
+    "lodash.trim": "^4.5.1",
+    "mobx": "^6.3.3",
+    "mobx-react-lite": "^3.2.1",
+    "react": "^17.0.2",
+    "react-dnd": "^14.0.4",
+    "react-dnd-touch-backend": "^14.1.1",
+    "react-dom": "^17.0.2",
+    "redux": "^4.1.1",
+    "web-mobile": "workspace:^",
+    "web-utils": "workspace:^"
   },
   "devDependencies": {
+    "@types/lodash.clonedeep": "^4.5.6",
     "@types/lodash.find": "^4.6.6",
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.set": "^4.3.6",
     "@types/lodash.sortby": "^4.7.6",
     "@types/lodash.startcase": "^4.4.6",
     "@types/lodash.trim": "^4.5.6",
-    "@types/react": "^17.0.3",
-    "@types/react-dom": "^17.0.3"
+    "@types/react": "^17.0.24",
+    "@types/react-dom": "^17.0.9"
   },
   "main": "./build/index.js"
 }

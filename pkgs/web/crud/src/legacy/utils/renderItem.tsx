@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import type { IColumn as FluentColumn } from '@fluentui/react'
+import { IColumn as FluentColumn } from '@fluentui/react'
 import { format } from 'date-fns'
 import get from 'lodash.get'
 import NiceValue from '../NiceValue'

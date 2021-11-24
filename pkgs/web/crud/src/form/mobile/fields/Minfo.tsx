@@ -1,9 +1,8 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/react'
+import { css, jsx } from '@emotion/react'
 import { useContext, useEffect, useRef } from 'react'
-import { render } from 'react-dom'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 import NiceValue from '../../../legacy/NiceValue'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
 
 export const MInfo = ({ ctx, name }: IBaseFieldProps) => {
   const form = useContext(ctx)

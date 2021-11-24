@@ -8,8 +8,8 @@ import {
 } from 'framework7-react'
 import { db, waitUntil } from 'libs'
 import { createPortal } from 'react-dom'
-import type { BaseWindow } from 'web.init/src/window'
-import type { IBaseListContext } from '../../../../../ext/types/__list'
+import { BaseWindow } from 'web-init/src/window'
+import { IBaseListContext } from '../../../../../ext/types/__list'
 import { columnized } from '../BaseListMobile'
 
 declare const window: BaseWindow

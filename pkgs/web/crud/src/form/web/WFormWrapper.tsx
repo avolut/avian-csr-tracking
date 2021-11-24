@@ -16,12 +16,13 @@ import {
   ReactElement,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
 } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { useRender } from 'web-utils/src/useRender'
 import { ICRUDContext } from '../../../../ext/types/__crud'
-import type {
+import {
   IAction,
   IBaseFormContext,
   IBaseFormProps,
@@ -50,6 +51,7 @@ export const WFormWrapper = ({
     action: {
       container: null as null | HTMLDivElement,
     },
+    error: { el: null, show: false },
     init: false,
   })
   const meta = _.current
@@ -68,7 +70,7 @@ export const WFormWrapper = ({
     render()
   }, [])
 
-  if (!meta.init) return null
+  if (!meta.init || !state.db.definition) return null
 
   const title = state.config.header.title
   const mainContent = (
@@ -128,6 +130,16 @@ const WHeader = ({
   meta: any
   parentRender: () => void
 }) => {
+  useEffect(() => {
+    if (state.db.saveStatus.indexOf('error') > 0) {
+      waitUntil(() => meta.error.el).then(() => {
+        meta.error.show = true
+        render()
+        return
+      })
+    }
+  }, [state.db.saveStatus])
+
   const render = useRender()
   state.config.header.render = render
   return (
@@ -137,7 +149,7 @@ const WHeader = ({
         flex-grow: 0;
         flex-basis: 40px;
         min-height: 40px;
-        ${state.db.saveStatus === 'changed' &&
+        ${state.db.saveStatus.indexOf('error') > 0 &&
         css`
           border-bottom: 2px solid red;
           background-image: linear-gradient(
@@ -152,9 +164,40 @@ const WHeader = ({
           );
           background-size: 15.56px 15.56px;
         `}
+
+        ${state.db.saveStatus === 'changed' &&
+        css`
+          border-bottom: 2px solid #f4dbff;
+          background-image: linear-gradient(
+            45deg,
+            #f4dbff 4.55%,
+            #ffffff 4.55%,
+            #ffffff 50%,
+            #f4dbff 50%,
+            #f4dbff 54.55%,
+            #ffffff 54.55%,
+            #ffffff 100%
+          );
+          background-size: 15.56px 15.56px;
+        `}
+        ${state.db.saveStatus === 'saving' &&
+        css`
+          border-bottom: 2px solid #dbe9ff;
+          background-image: linear-gradient(
+            45deg,
+            #dbe9ff 4.55%,
+            #ffffff 4.55%,
+            #ffffff 50%,
+            #dbe9ff 50%,
+            #dbe9ff 54.55%,
+            #ffffff 54.55%,
+            #ffffff 100%
+          );
+          background-size: 15.56px 15.56px;
+        `}
       `}
     >
-      <div className="flex-row flex flex-1 items-center pl-2">
+      <div className="flex-row flex pr-3 items-center pl-2">
         {state.config.header.back && (
           <Icon
             iconName="ChevronLeft"
@@ -181,19 +224,9 @@ const WHeader = ({
           </Label>
         )}
       </div>
-      {state.db.saveStatus === 'changed' && (
-        <div className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-red-500 bg-white border-2 border-red-500 rounded-md">
-          {lang('UNSAVED', 'en')}
-        </div>
-      )}
 
-      {state.db.saveStatus === 'saving' && (
-        <div className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-green-500 bg-white border-2 border-green-300 rounded-md">
-          {lang('SAVING', 'en')}
-        </div>
-      )}
       <div
-        className="flex-row flex-1 flex"
+        className="flex-row justify-end flex-1 flex"
         ref={(e) => {
           if (e) {
             if (meta.action.container === null) {
@@ -203,10 +236,71 @@ const WHeader = ({
           }
         }}
       >
+        <div className="flex flex-row flex-1 items-center justify-center">
+          {state.db.saveStatus.indexOf('error') > 0 && (
+            <>
+              <div
+                className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-red-500 bg-white border-2 cursor-pointer hover:bg-red-100 border-red-500 rounded-md"
+                onClick={() => {
+                  meta.error.show = !meta.error.show
+                  render()
+                }}
+                ref={(e) => {
+                  if (e) meta.error.el = e
+                }}
+              >
+                <Icon iconName="WarningSolid" className="mr-1" css={css``} />
+                {lang('Save Failed', 'en')}
+              </div>
+              {meta.error.show && meta.error.el && (
+                <Callout
+                  isBeakVisible={false}
+                  target={meta.error.el}
+                  onDismiss={() => {
+                    meta.error.show = false
+                    render()
+                  }}
+                >
+                  {state.db.saveErrorMsg ? (
+                    <pre
+                      className="p-2 whitespace-pre-wrap text-red-700 border-2 border-red-300"
+                      css={css`
+                        max-width: 500px;
+                        max-height: 500px;
+                        overflow: auto;
+                        font-weight: 500;
+                        font-size: 11px;
+                      `}
+                    >
+                      {state.db.saveErrorMsg}
+                    </pre>
+                  ) : (
+                    <div className="p-2 whitespace-pre-wrap text-red-700 border-2 border-red-300">
+                      <b>{lang(`Please correct these data:`, 'en')}</b>
+                      <br />
+                      {state.db.errors.map((e) => `  • ${e}`).join('\n')}
+                    </div>
+                  )}
+                </Callout>
+              )}
+            </>
+          )}
+          {state.db.saveStatus === 'changed' && (
+            <div className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-purple-500 bg-white border-2 border-purple-500 rounded-md">
+              {lang('UNSAVED', 'en')}
+            </div>
+          )}
+
+          {state.db.saveStatus === 'saving' && (
+            <div className="flex items-center px-6 my-1 ml-4 text-xs font-semibold text-blue-500 bg-white border-2 border-blue-300 rounded-md">
+              {lang('SAVING', 'en')}
+            </div>
+          )}
+        </div>
         {meta.action.container && (
           <Actions
             state={state}
-            width={meta.action.container.offsetWidth}
+            width={meta.action.container.offsetWidth - 200}
             action={
               typeof state.config.header.action === 'function'
                 ? { ...defaultActions, ...state.config.header.action(state) }
@@ -242,26 +336,24 @@ export const Actions = ({
   const meta = _.current
   const render = useRender()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!!meta.children && !meta.init) {
       waitUntil(
         () => meta.el && meta.el.menu && meta.el.menu.offsetWidth > 0
       ).then(async () => {
-        setTimeout(() => {
-          if (
-            meta.el &&
-            meta.el.menu &&
-            meta.el.menu.offsetWidth > width &&
-            meta.actionCount > 2
-          ) {
-            meta.mode = 'dropdown'
-          } else {
-            meta.mode = 'menu'
-          }
+        if (
+          meta.el &&
+          meta.el.menu &&
+          meta.el.menu.offsetWidth > width &&
+          meta.actionCount > 2
+        ) {
+          meta.mode = 'dropdown'
+        } else {
+          meta.mode = 'menu'
+        }
 
-          meta.init = true
-          render()
-        }, 300)
+        meta.init = true
+        render()
       })
     }
   }, [meta.children])
@@ -308,6 +400,9 @@ export const Actions = ({
                       iconProps={{ iconName: 'Add' }}
                       onClick={() => {
                         const parent = state.tree.parent as ICRUDContext
+                        if (!get(parent, 'tree.parent')) {
+                          location.hash = '#new'
+                        }
                         parent.crud.setMode('form', {})
                         parent.component.render()
                       }}
@@ -331,7 +426,7 @@ export const Actions = ({
                       {typeof result === 'string' ? result : 'Save'}
                     </PrimaryButton>
                   )
-                case 'delete':
+                case 'delete': {
                   const form: IBaseFormContext = state as any
                   if (form.db.definition && form.db.definition.pk) {
                     if (!form.db.data[form.db.definition.pk]) {
@@ -344,15 +439,14 @@ export const Actions = ({
                       className="delete"
                       key={name}
                       iconProps={{ iconName: 'Trash' }}
-                      onClick={() => {
-                        if (form.db.delete) {
-                          form.db.delete()
-                        }
+                      onClick={async () => {
+                        await form.db.delete()
                       }}
                     >
                       {meta.mode === 'dropdown' ? 'Delete' : undefined}
                     </DefaultButton>
                   )
+                }
               }
             }
 
@@ -395,7 +489,7 @@ export const Actions = ({
 
   return (
     <div
-      className="flex flex-1 self-stretch relative"
+      className="flex self-stretch relative"
       css={css`
         .ms-Button {
           padding: 0px 5px;
@@ -415,8 +509,10 @@ export const Actions = ({
       `}
     >
       <div
-        className={`absolute  inset-0 overflow-x-auto overflow-y-hidden text-right ${
-          meta.mode === 'menu' ? 'opacity-1' : 'opacity-0 pointer-events-none'
+        className={`overflow-x-auto overflow-y-hidden text-right ${
+          meta.mode === 'menu'
+            ? 'opacity-1'
+            : `opacity-0 pointer-events-none ${meta.init ? 'hidden' : ''}`
         }`}
       >
         <div
@@ -433,12 +529,14 @@ export const Actions = ({
             .ms-Button {
               padding: 0px 3px;
               max-height: 28px;
+              align-items: center;
+
               min-width: 20px;
               height: 33px;
 
               .ms-Button-flexContainer {
                 display: flex;
-                align-items: stretch;
+                align-items: center;
 
                 .ms-Icon {
                   align-self: center;
@@ -505,7 +603,7 @@ export const Actions = ({
           `}
         >
           {meta.children}
-          {action.other && <ActionOther mode={meta.mode} />}
+          {/* {action.other && <ActionOther mode={meta.mode} />} */}
         </div>
       </div>
       {meta.mode === 'dropdown' && (
@@ -527,7 +625,7 @@ export const Actions = ({
                 border-right: 0px;
                 &:hover,
                 &.active {
-                  border-color: #0d4e98;
+                  border-color: #bebebe;
                   background: rgb(255, 255, 255);
                   background: linear-gradient(
                     0deg,
@@ -591,16 +689,17 @@ export const Actions = ({
                       display: flex;
                       align-items: center;
                       justify-content: center;
+                      color: rgb(0, 120, 212);
                     }
                     i,
                     .ms-Button-label,
                     label {
                       padding: 0px;
                       margin: 0px;
-                      color: #333;
                       cursor: pointer;
                       text-align: left;
                       text-decoration: none;
+                      color: rgb(0, 120, 212);
                     }
                   }
                 `}

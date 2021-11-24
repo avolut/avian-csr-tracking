@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { Link } from 'framework7-react'
-import type { BaseWindow } from 'web.init/src/window'
+import { BaseWindow } from 'web-init/src/window'
 
 declare const window: BaseWindow
 

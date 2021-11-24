@@ -1,20 +1,28 @@
-import type parser from '@babel/parser'
-import type traverse from '@babel/traverse'
-import type generate from '@babel/generator'
-import type { css, jsx } from '@emotion/react'
-import type { View } from 'framework7/types'
-import type { db, dbAll, waitUntil } from 'libs'
-import type get from 'lodash.get'
-import type set from 'lodash.set'
-import type { action, runInAction, toJS } from 'mobx'
-import type { observer, useLocalObservable } from 'mobx-react-lite'
-import type React from 'react'
-import type { FC, Fragment, useEffect, useRef, useState } from 'react'
-import type * as global from 'web-app/src/global'
-import type { api } from 'web.utils/src/api'
-import { loadExt } from 'web.utils/src/loadExt'
-import type { renderCMS } from './core/gen-page'
-import { getPrettier } from 'web.dev/src/internal/TemplateCode'
+import type { parse } from '@babel/core'
+import generate from '@babel/generator'
+import traverse from '@babel/traverse'
+import { css, jsx } from '@emotion/react'
+import type { db as _db } from 'db'
+import { View } from 'framework7/types'
+import { db, dbAll, waitUntil } from 'libs'
+import type _get from 'lodash.get'
+import get from 'lodash.get'
+import set from 'lodash.set'
+import type { toJS as _toJS } from 'mobx'
+import { action, runInAction, toJS } from 'mobx'
+import { observer, useLocalObservable } from 'mobx-react-lite'
+import React, {
+  FC,
+  Fragment,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import * as global from 'web-app/src/global'
+import { api } from 'web-utils/src/api'
+import { loadExt } from 'web-utils/src/loadExt'
+import { generatePage, renderCMS } from './core/gen-page'
 import { findPage } from './core/load-page'
 export type SingleFallback = {
   c: string
@@ -24,17 +32,28 @@ export type SingleFallback = {
 
 declare type FigmaTab = 'page' | 'css' | 'code' | 'effect'
 
+declare global {
+  const toJS: typeof _toJS
+  const get: typeof _get
+  type API = Record<string, any> & { db: typeof _db }
+}
+
+type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
 type ExcludeDollar<T extends string> = T extends `$${string}` ? never : T
 export type BaseWindow = Window & {
-  figmaEffectSaving: boolean
-  figmaSaveCode?: () => void
-  figmaWS: any
-  figmaJustSaved: () => void
-  figmaCodeIsTyping: any
-  figmaHtmlForCode?: { html: string; page: string; frame: any; path: string }
-  figmaSetMeta: (meta: (meta: any) => void) => void
-  figmaImageCaches: Record<any, HTMLImageElement>
+  figmaAsk: {
+    lastId: 0
+    answers: {}
+    callbacks: Record<string, any>
+  }
+  figmaImageCaches: Record<string, HTMLImageElement>
 
+  tstamp: number // server render timestamp
+  params: any
+  global: typeof window
+  crudStateID: number
+  pdfStateID: number
+  preventPopChange: boolean
   /** module stuff */
   get: typeof get
   set: typeof set
@@ -72,7 +91,12 @@ export type BaseWindow = Window & {
     }
   }
   is_dev: boolean
-  ws_dev?: WebSocket
+  ws_dev?: WebSocket & {
+    onConnected?: (ws: BaseWindow['ws_dev']) => void
+    onDisconnected?: (ws: BaseWindow['ws_dev']) => void
+    onReceive?: (msg: any, ws: BaseWindow['ws_dev']) => void
+    packAndSend: (msg: any) => void
+  }
   back: (url?: string) => Promise<void>
   navigate: (
     href: string,
@@ -85,10 +109,10 @@ export type BaseWindow = Window & {
   imported: Record<string, any>
 
   babel: {
-    prettier?: typeof getPrettier
+    prettier?: (str: string) => string
     generate?: typeof generate
     traverse?: typeof traverse
-    parse?: typeof parser.parse
+    parse?: typeof parse
   }
 
   /** template stuff */
@@ -108,18 +132,37 @@ export type BaseWindow = Window & {
   >
   cms_layouts: Record<
     string,
-    { name: string; source: string; component: React.FC<any> }
+    {
+      id: string
+      name: string
+      running: {
+        init: boolean
+        observable: any
+        lastChildren: any
+        mobx: {
+          observe: any
+          data: any
+          renderTimeout: any
+        }
+        cache: null | ReturnType<typeof renderCMS>
+      }
+      component?: React.FC<any>
+      source?: string
+      render?: () => ReactElement
+    }
   >
   cms_pages: Record<
     string,
     {
       id: string
-      layout_id: string
-      mobilePath?: string
-      ssr: boolean
+      url: string
+      lid: string // layoutID
+      sol: boolean // serverOnLoad
       name: string
-      source?: string
+      render?: () => ReactElement
       component?: React.FC
+      params?: any
+      cache?: ReturnType<typeof generatePage>
     }
   >
   renderCMS: typeof renderCMS
@@ -130,9 +173,6 @@ export type BaseWindow = Window & {
   cms_layout_id: string
   cms_base_pack: Uint8Array
   pageRendered: boolean
-  globalStateID: number
-  liveReloadPage: () => void
-  liveReloadLayout: () => Promise<void>
 
   db: Omit<typeof db, '$queryRaw'> & { query: (q: string) => Promise<any[]> }
   dbAll: typeof dbAll
@@ -141,17 +181,22 @@ export type BaseWindow = Window & {
   platform: 'web' | 'mobile'
   build_id: string
 
-  baseListComponent: null | Record<string,{ Table: FC; Filter: FC }>
+  baseListComponent: null | Record<string, { Table: FC; Filter: FC }>
 
   /** dev stuff */
   Buffer?: any
+  devAskPlatform: {
+    lastId: 0
+    answers: {}
+    callbacks: Record<string, any>
+  }
   devUnsaved?: boolean
   devFormatCode?: () => Promise<void>
   devIsComponentEditorOpen?: boolean
 
   /** web */
   webApp: {
-    render: (href: string) => void
+    render: (href: string, init?: boolean) => void
   }
 
   /** mobile */

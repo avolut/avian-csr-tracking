@@ -12,7 +12,6 @@ export type IFieldType =
   | 'boolean'
   | 'number'
   | 'date'
-  | 'datetime'
   | 'relation'
   | 'phone'
   | 'select'

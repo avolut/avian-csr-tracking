@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { IColumn as FluentColumn } from '@fluentui/react'
-import { niceCase } from 'web.utils/src/niceCase'
+import { niceCase } from 'web-utils/src/niceCase'
 import { IColumn, IColumnDetail } from '../../../ext/types/list'
 import get from 'lodash.get'
 export const formatColumns = (

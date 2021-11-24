@@ -3,8 +3,8 @@ import { css, jsx } from '@emotion/react'
 import { List, ListInput } from 'framework7-react'
 import set from 'lodash.set'
 import { useContext } from 'react'
-import { useRender } from 'web.utils/src/useRender'
-import type { IBaseFieldProps } from '../../../../../ext/types/__form'
+import { useRender } from 'web-utils/src/useRender'
+import { IBaseFieldProps } from '../../../../../ext/types/__form'
 import { resolveValue } from './Minfo'
 
 export const MText = ({ ctx, internalChange, name }: IBaseFieldProps) => {

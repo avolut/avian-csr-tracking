@@ -2,10 +2,10 @@ import { dirs, log, modules } from 'boot'
 import { build, BuildOptions, BuildResult, Platform, Plugin } from 'esbuild'
 import { pathExists, readJSON } from 'fs-extra'
 import { dirname, join } from 'path'
-import { CustomGlobal } from '.'
+import { BuilderGlobal } from '.'
 import { Watcher } from './watcher'
 
-declare const global: CustomGlobal
+declare const global: BuilderGlobal
 
 export interface IBuilderArgs {
   name?: string
@@ -17,7 +17,7 @@ export interface IBuilderArgs {
   plugins?: any[]
   external?: string[]
   watch?: string[]
-  onChange?: (event: string, path: string) => Promise<void>
+  onChange?: (event: string, path: string, builder?: Builder) => Promise<void>
   onBuilt?: (result: BuildResult, buildInfo?: any) => Promise<void>
 }
 
@@ -33,6 +33,7 @@ export class Builder {
   plugins?: Plugin[]
   buildOptions?: BuildOptions
   process?: Promise<BuildResult>
+  onMessage?: (msg) => Promise<void>
   onBuilt?: (result: BuildResult, buildInfo?: any) => Promise<void>
 
   watcher?: Watcher
@@ -46,14 +47,14 @@ export class Builder {
       loader: {
         '.node': 'binary',
       },
-      plugins: opt.plugins,
+      allowOverwrite: true,
+      plugins: [...(opt.plugins || [])],
       bundle: true,
       define: {
         'process.env.NODE_ENV':
           global.mode === 'dev' ? '"development"' : '"production"',
       },
       external: opt.external,
-      nodePaths: [join(dirs.root, 'node_modules')],
       format: opt.platform === 'node' ? 'cjs' : 'esm',
       ...opt.buildOptions,
     })
@@ -66,11 +67,11 @@ export class Builder {
     if (Array.isArray(this.external) && this.external.indexOf('...deps')) {
       this.external.splice(this.external.indexOf('...deps'), 1, ...external)
     }
+
     const finalExternal = [
       ...(this.external !== undefined ? this.external : external),
     ]
     const entry = Array.isArray(this.in) ? this.in : [this.in]
-
     const buildOpt = {
       entryPoints: entry,
       outfile: this.out,
@@ -79,31 +80,26 @@ export class Builder {
       loader: {
         '.node': 'binary',
       },
-      plugins: this.plugins,
+      plugins: [...(this.plugins || [])],
+      metafile: true,
       bundle: true,
       define: {
         'process.env.NODE_ENV':
           global.mode === 'dev' ? '"development"' : '"production"',
       },
       external: finalExternal,
-      nodePaths: [join(dirs.root, 'node_modules')],
       format: this.platform === 'node' ? 'cjs' : 'esm',
-    } as any
-
-    // const nodeInSub = join(dirname(entry[0]), '..', 'node_modules')
-    // if (await pathExists(nodeInSub)) {
-    //   buildOpt.nodePaths.unshift(nodeInSub)
-    // }
+    } as BuildOptions
 
     if (this.buildOptions) {
       for (let [k, v] of Object.entries(this.buildOptions)) {
         buildOpt[k] = v
       }
     }
+
     try {
       this.process = build(buildOpt)
       const result = await this.process
-
       if (this.onBuilt) {
         await this.onBuilt(result, buildInfo)
       }
@@ -111,9 +107,10 @@ export class Builder {
       this.status = 'done'
 
       return result
-    } catch (e) {
+    } catch (e: any) {
+      this.status = 'done'
       console.log('')
-      log(this.name, e.toString())
+      log('error', `Failed to build pool.${this.name}:\n${e.message}`)
       return null
     }
   }

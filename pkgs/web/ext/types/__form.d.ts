@@ -17,6 +17,8 @@ export interface IBaseFieldContext {
     | React.ReactElement
     | (({ row: any, state: IBaseFormContext }) => string | React.ReactElement)
   value: any
+  undoValue?: any
+  isChanged: boolean
   placeholder?: string
   info?: string
   type: IFieldType
@@ -43,14 +45,28 @@ export interface IBaseFieldContext {
     opt: { state: IBaseFormContext; row: any; rowIdx?: number; col: string }
   ) => void
   parent: IBaseFormContext | null
-  items?: (string | { value: string; label: string })[]
+  popup?: {
+    title: string
+    value: (prop: { state: IBaseFieldContext }) => string
+    children: (prop: {
+      state: IBaseFieldContext
+      onChange: (value: string) => void
+    }) => React.ReactElement
+  }
+  items?:
+    | { table: string; label?: string; onSelect?: (row: any) => void }
+    | string[]
+    | { value: string; label: string }[]
   customRender?: (props: {
     row: any
     state: IBaseFormContext
     Component?: React.FC<IBaseFieldMainProps>
     props?: IBaseFieldMainProps
   }) => React.ReactElement
-  fieldProps: any
+  fieldProps?: {
+    readOnly?: boolean
+    acceptFile?: any
+  }
 }
 
 type IFormTabs = (
@@ -99,7 +115,7 @@ export interface IBaseFormContext extends IBaseContext {
       title?:
         | string
         | ((props: { state: IBaseFormContext; row: any }) => string)
-      action?: (state) => IAction | IAction
+      action?: IAction | ((state) => IAction)
       render?: () => void
     }
     layout: IFormLayout
@@ -128,7 +144,7 @@ export interface IBaseFormContext extends IBaseContext {
   fieldTypes: any
   db: {
     tableName?: string
-    data: Record<string, any> & { __meta: IBaseFormRowMeta }
+    data: Record<string, any>
     loading: boolean
     params: any
     errors: string[]
@@ -140,12 +156,13 @@ export interface IBaseFormContext extends IBaseContext {
       | 'ready'
       | 'changed'
       | 'validation-error'
+      | 'save-error'
       | 'saving'
       | 'success'
       | 'failed'
     saveErrorMsg?: string
-    lastErrors?: Record<string, string[]>
-    save: (data?: any) => Promise<boolean>
+    previousErrors?: Record<string, string[]>
+    save: (options?: { data?: any; back?: boolean }) => Promise<boolean>
   }
 }
 
@@ -172,7 +189,7 @@ export type IFormLayout = (
       row: any
       watch: (fields: string[]) => void
       update: (row: any) => void
-      layout: (layout: any) => React.ReactElement | null
+      layout: (layout: any) => React.ReactElement
       state: IBaseFormContext
     }) => React.ReactElement)
   | IFormLayout

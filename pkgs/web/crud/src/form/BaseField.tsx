@@ -1,10 +1,10 @@
 /** @jsx jsx */
-import { jsx, css } from '@emotion/react'
-import { Context, FC, ReactElement, useContext, useEffect, useRef } from 'react'
-import type { BaseWindow } from 'web.init/src/window'
-import { useRender } from 'web.utils/src/useRender'
-import type {
-  IBaseFieldContext,
+import { css, jsx } from '@emotion/react'
+import { ReactElement, useContext, useEffect, useRef } from 'react'
+import { BaseWindow } from 'web-init/src/window'
+import { fastDeepEqual } from 'web-utils/src/fastDeepEqual'
+import { useRender } from 'web-utils/src/useRender'
+import {
   IBaseFieldMainProps,
   IBaseFormContext,
   IFormField,
@@ -26,6 +26,7 @@ export const BaseField = (props: IBaseFieldMainProps) => {
   const parent = useContext(props.ctx)
   const state = parent.config.fields[props.name].state
 
+  state.parent = parent
   state.render = render
   useEffect(() => {
     ;(async () => {
@@ -64,11 +65,31 @@ export const BaseField = (props: IBaseFieldMainProps) => {
     if (parent.config.header && parent.config.header.render)
       parent.config.header.render()
 
-    if (value !== undefined && value !== null && value !== '') {
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== '' &&
+      state.required
+    ) {
       state.error = ''
     }
 
+    state.isChanged = false
+    if (
+      typeof state.undoValue === 'object' ||
+      typeof state.value === 'object'
+    ) {
+      if (!fastDeepEqual(state.undoValue, state.value)) {
+        state.isChanged = true
+      }
+    } else {
+      if (state.undoValue !== state.value) {
+        state.isChanged = true
+      }
+    }
+
     render()
+
     if (parent.config.watches[state.name]) {
       parent.config.watches[state.name].forEach((renderField) => {
         renderField()
@@ -130,6 +151,7 @@ export const BaseField = (props: IBaseFieldMainProps) => {
   ) : (
     <FieldWrapper
       state={state}
+      internalChange={internalChange}
       title={renderedTitle}
       required={meta.required.result}
       error={state.error}
@@ -160,6 +182,33 @@ const PrefixSuffix = ({
         className="flex flex-1 relative items-stretch"
         css={css`
           height: 32px;
+
+          ${state.config.fields[name].state.readonly &&
+          css`
+            .presufix {
+              color: #888;
+              background:white !important;
+              border-color: #ccc !important;
+              border-left: 1px solid #ccc !important;
+
+            }
+          `}
+
+          ${prefix &&
+          css`
+            .ms-TextField-fieldGroup {
+              border-top-left-radius: 0px;
+              border-bottom-left-radius: 0px;
+            }
+          `}
+
+          ${suffix &&
+          css`
+            .ms-TextField-fieldGroup {
+              border-top-right-radius: 0px;
+              border-bottom-right-radius: 0px;
+            }
+          `}
         `}
       >
         {prefix && (
@@ -210,7 +259,7 @@ const FieldFix = ({
   if (el) {
     return (
       <div
-        className="flex items-center border px-2 border-gray-700 bg-white rounded-sm"
+        className="presufix flex items-center border px-2 border-gray-700 bg-gray-100 rounded-sm"
         css={
           mode === 'prefix'
             ? css`

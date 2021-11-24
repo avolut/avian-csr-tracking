@@ -1,12 +1,13 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { Context, createContext, ReactElement, useContext, useRef } from 'react'
-import { useRender } from 'web.utils/src/useRender'
+import { useRender } from 'web-utils/src/useRender'
 import { IBaseFormContext } from '../../../../ext/types/__form'
-import { IBaseListContext, IBaseListRowMeta } from '../../../../ext/types/__list'
 import {
-  createFormContext
-} from '../../form/BaseForm'
+  IBaseListContext,
+  IBaseListRowMeta,
+} from '../../../../ext/types/__list'
+import { createFormContext } from '../../form/BaseForm'
 
 export const BaseListWebRow = (props: {
   row: Record<string, any> & { __listMeta: IBaseListRowMeta }
@@ -17,7 +18,7 @@ export const BaseListWebRow = (props: {
 }) => {
   const _ = useRef({
     cursorPointer: true,
-    children: null as ReactElement,
+    children: null as null | ReactElement,
   })
   const { row, children, ctx, idx } = props
   const state = useContext(ctx)
@@ -41,7 +42,7 @@ export const BaseListWebRow = (props: {
     meta.children = children(props.rowProps)
   }
 
-  if (!mtbl.onRowClick) {
+  if (!mtbl.onRowClick || mtbl.isRowClickable === false) {
     meta.cursorPointer = false
   }
 
@@ -56,12 +57,19 @@ export const BaseListWebRow = (props: {
     }
   }
 
+  let cursor = '';
+  if (meta.cursorPointer) {
+    cursor = 'cursor-pointer'
+  }
+
+  if (state.db.loading || state.db.partialLoading) {
+    cursor = 'cursor-wait'
+  }
+
   let rowBody = (
     <>
       <div
-        className={`flex flex-1 items-stretch ${
-          meta.cursorPointer ? `cursor-pointer ` : ``
-        }`}
+        className={`flex flex-1 items-stretch ${cursor}`}
         css={css`
           > div {
             flex: 1;
@@ -69,10 +77,6 @@ export const BaseListWebRow = (props: {
         `}
         onClick={(ev) => {
           if (mtbl.onRowClick) {
-            if (state.table.editable) {
-              return true
-            }
-
             mtbl.onRowClick(row, idx, ev, state)
           }
         }}
@@ -117,26 +121,25 @@ const initEditable = ({
   render: () => void
   idx: number
 }) => {
-  row.__listMeta.editable = {
-    ctx: createContext({} as IBaseFormContext),
-    state: createFormContext(
-      {
-        table: state.db.tableName,
-        data: row,
-        alter: {},
-        layout: [],
-      },
-      () => {}
-    ),
-  }
-
-  const initForm = row.__listMeta.editable
-  initForm.state.tree.parent = state
-  initForm.state.component.render = () => {
-    render()
-    for (let v of Object.values(initForm.state.config.fields)) {
-      if (v && v.state) v.state.render()
-    }
-  }
-  initForm.state.db.definition = state.db.definition
+  // row.__listMeta.editable = {
+  //   ctx: createContext({} as IBaseFormContext),
+  //   state: createFormContext(
+  //     {
+  //       table: state.db.tableName,
+  //       data: row,
+  //       alter: {},
+  //       layout: [],
+  //     },
+  //     () => {}
+  //   ),
+  // }
+  // const initForm = row.__listMeta.editable
+  // initForm.state.tree.parent = state
+  // initForm.state.component.render = () => {
+  //   render()
+  //   for (let v of Object.values(initForm.state.config.fields)) {
+  //     if (v && v.state) v.state.render()
+  //   }
+  // }
+  // initForm.state.db.definition = state.db.definition
 }

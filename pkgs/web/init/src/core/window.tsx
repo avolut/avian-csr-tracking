@@ -1,16 +1,16 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { db, dbAll, waitUntil } from 'libs'
-import { loadExt } from 'web.utils/src/loadExt'
+import { loadExt } from 'web-utils/src/loadExt'
 
 import get from 'lodash.get'
 import set from 'lodash.set'
 import { action, observable, runInAction, toJS } from 'mobx'
 import { observer, useLocalObservable } from 'mobx-react-lite'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
+import { api } from 'web-utils/src/api'
+import { BaseWindow } from '../window'
 import * as global from 'web-app/src/global'
-import { api } from 'web.utils/src/api'
-import type { BaseWindow } from '../window'
 
 declare const window: BaseWindow
 
@@ -20,6 +20,16 @@ for (let [k, v] of Object.entries(global)) {
   window[k] = v
 }
 
+
+if (!(window as any).process) {
+  ;(window as any).process = { env: {} }
+}
+
+window.figmaAsk = {
+  lastId: 0,
+  answers: {},
+  callbacks: {},
+}
 window.user = observable(window.user)
 window.set = set
 window.get = get
@@ -57,10 +67,11 @@ window.observer = observer
 window.useLocalObservable = useLocalObservable
 window.babel = {}
 window.addEventListener('popstate', (e) => {
-  if (e.state === null) {
-    e.preventDefault()
-    return false
+  if (window.preventPopChange) {
+    window.preventPopChange = false
+    return
   }
+
   if (window.platform === 'mobile') {
     window.mobileApp.back(location.pathname)
   } else {
@@ -72,6 +83,7 @@ window.back = async (href) => {
 }
 window.navigate = async (href, opt) => {
   if (window.platform === 'mobile') {
+    console.log('nav', href)
     history.pushState({}, '', href)
     window.mobileApp.navigate(href)
   } else {

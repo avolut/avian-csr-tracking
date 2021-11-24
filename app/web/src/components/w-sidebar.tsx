@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { useLocalObservable } from 'mobx-react-lite'
-import { useComponent } from 'web.utils/component'
+import { useComponent } from 'web-utils/component'
 
 export default ({ role, children }) => {
   const meta = useLocalObservable(() => ({
@@ -27,5 +27,5 @@ export default ({ role, children }) => {
       toggleMaster,
     }
   )
-  return eval(_component.render)
+  return new Function(_component.render).bind(_component)()
 }

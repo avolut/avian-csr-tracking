@@ -5,7 +5,7 @@ export { BuilderPool } from './builderpool'
 export { expose } from './thread'
 export { Watcher } from './watcher'
 
-export interface CustomGlobal extends NodeJS.Global {
+export interface BuilderGlobal extends NodeJS.Global {
   mode: 'dev' | 'prod'
 }
 

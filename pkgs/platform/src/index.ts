@@ -1,40 +1,39 @@
 import { expose } from 'builder'
-import { CustomGlobal, MainControl, server } from './server'
-import fetch from 'node-fetch'
-declare const global: CustomGlobal
+import { parentPort } from 'worker_threads'
+import { initEnv } from './env/env-init'
+import { startServer } from './server'
+import { PlatformGlobal } from './types'
 
-global.fetch = fetch
+declare const global: PlatformGlobal
 
-let main: MainControl = {
-  signal: async () => {},
-  onMessage: async () => {},
+// when invoked by builder pool. it is dev
+if (parentPort) {
+  expose({
+    start: async (parent, args) => {
+      await initEnv(args.mode, parent)
+      if (global.pool) {
+        if (args.mode === 'dev') {
+          if (global.pool.shouldExit) {
+            return
+          }
+        }
+      }
+      startServer()
+    },
+    onMessage: async (raw: any) => {
+      if (global.pool) {
+        global.pool.onMessage(raw)
+      }
+    },
+  })
 }
 
-export const start = (port: number) => {
-  main.signal = async (module, data) => {
-    if (data === 'server-ready') {
-      main.onMessage({
-        action: 'start',
-        port,
-      })
-    } 
-  }
-  server(main, 'prod')
+// when invoked stand alone. it is prod
+else {
+  if (!global.build) global.build = {} as any
+  global.build.tstamp = new Date().getTime()
+
+  initEnv('prod').then(async () => {
+    await startServer()
+  })
 }
-
-expose({
-  start: async (parent, mode) => {
-    main.signal = async (module, data) => {
-      parent.sendTo('main', {
-        type: 'platform-signal',
-        module,
-        data,
-      })
-    }
-
-    await server(main, mode, parent)
-  },
-  onMessage: async (msg: any) => {
-    await main.onMessage(msg)
-  },
-})

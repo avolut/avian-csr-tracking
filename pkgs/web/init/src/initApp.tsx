@@ -1,25 +1,30 @@
+import { configure } from 'mobx'
 import 'regenerator-runtime/runtime.js' // polyfill for old browser
-import { defineCMS, detectPlatform } from './core/platform'
+import { defineCMS, detectPlatform, reloadAllComponents } from './core/platform'
 import { defineWindow } from './core/window'
+import { BaseWindow } from './window'
 import { initHmr } from './initHmr'
-import { mobileInit } from './mobile/mobile-init'
-import { webInit } from './web/web-init'
-import type { BaseWindow } from './window'
+configure({ enforceActions: 'never' })
 
 declare const window: BaseWindow
+window.global = {} as any
 
 export const initApp = async (opt?: { Root?: any; notFoundURL?: string }) => {
-  await detectPlatform() // window.platform
-  await defineWindow() // window.*  
-  await defineCMS() // window.cms_* 
+  await Promise.all([
+    await detectPlatform(), // window.platform
+    await defineWindow(), // window.*
+    await defineCMS(), // window.cms_*
+  ])
 
-  if (window.is_dev && location.pathname !== '/figma') { 
+  await reloadAllComponents()
+
+  if (window.is_dev) {
     initHmr()
   }
 
   if (window.platform === 'web') {
-    webInit()
+    ;(await import('./web/web-init')).webInit()
   } else if (window.platform === 'mobile') {
-    mobileInit()
+    ;(await import('./mobile/mobile-init')).mobileInit()
   }
 }

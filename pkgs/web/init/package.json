@@ -1,24 +1,37 @@
 {
-  "name": "web.init",
+  "name": "web-init",
   "version": "1.0.0",
   "types": "./src/index.tsx",
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.4.0",
-    "@fluentui/react": "^8.27.0",
+    "@emotion/react": "^11.5.0",
+    "@fluentui/react": "^8.41.0",
     "@monaco-editor/react": "^4.3.1",
-    "framework7": "^6.3.3",
-    "framework7-react": "^6.3.3",
-    "html-react-parser": "^1.2.7",
+    "db": "workspace:^",
+    "framework7": "^6.3.7",
+    "framework7-react": "^6.3.6",
+    "html-react-parser": "^1.4.0",
+    "libs": "workspace:^",
     "lodash.get": "^4.4.2",
-    "msgpackr": "^1.4.3",
+    "lodash.set": "^4.3.2",
+    "mobx": "^6.3.3",
+    "mobx-react-lite": "^3.2.1",
+    "msgpackr": "^1.4.4",
+    "pako": "^2.0.4",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-refresh": "^0.10.0",
     "react-transition-group": "^4.4.2",
-    "regenerator-runtime": "^0.13.9"
+    "regenerator-runtime": "^0.13.9",
+    "tslib": "^2.3.1",
+    "web-app": "workspace:^",
+    "web-mobile": "workspace:^",
+    "web-utils": "workspace:^",
+    "web-view": "workspace:^"
   },
   "main": "./build/index.js",
-  "scripts": {
-    "postinstall": "patch-package"
+  "devDependencies": {
+    "@types/lodash.set": "^4.3.6"
   }
 }

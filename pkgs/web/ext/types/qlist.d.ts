@@ -81,6 +81,7 @@ export interface IQLTable {
   create?: false | string
   className?: string
   onLoad?: (list) => void
+  onSwipeoutDeleted?: (row: any) => void
   swipeout?: (
     row: any,
     components: { Swipe: any; Delete: any; Edit: any }

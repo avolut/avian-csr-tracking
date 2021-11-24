@@ -1,83 +1,110 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import type { BaseWindow } from 'web.init/src/window'
-import { Icon, Label } from '@fluentui/react'
-import { useRef, useEffect } from 'react'
-import { useRender } from 'web.utils/src/useRender'
+import { BaseWindow } from 'web-init/src/window'
+import { Label } from '@fluentui/react'
+import { useRef, useEffect, memo } from 'react'
+import { useRender } from 'web-utils/src/useRender'
 
-type IMenuSingle = { title: string; url?: string; children: IMenuSingle[] }
+type IMenuSingle = {
+  idx: number
+  title: string
+  url?: string
+  opened?: boolean
+  active?: boolean
+  render?: () => void
+  siblings: IMenuSingle[]
+  children: IMenuSingle[]
+  parent: IMenuSingle
+}
 
 declare const window: BaseWindow
 
 type IMenuMeta = {
   active: number[]
+  renderTimeout: ReturnType<typeof setTimeout>
 }
 
-export const Menu = ({
-  data,
-  className,
-}: {
-  data: IMenuSingle[]
-  className?: string
-}) => {
-  const _ = useRef({
-    active: [],
-  } as IMenuMeta)
-  const meta = _.current
+export const Menu = memo(
+  ({ data, className }: { data: IMenuSingle[]; className?: string }) => {
+    if (!(window as any).menuView) {
+      ;(window as any).menuView = {
+        active: [],
+        renderTimeout: 0 as any,
+      }
+    }
+    const menus = toJS(data)
+    const meta = (window as any).menuView
+    const _render = useRender()
+    const render = () => {
+      if (meta.renderTimeout) {
+        clearTimeout(meta.renderTimeout)
+      }
+      meta.renderTimeout = setTimeout(() => {
+        _render()
+      }, 1000)
+    }
 
-  return (
-    <div
-      className={`${
-        className || ''
-      } relative self-stretch flex flex-1 overflow-auto`}
-    >
-      <div className="absolute inset-0 menu-container">
-        <MenuTree
-          menus={data}
-          meta={meta}
-          level={0}
-          isParentActive={true}
-          activateParent={() => {}}
-        />
+    const walk = (menus: IMenuSingle[], parent?: IMenuSingle) => {
+      for (let menu of menus) {
+        menu.active = false
+        menu.opened = false
+        if (parent) menu.parent = parent
+        if (menu.url === location.pathname) {
+          menu.active = true
+          let cur = menu
+          while (cur.parent) {
+            cur = cur.parent
+            cur.active = true
+            cur.opened = true
+          }
+        }
+        if (menu.children) {
+          walk(menu.children, menu)
+        }
+      }
+    }
+    walk(menus)
+
+    return (
+      <div
+        className={`${
+          className || ''
+        } relative self-stretch flex flex-1 overflow-auto`}
+      >
+        <div className="absolute inset-0 menu-container">
+          <MenuTree menus={menus} meta={meta} level={0} render={render} />
+        </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
+)
 
 export const MenuTree = ({
   menus,
   meta,
   parent,
   level,
-  isParentActive,
-  activateParent,
+  render,
 }: {
   level: number
   menus: IMenuSingle[]
   meta: IMenuMeta
   parent?: IMenuSingle
-  isParentActive: boolean
-  activateParent: () => void
+  render: () => void
 }) => {
-  const render = useRender()
-
   return (
     <div className={`menu-tree flex flex-col items-stretch`}>
       {menus.map((e, idx) => {
+        e.idx = idx
+        if (parent) e.parent = parent
+        e.siblings = menus
         return (
           <MenuSingle
             key={idx}
-            idx={idx}
             menu={e}
+            render={render}
             meta={meta}
-            parent={parent}
             level={level}
-            isParentActive={isParentActive}
-            activateParent={() => {
-              activateParent()
-              meta.active.push(idx)
-              render()
-            }}
           />
         )
       })}
@@ -91,104 +118,58 @@ export const MobileText = (props) => {
 
 export const MenuSingle = ({
   menu,
-  idx,
   meta,
-  parent,
-  isParentActive,
-  activateParent,
+  render,
   level,
 }: {
-  idx: number
   level: number
   menu: IMenuSingle
   meta: IMenuMeta
-  isParentActive: boolean
-  parent?: IMenuSingle
-  activateParent: () => void
+  render: () => void
 }) => {
-  const _ = useRef({
-    collapsed: true,
-  })
-  const internal = _.current
-  const current = internal
   const Text = window.platform === 'web' ? Label : MobileText
-  const render = useRender()
-
-  useEffect(() => {
-    if (menu.url && location.pathname === menu.url) {
-      activateParent()
-      meta.active.push(idx || 0)
-      render()
-    }
-  }, [])
-  useEffect(() => {
-    if (meta.active[level] === idx) {
-      internal.collapsed = false
-      render()
-    }
-  }, [isParentActive])
-
-  let isMenuActive =
-    meta.active.length >= level && meta.active[level] === idx && isParentActive
-
-  let icon = isMenuActive ? 'ChevronDownSmall' : 'ChevronRightSmall'
-
-  let color = isMenuActive ? 'red' : 'grey'
-
+  const _render = useRender()
+  menu.render = _render
   return (
-    <div className={`flex my-1`}>
-      {menu.children && (
-        <Icon iconName={icon} style={{ color: color, paddingRight: 5 }} />
-      )}
-      <div
-        className={`menu-item flex flex-col cursor-pointer ${
-          isMenuActive ? 'active' : ''
-        } ${current.collapsed ? 'collapsed' : ''}`}
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          if (menu.children) {
-            current.collapsed = !current.collapsed
-            render()
-          } else if (menu.url) {
-            meta.active = []
-            activateParent()
-            meta.active.push(idx || 0)
-            render()
-            window.navigate(menu.url)
+    <div
+      className={`menu-item flex flex-col cursor-pointer ${
+        menu.active ? 'active' : ''
+      } ${!menu.opened ? 'collapsed' : ''}`}
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (menu.children) {
+          menu.opened = !menu.opened
+          menu.active = !!menu.opened
+          let cur = menu
+          for (let i of cur.siblings) {
+            if (i !== menu) i.opened = false
+            menu.render()
           }
-        }}
+        } else if (menu.url) {
+          window.navigate(menu.url)
+        }
+      }}
+    >
+      <Text
+        className="menu-title cursor-pointer"
+        css={css`
+          margin: 0px;
+          padding: 0px;
+        `}
       >
-        <div className={'flex flex-row'}>
-          {isMenuActive && !menu.children && (
-            <div className={'border-l-2 border-red-500 mr-3'}></div>
-          )}
-          <Text
-            className="menu-title cursor-pointer"
-            style={{ color: color }}
-            css={css`
-              margin: 0px;
-              padding: 0px;
-            `}
-          >
-            {menu.title}
-          </Text>
-        </div>
-        <div className={`${!internal.collapsed ? 'flex' : 'hidden'} flex-col`}>
-          {menu.children && (
-            <MenuTree
-              menus={menu.children}
-              meta={meta}
-              parent={menu}
-              level={level + 1}
-              isParentActive={meta.active[level] === idx}
-              activateParent={() => {
-                meta.active.push(idx)
-                render()
-              }}
-            />
-          )}
-        </div>
+        {menu.title}
+      </Text>
+      <div className={`${menu.opened ? 'flex' : 'hidden'} flex-col`}>
+        {menu.children && (
+          <MenuTree
+            menus={menu.children}
+            meta={meta}
+            parent={menu}
+            render={render}
+            level={level + 1}
+          />
+        )}
       </div>
     </div>
   )

@@ -17,11 +17,12 @@ export class Runner {
 
   async kill() {
     if (this.thread) {
-      try {
-        await this.thread.terminate()
-      } catch (e) {
-        console.log(e)
-      }
+      this.thread.send('exit')
+      // try {
+      //   await this.thread.terminate()
+      // } catch (e) {
+      //   console.log('Failed to kill runner: ' + this.name, e)
+      // }
       this.events.onKill(this)
     }
   }
@@ -61,6 +62,9 @@ export class Runner {
     this.path = path
     this.pool = pool
     this.startArgs = args
+    if (pool.builders[name].onMessage) {
+      this.onMessage(pool.builders[name].onMessage)
+    }
     this.start()
   }
 }
