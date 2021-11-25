@@ -1,174 +1,54 @@
 base(
   {
-    meta: { tab: "lacak", formDoc: {} },
-    init: ({ meta }) => {},
+    meta: {
+      loading: true,
+      reports: [] as any[],
+      METABASE_SITE_URL: ""
+    },
+    init: ({ meta }) => {
+      const _init = async () => {
+        const config = await db.m_config.findFirst({
+          where: {
+            type: "METABASE_SITE_URL"
+          }
+        })
+
+        const metabases = await db.m_metabase.findMany({
+          where: {
+            type: "lacak-csr"
+          }
+        })
+
+        const _metabases: any[] = []
+        await globalVar.asyncForEach(metabases, async (m) => {
+          const credential = await api("/api/login-metabase", { resource: m.resource, params: {} })
+          const iframeUrl = config.value + "/embed/dashboard/" + credential.token + "#bordered=true&titled=true";
+          _metabases.push({ ...m, iframeUrl })
+        })
+
+        meta.reports = _metabases
+        meta.loading = false
+      }
+
+      _init()
+    },
   },
   ({ meta }) => (
-    <>
-      <div class="flex flex-col w-full">
-        <div class="list-reset flex border-b">
-          <a
-            class={`bg-white inline-block py-2 px-4 font-semibold hover:text-green-400 ${
-              meta.tab == "lacak" && "border-l border-t border-r rounded-t"
-            }`}
-            href="#"
-            onClick={action(() => {
-              meta.tab = "lacak";
-            })}
-          >
-            Lacak Progress
-          </a>
-          <a
-            class={`bg-white inline-block py-2 px-4 hover:text-green-400 font-semibold ${
-              meta.tab == "dokumentasi" &&
-              "border-l border-t border-r rounded-t"
-            }`}
-            href="#"
-            onClick={action(() => {
-              meta.tab = "dokumentasi";
-            })}
-          >
-            Dokumentasi
-          </a>
-        </div>
-        {meta.tab === "lacak" && (
-          <admin
-            nav={["instansi_penerima"]}
-            content={{
-              "Instansi Penerima": {
-                table: "m_instansi_penerima",
-                label: "Instansi Penerima",
-                list: {
-                  table: {
-                    onRowClick: (row) => {},
-                    columns: [
-                      [
-                        "instansi_penerima",
-                        {
-                          title: "Keterangan",
-                          width: 200,
-                        },
-                      ],
-                      [
-                        "m_setting_target",
-                        {
-                          title: "Target",
-                          value: (item) => {
-                            const target =
-                              item.m_setting_target[0]?.target || "";
-                            return <span>{target}</span>;
-                          },
-                        },
-                      ],
-                    ],
-                  },
-                  params: {
-                    include: {
-                      m_setting_target: true,
-                    },
-                  },
-                },
-                form: {
-                  create: {
-                    title: "Tambah",
-                    visbile: false,
-                  },
-                  action: {
-                    jsonEdit: false,
-                    save: false,
-                    delete: false,
-                  },
-                },
-              },
-            }}
-          />
-        )}
-        {meta.tab == "dokumentasi" && (
-          <admin
-            nav={["dokumentasi"]}
-            content={{
-              Dokumentasi: {
-                table: "t_csr_dokumentasi",
-                label: "Dokumentasi",
-                list: {
-                  table: {
-                    onRowClick: (row) => {
-                      navigate("/admin/csr#" + Number(row.id_csr));
-                    },
-                    columns: [
-                      [
-                        "tipe",
-                        {
-                          title: "Tipe",
-                        },
-                      ],
-                      [
-                        "created_date",
-                        {
-                          title: "Tanggal upload",
-                        },
-                      ],
-                      [
-                        "url_file",
-                        {
-                          title: "File",
-                          value: (item) => {
-                            const url = window.location.origin + item.url_file;
-                            const fileName = item.url_file.split("/").at(-1);
-                            return <a href={url}>{fileName}</a>;
-                          },
-                        },
-                      ],
-                      [
-                        "caption",
-                        {
-                          title: "Keterangan",
-                        },
-                      ],
-                      [
-                        "_",
-                        {
-                          title: "Nomor CSR",
-                          value: (item) => {
-                            const nocsr = item.t_csr.no_kegiatan;
-                            return <span>{nocsr}</span>;
-                          },
-                        },
-                      ],
-                      [
-                        "id_csr",
-                        {
-                          title: "Nama Project CSR",
-                          value: (item) => {
-                            const namacsr = item.t_csr.nama_project_csr;
-                            return <span>{namacsr}</span>;
-                          },
-                        },
-                      ],
-                    ],
-                  },
-                  params: {
-                    include: {
-                      t_csr: true,
-                    },
-                  },
-                },
-                form: {
-                  create: {
-                    title: "Tambah",
-                    visbile: false,
-                  },
-                  action: {
-                    jsonEdit: false,
-                    save: false,
-                    delete: false,
-                  },
-                },
-              },
-            }}
-          />
-        )}
-      </div>
-    </>
+    <div className="flex flex-1">
+      {meta.loading ? <loading /> : (<pure-tab
+        tabs={meta.reports.map((el: any, idx) => {
+          return {
+            title: el.title,
+            component: () => <iframe
+              className="w-full"
+              key={idx}
+              src={el.iframeUrl}
+            />
+          }
+        })
+          .filter((e) => !!e.title)}
+        position={"top"}
+      />)}
+    </div >
   )
 );
