@@ -11,4 +11,5 @@ export default {
   'w-topbar': () => [import('./components/w-topbar')],
   'inp-text': () => [import('./components/inp-text')],
   btn: () => [import('./components/btn')],
+  "pure-tab": () => [import('web-crud/src/form/web/WFormTab')],
 }

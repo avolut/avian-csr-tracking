@@ -18,6 +18,7 @@ base(
       }
 
       const titleHeader = {
+        "/admin/dashboard": "Dashboard",
         "/admin/csr": "CSR",
         "/admin/summary-report": "Summary Report",
         "/admin/setting-target": "Setting Target",
@@ -42,38 +43,30 @@ base(
     },
   },
   ({ meta, children }) => (
-    <>
-      <>
-        <div class={`bg-white flex flex-1 overflow-hidden`}>
-          <div class="flex flex-1 self-stretch items-start justify-start">
-            <w-sidebar role={window.user.role} />
-            <div class="flex flex-1 self-stretch flex-col items-start justify-start bg-white">
-              <div
-                class={`flex self-stretch flex-col items-start justify-start`}
-              >
-                <w-topbar
-                  class={`flex flex-1 self-stretch items-center justify-start px-5 bg-green-50 border border-indigo-50`}
-                  title={meta.titleHeader}
-                  open={meta.open}
-                  onClickOpen={() => {
-                    runInAction(() => {
-                      meta.open = !meta.open;
-                    });
-                  }}
-                />
-              </div>
-              <div
-                class={`flex flex-1 self-stretch justify-center`}
-                style={css`
-                  height: 100%;
-                `}
-              >
-                {children}
-              </div>
-            </div>
-          </div>
+    <div class={`bg-white flex flex-1 overflow-hidden`}>
+      <w-sidebar role={window.user.role} />
+      <div class="flex flex-1 self-stretch flex-col items-start justify-start bg-white">
+        <div
+          class={`flex self-stretch flex-col items-start justify-start`}
+        >
+          <w-topbar
+            class={`flex flex-1 self-stretch items-center justify-start px-5 bg-green-50 border border-indigo-50`}
+            title={meta.titleHeader}
+            open={meta.open}
+            onClickOpen={() => {
+              runInAction(() => {
+                meta.open = !meta.open;
+              });
+            }}
+          />
         </div>
-      </>
-    </>
+        <div
+          class="flex-1 flex items-stretch self-stretch"
+          style="> div { flex:1 }"
+        >
+          {children}
+        </div>
+      </div>
+    </div>
   )
 );

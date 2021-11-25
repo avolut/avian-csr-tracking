@@ -86,6 +86,7 @@ declare global {
       "w-topbar": ExtractProps<typeof __w_topbar>;
       "inp-text": ExtractProps<typeof __inp_text>;
       "btn": ExtractProps<typeof __btn>;
+      "pure-tab": ExtractProps<typeof __pure_tab>;
       "m-page": ExtractProps<typeof __m_page>;
       "m-badge": ExtractProps<typeof __m_badge>;
       "m-button": ExtractProps<typeof __m_button>;

@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {},
-  "dependencies": {},
+  "dependencies": {
+    "bcryptjs": "^2.4.3"
+  },
   "types": "./src/index.ts",
   "main": "./build/index.js"
 }

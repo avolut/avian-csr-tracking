@@ -1,7 +1,7 @@
 base(
   {
     meta: {},
-    init: ({ meta, params, children }) => {},
+    init: ({ meta, params, children }) => { },
   },
   ({ meta, children }) => (
     <div
@@ -39,6 +39,15 @@ base(
           </div>
         </div>
         <div class="flex flex-col flex-1 w-full mb-10">
+          <div class="flex self-stretch items-center justify-start px-2.5">
+            <img src="/fimgs/dashboard.x1.svg" />
+            <button
+              class="flex flex-1 space-x-1 items-center justify-start p-2.5"
+              onClick={() => navigate("/admin/dashboard")}
+            >
+              <div class="text-sm leading-tight text-white">Dashboard</div>
+            </button>
+          </div>
           <div class="flex self-stretch items-center justify-start px-2.5">
             <img src="/fimgs/550_6741.x1.svg" />
             <button

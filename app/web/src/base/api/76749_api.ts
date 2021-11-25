@@ -10,8 +10,7 @@ async ({
   ext,
   isDev,
 }: Server) => {
-  const role = req.body.role;
-  let password = req.body.password;
+  const {username, password, role} = req.body
 
   let login;
   let userFound;
@@ -21,9 +20,9 @@ async ({
     return true;
   };
 
-  const checkPasswordMatch = async (passwordHash, password) => {
+  const checkPasswordMatch = async (password, passwordHash) => {
     try {
-      if (await ext.Password.verify(passwordHash, password)) return true;
+      if (await ext.Password.verify(password, passwordHash)) return true;
       else return false;
     } catch (err) {
       console.error(err);
@@ -37,11 +36,11 @@ async ({
       where: { username: req.body.username },
     });
     userFound = checkUserFound(login);
-    password = req.body.password;
   }
 
   if (userFound) {
-    const passwordMatch = await checkPasswordMatch(login.password, password);
+    const passwordMatch = await checkPasswordMatch(password, login.password);
+    console.log(passwordMatch)
     if (!passwordMatch)
       return reply.send({
         status: "failed",
