@@ -252,3 +252,16 @@ model t_csr_fasilitas_lainnya {
   t_csr                t_csr               @relation(fields: [id_csr], references: [id], onDelete: Cascade)
   m_fasilitas_lainnya  m_fasilitas_lainnya @relation(fields: [id_fasilitas_lainnya], references: [id], onDelete: Cascade)
 }
+
+model m_config {
+  id    Int    @id @default(autoincrement())
+  type  String @db.VarChar
+  value String @db.VarChar
+}
+
+model m_metabase {
+  id       Int    @id @default(autoincrement())
+  type     String @db.VarChar
+  title    String @db.VarChar
+  resource Json
+}

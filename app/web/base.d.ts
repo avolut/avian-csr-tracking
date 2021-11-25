@@ -53,6 +53,7 @@ import * as __utils_api from 'web-utils/src/api';
 import { ReactElement } from 'react';
 type ExtractProps<T extends (args?: any) => any> = Parameters<T>[0] extends undefined ? {} : Parameters<T>[0];
 declare global {
+  const globalVar: typeof __glb.globalVar;
   const css: typeof __emotion_react.css;
   const api: typeof __utils_api.api;
   const db: typeof __db.db;
@@ -129,6 +130,7 @@ declare global {
   namespace React {
     interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
       class?: string | null | number | boolean;
+      style?: any;
     }
   }
 }

@@ -68,8 +68,14 @@ base(
               alter: {
                 target: {
                   title: "Target",
-                  type: "text",
+                  type: "number",
                   required: true,
+                },
+                bantuan: {
+                  title: "Bantuan",
+                  type: "select",
+                  required: true,
+                  items: ["Bantuan Cat", "Bantuan Lainnya"]
                 },
               },
               layout: ["m_instansi_penerima", "target", "bantuan", "periode"],

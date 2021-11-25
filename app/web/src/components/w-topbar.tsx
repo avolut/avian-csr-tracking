@@ -2,7 +2,7 @@
 import { jsx } from '@emotion/react'
 import { useComponent } from 'web-utils/component'
 
-export default ({ children, title, open, onClickOpen }) => {
+export default ({ title, open, onClickOpen }) => {
   const date = new Date()
 
   const formatDate = (dateString) => {

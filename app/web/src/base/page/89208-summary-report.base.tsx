@@ -1,44 +1,54 @@
 base(
   {
-    meta: {},
-    init: ({ meta }) => { },
+    meta: {
+      loading: true,
+      reports: [] as any[],
+      METABASE_SITE_URL: ""
+    },
+    init: ({ meta }) => {
+      const _init = async () => {
+        const config = await db.m_config.findFirst({
+          where: {
+            type: "METABASE_SITE_URL"
+          }
+        })
+
+        const metabases = await db.m_metabase.findMany({
+          where: {
+            type: "summary-report"
+          }
+        })
+
+        const _metabases: any[] = []
+        await globalVar.asyncForEach(metabases, async (m) => {
+          const credential = await api("/api/login-metabase", { resource: m.resource, params: {} })
+          const iframeUrl = config.value + "/embed/dashboard/" + credential.token + "#bordered=true&titled=true";
+          _metabases.push({ ...m, iframeUrl })
+        })
+
+        meta.reports = _metabases
+        meta.loading = false
+      }
+
+      _init()
+    },
   },
   ({ meta }) => (
     <div className="flex flex-1">
-      <pure-tab
-        tabs={[{
-          title: "Pilar CSR", component: <iframe
-            src="http://165.22.251.237:3000/public/dashboard/f2f0ae4a-12be-410d-8464-4b223c2ffdee"
-            frameBorder="0"
-            className="w-full"
-            css={css`width: 100%; height: 100%;`}
-          ></iframe>
-        }, {
-          title: "Produk", component: <iframe
-            src="http://165.22.251.237:3000/public/dashboard/f2f0ae4a-12be-410d-8464-4b223c2ffdee"
-            frameBorder="0"
-            className="w-full"
-            css={css`width: 100%; height: 100%;`}
-          ></iframe>
-        }, {
-          title: "Penerima", component: <iframe
-            src="http://165.22.251.237:3000/public/dashboard/f2f0ae4a-12be-410d-8464-4b223c2ffdee"
-            frameBorder="0"
-            className="w-full"
-            css={css`width: 100%; height: 100%;`}
-          ></iframe>
-        }]
-          .map((e, idx) => {
-            return {
-              title: e.title,
-              component: () => {
-                return <div key={idx}>{e.component}</div>
-              },
-            }
-          })
+      {meta.loading ? <loading /> : (<pure-tab
+        tabs={meta.reports.map((el: any, idx) => {
+          return {
+            title: el.title,
+            component: () => <iframe
+              className="w-full"
+              key={idx}
+              src={el.iframeUrl}
+            />
+          }
+        })
           .filter((e) => !!e.title)}
         position={"top"}
-      />
-    </div>
+      />)}
+    </div >
   )
 );

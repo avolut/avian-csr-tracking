@@ -50,7 +50,6 @@ base(
           class={`flex self-stretch flex-col items-start justify-start`}
         >
           <w-topbar
-            class={`flex flex-1 self-stretch items-center justify-start px-5 bg-green-50 border border-indigo-50`}
             title={meta.titleHeader}
             open={meta.open}
             onClickOpen={() => {
@@ -61,7 +60,7 @@ base(
           />
         </div>
         <div
-          class="flex-1 flex items-stretch self-stretch"
+          class="flex-1 flex items-stretch self-stretch "
           style="> div { flex:1 }"
         >
           {children}
@@ -70,3 +69,5 @@ base(
     </div>
   )
 );
+
+// ga geeremet2 wkwkw

@@ -2,7 +2,7 @@
 import { useLocalObservable } from 'mobx-react-lite'
 import { useComponent } from 'web-utils/component'
 
-export default ({ role, children }) => {
+export default ({ role }) => {
   const meta = useLocalObservable(() => ({
     expandMaster: false,
   }))

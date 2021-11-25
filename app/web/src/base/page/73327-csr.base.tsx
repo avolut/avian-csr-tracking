@@ -13,7 +13,7 @@ base(
         },
       ],
     },
-    init: ({ meta }) => {},
+    init: ({ meta }) => { },
   },
   ({ meta }) => (
     <>
@@ -106,6 +106,7 @@ base(
                     m_pulau: true,
                     t_csr_detail_bantuan: true,
                     t_csr_dokumentasi: true,
+                    t_csr_fasilitas_lainnya: true
                   },
                 },
                 create: {
@@ -113,11 +114,6 @@ base(
                 },
                 action: {
                   jsonEdit: false,
-                },
-                onLoad: (data) => {
-                  runInAction(() => {
-                    meta.form = data;
-                  });
                 },
                 alter: {
                   m_pillar: {
@@ -141,7 +137,11 @@ base(
                     suffix: "IDR",
                     type: "money",
                   },
+                  t_csr_fasilitas_lainnya: {
+                    title: "Fasilitas Lainnya"
+                  },
                   t_csr_detail_bantuan: {
+                    title: 'Detail Bantuan',
                     fieldProps: {
                       list: {
                         table: {
@@ -192,7 +192,7 @@ base(
                   ["longitude", "latitude"],
                   ["deskripsi_singkat"],
                   ["budget_by", "value_biaya"],
-                  ["t_csr_detail_bantuan"],
+                  [["t_csr_detail_bantuan", "t_csr_fasilitas_lainnya", "t_csr_dokumentasi"]]
                 ],
               },
             },
