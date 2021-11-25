@@ -43,7 +43,7 @@ base(
     },
   },
   ({ meta, children }) => (
-    <div class={`bg-white flex flex-1 overflow-hidden`}>
+    <div class={`bg-white flex flex-1`}>
       <w-sidebar role={window.user.role} />
       <div class="flex flex-1 self-stretch flex-col items-start justify-start bg-white">
         <div
@@ -60,7 +60,7 @@ base(
           />
         </div>
         <div
-          class="flex-1 flex items-stretch self-stretch "
+          class="flex-1 flex items-stretch self-stretch relative"
           style="> div { flex:1 }"
         >
           {children}

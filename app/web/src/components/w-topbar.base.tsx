@@ -9,7 +9,7 @@ base(
         <div
           class="flex flex-1 self-stretch items-center justify-between"
           style={css`
-            height: 60px;
+            height: 50px;
           `}
         >
           <div class="text-xl font-bold leading-none text-gray-600">
