@@ -14,6 +14,9 @@ base(
               table: "m_covered_area",
               label: "Covered Area",
               list: {
+                action: {
+                  create: "Tambah"
+                },
                 table: {
                   columns: [
                     [
@@ -26,12 +29,10 @@ base(
                 },
               },
               form: {
-                create: {
-                  title: "Tambah",
-                },
-                action: {
+                action: () => ({
+                  save: "Simpan",
                   jsonEdit: false,
-                },
+                }),
                 alter: {
                   nama_covered_area: {
                     title: "Covered Area",

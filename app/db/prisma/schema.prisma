@@ -183,7 +183,7 @@ model t_csr {
   tgl_kegiatan            DateTime                  @db.Date
   nama_project_csr        String                    @db.VarChar(100)
   id_supplier             Int
-  id_area_tirta           Int
+  id_area_tirta           Int?
   id_cabang               Int
   id_covered_area         Int
   id_pulau                Int
@@ -201,7 +201,7 @@ model t_csr {
   id_jenis_instansi       Int
   keterangan              String?
   jumlah_orang            Int
-  m_area_tirta            m_area_tirta              @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
+  m_area_tirta            m_area_tirta?             @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
   m_cabang                m_cabang                  @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
   m_covered_area          m_covered_area            @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)
   m_divisi                m_divisi                  @relation(fields: [id_division], references: [id], onDelete: Cascade)
@@ -219,10 +219,10 @@ model t_csr {
 model t_csr_detail_bantuan {
   id               Int              @id(map: "t_bantuan_pkey") @default(autoincrement())
   bantuan          String           @db.VarChar(50)
-  jumlah           Int
+  jumlah           Int?
   merek            String?          @db.VarChar(255)
-  jenis            String           @db.VarChar(50)
-  warna            String           @db.VarChar(50)
+  jenis            String?          @db.VarChar(50)
+  warna            String?          @db.VarChar(50)
   value            Int
   harga_nett       Int
   id_csr           Int
@@ -230,7 +230,7 @@ model t_csr_detail_bantuan {
   id_product_csr   Int?
   t_csr            t_csr            @relation(fields: [id_csr], references: [id], onDelete: Cascade)
   m_jenis_bantuan  m_jenis_bantuan? @relation(fields: [id_jenis_bantuan], references: [id], onDelete: Cascade)
-  m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model t_csr_dokumentasi {

@@ -22,7 +22,11 @@ base(
         csr: {
           table: "t_csr",
           label: "CSR",
+          // list header
           list: {
+            action: {
+              create: "Tambah"
+            },
             table: {
               columns: [
                 [
@@ -65,8 +69,8 @@ base(
                     value: (item) => {
                       const color =
                         item.is_training === "Y"
-                          ? "text-green-300"
-                          : "text-yellow-400";
+                          ? "bg-green-600 text-white font-semibold rounded-full px-2"
+                          : "bg-yellow-500 text-white font-semibold rounded-full px-2";
                       return (
                         <span class={color}>
                           {item.is_training === "Y" ? "Selesai" : "Draft"}
@@ -98,7 +102,25 @@ base(
               },
             },
           },
+          // form header
           form: {
+            onSave: ({ data, save }) => {
+              const random = (length) => {
+                let result = '';
+                let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let charactersLength = characters.length;
+                for (let i = 0; i < length; i++) {
+                  result += characters.charAt(Math.floor(Math.random() *
+                    charactersLength));
+                }
+                return result;
+              }
+
+              data.no_kegiatan = random(8)
+              data.created_date = new Date()
+              data.created_by = (window as any).user.id
+              save()
+            },
             params: {
               include: {
                 t_csr_detail_bantuan: true,
@@ -106,12 +128,10 @@ base(
                 t_csr_fasilitas_lainnya: true
               },
             },
-            create: {
-              title: "Tambah",
-            },
-            action: {
+            action: () => ({
+              save: "Simpan",
               jsonEdit: false,
-            },
+            }),
             alter: {
               m_divisi: {
                 title: "Divisi",
@@ -125,10 +145,6 @@ base(
                 title: "Kegiatan CSR",
                 required: true,
               },
-              tgl_kegiatan: {
-                title: "Tanggal Kegiatan",
-                required: true,
-              },
               is_training: {
                 title: "Training",
                 type: "select",
@@ -138,8 +154,45 @@ base(
                 suffix: "IDR",
                 type: "money",
               },
+              nama_project_csr: {
+                title: "Nama Project CSR"
+              },
+              latitude: {
+                type: "text",
+                onChange: (value, { state }) => {
+                  state.db.data.latitude = value.replace(/[^0-9.-]/g, '')
+                }
+              },
+              longitude: {
+                type: "text",
+                onChange: (value, { state }) => {
+                  state.db.data.latitude = value.replace(/[^0-9.-]/g, '')
+                }
+              },
+              m_supplier: {
+                onChange: (value, { state }) => {
+                  if (state.db.data.m_supplier.nama_supplier === "PT Avia Avian") {
+                    state.db.data.m_area_tirta = {}
+                    state.db.data.id_area_tirta = undefined
+                  }
+                }
+              },
+              m_cabang: {
+                params: (row) => {
+                  if (!row.id_area_tirta) return {}
+                  return {
+                    where: {
+                      id_area_tirta: row.id_area_tirta
+                    }
+                  }
+                }
+              },
+              budget_by: {
+                type: "select",
+                items: ["Marketing", "Operasional", "Penerima CSR"]
+              },
               t_csr_fasilitas_lainnya: {
-                title: "Fasilitas Lainnya",
+                title: "Penerima Bantuan",
                 fieldProps: {
                   list: {
                     table: {
@@ -154,7 +207,17 @@ base(
                     }
                   },
                   form: {
-                    layout: [["m_fasilitas_lainnya", "jumlah"], "keterangan"]
+                    layout: ["m_fasilitas_lainnya", ({
+                      row,
+                      watch,
+                      update,
+                      layout,
+                      state,
+                    }) => {
+                      watch(['m_fasilitas_lainnya'])
+                      if (row.m_fasilitas_lainnya.fasilitas === "Sebutkan") return layout([["jumlah", "keterangan"]])
+                      return layout(["jumlah"])
+                    }]
                   }
                 }
               },
@@ -165,18 +228,42 @@ base(
                     table: {
                       columns: [
                         "bantuan",
-                        "merek",
+                        ["m_product_csr.name", {
+                          title: "Merek", value: (row) => {
+                            return row.merek
+                          }
+                        }],
                         "keterangan",
                         "jumlah",
                         ["harga_nett", {
-                          value: (a) => <div>Rp.{a.harga_nett
+                          value: (row) => <div>Rp.{row.harga_nett
                             .toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</div>
                         }]
                       ],
                     },
+                    params: {
+                      include: {
+                        m_jenis_bantuan: true,
+                        m_product_csr: true
+                      }
+                    }
                   },
                   form: {
+                    onSave: ({ data, save }) => {
+                      if (!data.harga_nett) data.harga_nett = 0;
+                      
+                      if (data.bantuan === "Cat") {
+                        data.merek = undefined
+                        data.id_jenis_bantuan = undefined
+                        data.m_jenis_bantuan = undefined
+                      } else {
+                        data.id_product_csr = undefined
+                        data.m_product_csr = undefined
+                        if (data.m_jenis_bantuan.jenis_bantuan !== "Lainnya") data.merek = undefined
+                      }
+                      save()
+                    },
                     create: {
                       title: "Tambah",
                     },
@@ -186,35 +273,52 @@ base(
                     alter: {
                       bantuan: {
                         type: "select",
-                        items: ["Cat", "Lainnya"]
+                        items: ["Cat", "Lainnya"],
                       },
                       warna: {
                         type: "select",
                         items: ["Tinting", "Ready Mix", "Spray"]
                       },
+                      jenis: {
+                        type: "select",
+                        items: ["Spray", "Solvent Based", "Water Based"]
+                      },
                       m_product_csr: {
-                        title: "Produk CSR"
+                        title: "Merek",
                       },
                       harga_nett: {
+                        type: "money"
+                      },
+                      value: {
+                        title: "Value (IDR)",
                         type: "money"
                       }
                     },
                     layout: [
-                      ["bantuan", ({
+                      "bantuan", ({
                         row,
                         watch,
-                        update,
                         layout,
-                        state,
                       }) => {
+                        // jika bantuan adalah Lainnya maka tampilkan jenis bantuan
+                        // jika bantuan adalah Cat maka tampilkan produck csr
                         watch(['bantuan'])
-                        if (row.bantuan === "Cat") return layout(["m_product_csr"])
-                        else if (row.bantuan === "Lainnya") return layout(["m_jenis_bantuan"])
+                        if (row.bantuan === "Cat") return layout([["m_product_csr"], ["jenis", "warna"], ["jumlah", "value"]])
+                        else if (row.bantuan === "Lainnya") {
+                          return layout([[], ["m_jenis_bantuan"]])
+                        }
                         return layout([])
-                      }],
-                      ["jumlah", "merek"],
-                      ["jenis", "warna"],
-                      ["value", "harga_nett"],
+                      }, ({
+                        row,
+                        watch,
+                        layout,
+                      }) => {
+                        // jika jenis bantuan adalah Lainnya maka tampilkan merek
+                        watch(['m_jenis_bantuan'])
+                        if (!row.m_jenis_bantuan.jenis_bantuan) return layout([])
+                        if (row.m_jenis_bantuan.jenis_bantuan === "Lainnya") return layout([["merek", "value"]])
+                        return layout([["value", []]])
+                      }
                     ]
                   },
                 },
@@ -248,6 +352,11 @@ base(
                         layout,
                         state,
                       }) => {
+                        watch("tipe")
+                        if (!!state.config.fields.url_file) {
+                          if (row.tipe === "Link") state.config.fields.url_file.state.type = "text"
+                          else state.config.fields.url_file.state.type = "file"
+                        }
                         return layout(["url_file"])
                       }], "caption"
                     ]
@@ -255,18 +364,43 @@ base(
                 }
               },
             },
+            // layout header
             layout: [
               ["m_divisi", "m_pillar"],
               ["m_kegiatan", "is_training", "tgl_kegiatan"],
               ["nama_project_csr"],
               ["m_supplier"],
-              ["m_area_tirta", "m_cabang", "m_covered_area"],
+              ({
+                row,
+                watch,
+                update,
+                layout,
+                state,
+              }) => {
+                watch(['m_supplier'])
+                if (!row.m_supplier.nama_supplier) return layout([])
+
+                if (row.m_supplier.nama_supplier === "PT Avia Avian") {
+                  return layout([[], ["m_cabang", "m_covered_area"]])
+                }
+                return layout([["m_area_tirta"], ["m_cabang", "m_covered_area"]])
+              },
               ["m_pulau", "lokasi"],
               ["longitude", "latitude"],
               ["deskripsi_singkat"],
               ["budget_by", "value_biaya"],
               ["m_instansi_penerima", "m_jenis_instansi"],
-              ["keterangan", "jumlah_orang"],
+              ({
+                row,
+                watch,
+                update,
+                layout,
+                state,
+              }) => {
+                watch(['m_instansi_penerima'])
+                if (row.m_instansi_penerima.instansi_penerima === "Lainnya") return layout([["jumlah_orang", "keterangan"], [], [], [], [], []])
+                return layout([["jumlah_orang", []], [], [], [], [], []])
+              },
               ["t_csr_fasilitas_lainnya", "t_csr_detail_bantuan", "t_csr_dokumentasi"]
             ],
           },

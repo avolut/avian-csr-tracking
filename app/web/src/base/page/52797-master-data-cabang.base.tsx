@@ -1,7 +1,7 @@
 base(
   {
     meta: {},
-    init: ({ meta }) => {},
+    init: ({ meta }) => { },
   },
   ({ meta }) => (
     <>
@@ -14,6 +14,9 @@ base(
               table: "m_cabang",
               label: "Cabang",
               list: {
+                action: {
+                  create: "Tambah"
+                },
                 table: {
                   columns: [
                     [
@@ -47,12 +50,10 @@ base(
                     m_area_tirta: true,
                   },
                 },
-                create: {
-                  title: "Tambah",
-                },
-                action: {
+                action: () => ({
+                  save: "Simpan",
                   jsonEdit: false,
-                },
+                }),
                 alter: {
                   nama_cabang: {
                     title: "Cabang",

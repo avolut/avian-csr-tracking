@@ -137,7 +137,6 @@ export const WFieldWrapper = ({
                   name = name.split('.').shift() || ''
                 }
 
-                console.log(value)
                 if (form) {
                   set(form.db.data, name, value)
 

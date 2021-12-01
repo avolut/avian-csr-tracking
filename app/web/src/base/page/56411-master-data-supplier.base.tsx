@@ -1,7 +1,7 @@
 base(
   {
     meta: {},
-    init: ({ meta }) => {},
+    init: ({ meta }) => { },
   },
   ({ meta }) => (
     <>
@@ -14,6 +14,9 @@ base(
               table: "m_supplier",
               label: "Supplier",
               list: {
+                action: {
+                  create: "Tambah"
+                },
                 table: {
                   columns: [
                     [
@@ -26,12 +29,10 @@ base(
                 },
               },
               form: {
-                create: {
-                  title: "Tambah",
-                },
-                action: {
+                action: () => ({
+                  save: "Simpan",
                   jsonEdit: false,
-                },
+                }),
                 alter: {
                   nama_supplier: {
                     title: "Nama Supplier",

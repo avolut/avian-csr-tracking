@@ -15,6 +15,7 @@ import { routePage } from './route-page'
 import { routeParams } from './route-params'
 import { routePdf } from './route-pdf'
 import { routePublic } from './route-public'
+import { routeUpload } from './route-upload'
 
 const ext =
   extServer && (extServer as any).default
@@ -30,6 +31,7 @@ export const routeInit = (server: ServerInstance) => {
   server.get('/__layout/:id.:ext', routeLayout)
   server.get('/__init/*', routeInitPage)
   server.all('/__pdf/:mode/:id', routePdf)
+  server.get('/upload/*', routeUpload)
   server.all('/__data*', async (req, reply) => {
     routeData(req, reply, global.mode, global.pool?.parent)
   })

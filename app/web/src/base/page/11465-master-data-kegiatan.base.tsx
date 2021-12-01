@@ -1,7 +1,7 @@
 base(
   {
     meta: {},
-    init: ({ meta }) => {},
+    init: ({ meta }) => { },
   },
   ({ meta }) => (
     <>
@@ -14,6 +14,9 @@ base(
               table: "m_kegiatan",
               label: "Kegiatan CSR",
               list: {
+                action: {
+                  create: "Tambah"
+                },
                 table: {
                   columns: [
                     [
@@ -46,12 +49,10 @@ base(
                     m_pillar: true,
                   },
                 },
-                create: {
-                  title: "Tambah",
-                },
-                action: {
+                action: () => ({
+                  save: "Simpan",
                   jsonEdit: false,
-                },
+                }),
                 alter: {
                   nama_kegiatan: {
                     title: "Kegiatan CSR",

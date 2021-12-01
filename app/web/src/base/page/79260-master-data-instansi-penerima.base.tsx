@@ -14,6 +14,9 @@ base(
               table: "m_instansi_penerima",
               label: "Instansi Penerima",
               list: {
+                action: {
+                  create: "Tambah"
+                },
                 table: {
                   columns: [
                     [
@@ -26,12 +29,10 @@ base(
                 },
               },
               form: {
-                create: {
-                  title: "Tambah",
-                },
-                action: {
+                action: () => ({
+                  save: "Simpan",
                   jsonEdit: false,
-                },
+                }),
                 alter: {
                   instansi_penerima: {
                     title: "Instansi Penerima",
