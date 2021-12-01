@@ -169,14 +169,6 @@ base(
                   state.db.data.latitude = value.replace(/[^0-9.-]/g, '')
                 }
               },
-              m_supplier: {
-                onChange: (value, { state }) => {
-                  if (state.db.data.m_supplier.nama_supplier === "PT Avia Avian") {
-                    state.db.data.m_area_tirta = {}
-                    state.db.data.id_area_tirta = undefined
-                  }
-                }
-              },
               m_cabang: {
                 params: (row) => {
                   if (!row.id_area_tirta) return {}
@@ -210,9 +202,7 @@ base(
                     layout: ["m_fasilitas_lainnya", ({
                       row,
                       watch,
-                      update,
                       layout,
-                      state,
                     }) => {
                       watch(['m_fasilitas_lainnya'])
                       if (row.m_fasilitas_lainnya.fasilitas === "Sebutkan") return layout([["jumlah", "keterangan"]])
@@ -230,6 +220,7 @@ base(
                         "bantuan",
                         ["m_product_csr.name", {
                           title: "Merek", value: (row) => {
+                            if (row.bantuan === "Cat") return row.m_product_csr.name
                             return row.merek
                           }
                         }],
@@ -252,16 +243,6 @@ base(
                   form: {
                     onSave: ({ data, save }) => {
                       if (!data.harga_nett) data.harga_nett = 0;
-                      
-                      if (data.bantuan === "Cat") {
-                        data.merek = undefined
-                        data.id_jenis_bantuan = undefined
-                        data.m_jenis_bantuan = undefined
-                      } else {
-                        data.id_product_csr = undefined
-                        data.m_product_csr = undefined
-                        if (data.m_jenis_bantuan.jenis_bantuan !== "Lainnya") data.merek = undefined
-                      }
                       save()
                     },
                     create: {
@@ -373,16 +354,11 @@ base(
               ({
                 row,
                 watch,
-                update,
                 layout,
-                state,
               }) => {
                 watch(['m_supplier'])
-                if (!row.m_supplier.nama_supplier) return layout([])
-
-                if (row.m_supplier.nama_supplier === "PT Avia Avian") {
+                if (row.m_supplier.nama_supplier === "PT Avia Avian")
                   return layout([[], ["m_cabang", "m_covered_area"]])
-                }
                 return layout([["m_area_tirta"], ["m_cabang", "m_covered_area"]])
               },
               ["m_pulau", "lokasi"],
@@ -393,9 +369,7 @@ base(
               ({
                 row,
                 watch,
-                update,
                 layout,
-                state,
               }) => {
                 watch(['m_instansi_penerima'])
                 if (row.m_instansi_penerima.instansi_penerima === "Lainnya") return layout([["jumlah_orang", "keterangan"], [], [], [], [], []])
