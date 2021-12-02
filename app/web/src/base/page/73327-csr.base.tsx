@@ -310,10 +310,22 @@ base(
                 fieldProps: {
                   list: {
                     table: {
-                      columns: ["url_file", "caption"]
+                      columns: [["url_file", { title: "URL File", width: 400 }], ["tipe", {
+                        value: (row) => {
+                          if (row.tipe === "Link") return row.tipe;
+                          const mime = row.url_file.split(".").slice(-1).pop();
+                          if (["bmp", "gif", "ico", "jpeg", "jpg", "png", "svg", "tif", "tiff", "webp"].indexOf(mime) >= 0) return "Image"
+                          else if (["avi", "mp4", "mpeg", "ogv", "ts", "webm", "3gp", "3g2"].indexOf(mime) >= 0) return "Video"
+                          return row.tipe
+                        }
+                      }], "caption"]
                     }
                   },
                   form: {
+                    onSave: ({ data, save }) => {
+                      data.created_date = new Date();
+                      save()
+                    },
                     alter: {
                       url_file: {
                         type: "file"
@@ -327,20 +339,21 @@ base(
                       }
                     },
                     layout: [
-                      ["tipe", ({
+                      "tipe", ({
                         row,
                         watch,
                         update,
                         layout,
                         state,
                       }) => {
-                        watch("tipe")
+                        watch(["tipe"])
+                        if (!row.tipe) return layout([])
                         if (!!state.config.fields.url_file) {
                           if (row.tipe === "Link") state.config.fields.url_file.state.type = "text"
                           else state.config.fields.url_file.state.type = "file"
                         }
                         return layout(["url_file"])
-                      }], "caption"
+                      }, "caption"
                     ]
                   }
                 }

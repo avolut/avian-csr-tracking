@@ -32,6 +32,7 @@ export const routeInit = (server: ServerInstance) => {
   server.get('/__init/*', routeInitPage)
   server.all('/__pdf/:mode/:id', routePdf)
   server.get('/upload/*', routeUpload)
+  server.post('/__upload', routeUpload)
   server.all('/__data*', async (req, reply) => {
     routeData(req, reply, global.mode, global.pool?.parent)
   })

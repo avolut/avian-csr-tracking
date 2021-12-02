@@ -3,7 +3,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 import { pathExists, readdir, stat } from 'fs-extra'
 import mime from 'mime-types'
 import { basename, dirname, extname, join } from 'path'
-import sharp from 'sharp'
+// import sharp from 'sharp'
 import { upload } from './upload'
 
 export const routeUpload = async (
@@ -19,24 +19,24 @@ export const routeUpload = async (
       mpath.indexOf(join(dirs.root, 'uploads')) === 0 &&
       (await pathExists(mpath))
     ) {
-      const ext = extname(mpath).substr(1)
-      if (['jpg', 'jpeg', 'png', 'gif'].indexOf(ext) >= 0) {
-        const q = req.query as any
+      // const ext = extname(mpath).substr(1)
+      // if (['jpg', 'jpeg', 'png', 'gif'].indexOf(ext) >= 0) {
+      //   const q = req.query as any
 
-        if (mime.types[ext]) {
-          reply.type(mime.types[ext])
+      //   if (mime.types[ext]) {
+      //     reply.type(mime.types[ext])
 
-          const opt: any = { fit: sharp.fit.contain }
-          if (q.w) {
-            opt.width = q.w * 1
-          }
-          if (q.h) {
-            opt.height = q.h * 1
-          }
+      //     const opt: any = { fit: sharp.fit.contain }
+      //     if (q.w) {
+      //       opt.width = q.w * 1
+      //     }
+      //     if (q.h) {
+      //       opt.height = q.h * 1
+      //     }
 
-          reply.send(await sharp(mpath).resize(opt).toBuffer())
-        }
-      }
+      //     reply.send(await sharp(mpath).resize(opt).toBuffer())
+      //   }
+      // }
 
       return reply.sendFile(basename(mpath), dirname(mpath))
     }
