@@ -1,0 +1,6 @@
+{
+  "id": "76751",
+  "name": "logout",
+  "type": "API",
+  "url": "/api/logout"
+}

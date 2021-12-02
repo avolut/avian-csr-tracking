@@ -10,7 +10,7 @@ async ({
   ext,
   isDev,
 }: Server) => {
-  const {username, password, role} = req.body
+  const { username, password, role } = req.body
 
   let login;
   let userFound;
@@ -31,16 +31,14 @@ async ({
     return false;
   };
 
-  if (role === "admin") {
-    login = await db.m_user.findFirst({
-      where: { username: req.body.username },
-    });
-    userFound = checkUserFound(login);
-  }
+
+  login = await db.m_user.findFirst({
+    where: { username: req.body.username },
+  });
+  userFound = checkUserFound(login);
 
   if (userFound) {
     const passwordMatch = await checkPasswordMatch(password, login.password);
-    console.log(passwordMatch)
     if (!passwordMatch)
       return reply.send({
         status: "failed",
@@ -53,9 +51,10 @@ async ({
     });
   }
 
-  const data = { role: role, ...login };
+  const data = { ...login };
+  console.log(login)
   req.session.user = data;
-  req.session.role = role;
+  req.session.role = data.role;
 
   reply.send({
     status: "success",

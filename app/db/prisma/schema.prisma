@@ -126,6 +126,7 @@ model m_user {
   username    String        @db.VarChar(50)
   password    String        @db.VarChar
   last_login  DateTime      @db.Timestamp(6)
+  role        String        @db.VarChar(10)
   m_user_role m_user_role[]
 }
 

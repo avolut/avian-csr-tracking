@@ -1,7 +1,7 @@
 base(
   {
     meta: {},
-    init: ({ meta, params, children }) => { },
+    init: ({ meta, children }) => { },
   },
   ({ meta, children }) => (
     <div
@@ -93,7 +93,7 @@ base(
             <div class="flex self-stretch flex-col items-start justify-start">
               <button
                 class="flex self-stretch items-start justify-start "
-                onClick={toggleMaster}
+                // onClick={toggleMaster}
               >
                 <div class="flex flex-1 space-x-1 items-center justify-start p-2.5">
                   <div class="text-base font-light leading-normal text-gray-300">

@@ -39,6 +39,7 @@ base(
                   "tgl_kegiatan",
                   {
                     title: "Tanggal",
+                    value: (row) => (globalVar.formatDate(row.tgl_kegiatan))
                   },
                 ],
                 [
@@ -258,7 +259,7 @@ base(
                       },
                       warna: {
                         type: "select",
-                        items: ["Tinting", "Ready Mix", "Spray"]
+                        items: ["Tinting", "Ready Mix"]
                       },
                       jenis: {
                         type: "select",
