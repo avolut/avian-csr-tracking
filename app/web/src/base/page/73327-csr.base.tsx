@@ -180,6 +180,16 @@ base(
                   }
                 }
               },
+              m_jenis_instansi: {
+                params: (row) => {
+                  if (!row.id_instansi_penerima) return {}
+                  return {
+                    where: {
+                      id_instansi_penerima: row.id_instansi_penerima
+                    }
+                  }
+                }
+              },
               budget_by: {
                 type: "select",
                 items: ["Marketing", "Operasional", "Penerima CSR"]
@@ -188,6 +198,9 @@ base(
                 title: "Penerima Bantuan",
                 fieldProps: {
                   list: {
+                    action: {
+                      create: "Tambah"
+                    },
                     table: {
                       columns: [
                         "m_fasilitas_lainnya.fasilitas", "jumlah", "keterangan"
@@ -200,6 +213,10 @@ base(
                     }
                   },
                   form: {
+                    action: () => ({
+                      save: "Simpan",
+                      jsonEdit: false,
+                    }),
                     layout: ["m_fasilitas_lainnya", ({
                       row,
                       watch,
@@ -216,6 +233,9 @@ base(
                 title: 'Detail Bantuan',
                 fieldProps: {
                   list: {
+                    action: {
+                      create: "Tambah"
+                    },
                     table: {
                       columns: [
                         "bantuan",
@@ -246,12 +266,10 @@ base(
                       if (!data.harga_nett) data.harga_nett = 0;
                       save()
                     },
-                    create: {
-                      title: "Tambah",
-                    },
-                    action: {
+                    action: () => ({
+                      save: "Simpan",
                       jsonEdit: false,
-                    },
+                    }),
                     alter: {
                       bantuan: {
                         type: "select",
@@ -309,6 +327,9 @@ base(
                 title: "Dokumentasi",
                 fieldProps: {
                   list: {
+                    action: {
+                      create: "Tambah"
+                    },
                     table: {
                       columns: [["url_file", { title: "URL File", width: 400 }], ["tipe", {
                         value: (row) => {
@@ -326,6 +347,10 @@ base(
                       data.created_date = new Date();
                       save()
                     },
+                    action: () => ({
+                      save: "Simpan",
+                      jsonEdit: false,
+                    }),
                     alter: {
                       url_file: {
                         type: "file"
@@ -385,8 +410,8 @@ base(
                 watch,
                 layout,
               }) => {
-                watch(['m_instansi_penerima'])
-                if (row.m_instansi_penerima.instansi_penerima === "Lainnya") return layout([["jumlah_orang", "keterangan"], [], [], [], [], []])
+                watch(['m_jenis_instansi'])
+                if (row.m_jenis_instansi.jenis_instansi === "Lainnya") return layout([["jumlah_orang", "keterangan"], [], [], [], [], []])
                 return layout([["jumlah_orang", []], [], [], [], [], []])
               },
               ["t_csr_fasilitas_lainnya", "t_csr_detail_bantuan", "t_csr_dokumentasi"]
