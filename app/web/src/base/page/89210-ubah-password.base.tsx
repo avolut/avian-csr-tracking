@@ -2,6 +2,7 @@ base(
   {
     meta: {
       error: '',
+      success: false,
       userLoggedIn: (window as any).user,
       form: {
         password: '',
@@ -21,10 +22,19 @@ base(
       },
       handleSubmit: function () {
         if (this.error || !this.form.password) return
-        console.log(this.userLoggedIn.id)
+        if (
+          this.form.password !== this.form.passwordConfirm
+        ) {
+          this.error = 'Password Tidak Sama.'
+          return;
+        }
         api('/api/update-password', {
           id: this.userLoggedIn.id,
           password: this.form.password,
+        }).then((res) => {
+          if (res.status === 'success') {
+            this.success = true
+          }
         })
       },
     },
@@ -60,6 +70,9 @@ base(
         </div>
       </div>
       <div className="text-red-700 mt-4">{meta.error}</div>
+      {meta.success && (
+        <div className="text-green-700 mt-4">Password berhasil di ubah</div>
+      )}
       <button
         className="mt-6 text-sm bg-green-700 text-white p-2 rounded"
         onClick={meta.handleSubmit}

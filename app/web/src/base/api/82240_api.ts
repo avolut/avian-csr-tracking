@@ -10,8 +10,7 @@
   ext,
   isDev,
 }: Server) => {
-  const { id, password, method, data } = req.body
-
+  const { id, password, method = 'update', data } = req.body
   try {
     const hash = await ext.Password.hash(password)
     if (method === 'update') {
