@@ -46,6 +46,7 @@ base(
         "/admin/master-data-instansi-penerima": "Instansi Penerima",
         "/admin/master-data-jenis-instanis": "Jenis Instansi",
         "/admin/change-password": "Ubah Password",
+        "/admin/users": "Manajemen Pengguna",
       };
 
       runInAction(() => {

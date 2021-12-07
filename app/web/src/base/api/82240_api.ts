@@ -1,4 +1,4 @@
-async ({
+;async ({
   template,
   params,
   render,
@@ -10,19 +10,30 @@ async ({
   ext,
   isDev,
 }: Server) => {
-  const { id, password } = req.body;
+  const { id, password, method, data } = req.body
 
   try {
-    const hash = await ext.Password.hash(password);
-
-    await db.m_user.update({
-      where: { id },
-      data: { password: hash },
-    });
+    const hash = await ext.Password.hash(password)
+    if (method === 'update') {
+      await db.m_user.update({
+        where: { id },
+        data: { password: hash },
+      })
+    } else {
+      await db.m_user.create({
+        data: {
+          password: hash,
+          name: data.name,
+          username: data.username,
+          last_login: new Date(),
+          role: data.role,
+        },
+      })
+    }
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
   reply.send({
-    status: "success",
+    status: 'success',
   })
 }
