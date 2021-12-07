@@ -203,8 +203,9 @@ base(
             <img src="/fimgs/key.x1.svg" style={css`height: 16px !important`} />
             <button
               class="flex flex-1 space-x-1 items-center justify-start p-2.5"
+          
             >
-              <div class="text-sm leading-tight text-white">Ubah Password</div>
+              <div     onClick={() => navigate("/admin/change-password")} class="text-sm leading-tight text-white">Ubah Password</div>
             </button>
           </div>
           <div class="flex self-stretch items-center justify-start px-2.5">

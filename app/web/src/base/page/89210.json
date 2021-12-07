@@ -2,5 +2,5 @@
   "id": "89210",
   "name": "ubah-password",
   "layout_id": "04162",
-  "url": "/admin/ubah-password"
+  "url": "/admin/change-password"
 }

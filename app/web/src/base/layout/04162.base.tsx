@@ -17,8 +17,8 @@ base(
         return (window.location.href = "/");
       } else if (window.user.role !== "guest" && window.location.pathname !== "/") {
         const roles = {
-          hrd: ["/admin/dashboard", "/admin/csr", "/changePassword"],
-          director: ["/admin/dashboard", "/admin/summary-report", "admin/lacak-csr", "/changePassword"]
+          hrd: ["/admin/dashboard", "/admin/csr", "/admin/change-password"],
+          director: ["/admin/dashboard", "/admin/summary-report", "admin/lacak-csr", "/admin/change-password"]
         }
         if (window.user.role === "hrd") {
           if (roles.hrd.findIndex(x => window.location.pathname.match(x)) < 0) return (window.location.href = "/");
@@ -45,6 +45,7 @@ base(
         "/admin/master-data-jenis-bantuan": "Jenis Bantuan",
         "/admin/master-data-instansi-penerima": "Instansi Penerima",
         "/admin/master-data-jenis-instanis": "Jenis Instansi",
+        "/admin/change-password": "Ubah Password",
       };
 
       runInAction(() => {
