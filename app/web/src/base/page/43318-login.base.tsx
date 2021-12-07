@@ -69,7 +69,7 @@ base(
               >
                 <div class={`flex self-stretch items-end justify-start p-2.5`}>
                   <inp-text
-                    class={`flex flex-col space-y-2.5 items-start justify-start w-full`}
+                    class={`flex flex-col space-y-2.5 items-start justify-start w-full border-b`}
                     label="Username"
                     placeholder="Username"
                     value={meta.username}
@@ -78,7 +78,7 @@ base(
                 </div>
                 <div class={`flex self-stretch items-end justify-start p-2.5`}>
                   <inp-text
-                    class={`flex flex-col space-y-2.5 items-start justify-start w-full`}
+                    class={`flex flex-col space-y-2.5 items-start justify-start w-full border-b`}
                     label="Password"
                     placeholder="Password"
                     type="password"
@@ -92,9 +92,7 @@ base(
                   <btn
                     class={`flex items-center justify-center px-4 py-2 bg-green-600 rounded w-full text-white`}
                     type={"submit"}
-                  >
-                    Masuk
-                  </btn>
+                  >Masuk</btn>
                 </div>
               </form>
             </div>

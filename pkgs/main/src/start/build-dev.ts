@@ -129,12 +129,12 @@ export const buildDev = async (pool: BuilderPool) => {
 
   if (compFiles.filter((e) => e.endsWith('.jsx')).length > 0) {
     const externals = await getExternalImportMap()
-    compFiles = await upgradeComponentsToV2({
-      compFiles,
-      migrating,
-      compDir,
-      externals,
-    })
+    // compFiles = await upgradeComponentsToV2({
+    //   compFiles,
+    //   migrating,
+    //   compDir,
+    //   externals,
+    // })
   }
 
   await pool.add('dev', {

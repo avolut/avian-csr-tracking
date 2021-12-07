@@ -204,7 +204,7 @@ base(
             <button
               class="flex flex-1 space-x-1 items-center justify-start p-2.5"
             >
-              <div class="text-sm leading-tight text-white">Change Password</div>
+              <div class="text-sm leading-tight text-white">Ubah Password</div>
             </button>
           </div>
           <div class="flex self-stretch items-center justify-start px-2.5">
@@ -213,7 +213,7 @@ base(
               class="flex flex-1 space-x-1 items-center justify-start p-2.5"
               onClick={() => api("/api/logout").then(() => window.location.href = "/")}
             >
-              <div class="text-sm leading-tight text-white">Logout</div>
+              <div class="text-sm leading-tight text-white">Keluar</div>
             </button>
           </div>
         </div>

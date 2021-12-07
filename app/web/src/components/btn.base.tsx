@@ -3,7 +3,7 @@ base(
     meta: {},
     init: ({ meta, params, children }) => {},
   },
-  ({ meta, children }) => (
+  ({ meta }) => (
     <button
       class={`flex self-stretch items-center justify-center px-4 py-2 bg-green-600 rounded ${className}`}
       style={css`
@@ -14,8 +14,8 @@ base(
       disabled={disabled}
     >
       <div class={`text-base leading-normal text-center text-white`}>
-        {children || "Button"}
+        {children ?? 'Button'}
       </div>
     </button>
   )
-);
+)
