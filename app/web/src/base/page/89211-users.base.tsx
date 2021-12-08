@@ -65,6 +65,9 @@ base(
                 ],
               },
             },
+            onLoad: (data) => {
+              data.password = ''
+            },
             onSave: ({ data, save }) => {
               let method = 'update'
               if (!data.id) {
@@ -72,11 +75,9 @@ base(
                 data.last_login = new Date()
               }
 
-              if (!data.password) return
+              if (method === 'create' && !data.password) return
 
-              api('/api/update-password', {
-                id: data.id,
-                password: data.password,
+              api('/api/users', {
                 method,
                 data,
               }).then((res) => {
