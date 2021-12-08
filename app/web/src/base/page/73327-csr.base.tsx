@@ -111,7 +111,7 @@ base(
               // console.log(data.is_training);
               meta.isDone = data.is_training === 'Y' && true
             },
-            onSave: ({ data, save }) => {
+            onSave: async ({ data, save }) => {
               const random = (length) => {
                 let result = ''
                 let characters =
@@ -123,6 +123,23 @@ base(
                   )
                 }
                 return result
+              }
+
+              const postData = {
+                judul: data.nama_project_csr,
+                lokasi: data.lokasi,
+                type: data.id_pillar,
+                latitude: data.latitude,
+                longitude: data.longitude,
+              }
+
+              try {
+                await api(
+                  'https://cors-anywhere.herokuapp.com/http://dev.avianbrands.com/api/post-csr',
+                  postData
+                )
+              } catch (error) {
+                console.log(error)
               }
 
               data.no_kegiatan = random(8)
@@ -138,7 +155,7 @@ base(
               },
             },
             action: () => ({
-              save: () => {
+              save: ({ data }) => {
                 if (meta.roleUser === 'hrd' && !meta.isDone) return false
 
                 if (meta.roleUser !== 'hrd') return 'Simpan'
