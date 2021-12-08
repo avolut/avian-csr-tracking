@@ -125,26 +125,63 @@ base(
                 return result
               }
 
-              const postData = {
-                judul: data.nama_project_csr,
-                lokasi: data.lokasi,
-                type: data.id_pillar,
-                latitude: data.latitude,
-                longitude: data.longitude,
-              }
+              if (data.is_training === 'N') {
+                const csrData = {
+                  no_kegiatan: data.no_kegiatan,
+                  id_division: data.id_division,
+                  id_pillar: data.id_pillar,
+                  id_kegiatan: data.id_kegiatan,
+                  is_training: data.is_training,
+                  tgl_kegiatan: data.tgl_kegiatan,
+                  nama_project_csr: data.nama_project_csr,
+                  id_supplier: data.id_supplier,
+                  id_area_tirta: data.id_area_tirta,
+                  id_cabang: data.id_cabang,
+                  id_covered_area: data.id_covered_area,
+                  id_pulau: data.id_pulau,
+                  lokasi: data.lokasi,
+                  longitude: data.longitude,
+                  latitude: data.latitude,
+                  deskripsi_singkat: data.deskripsi_singkat,
+                  budget_by: data.budget_by,
+                  value_biaya: data.value_biaya,
+                  id_instansi_penerima: data.id_instansi_penerima,
+                  id_jenis_instansi: data.id_jenis_instansi,
+                  jumlah_orang: data.jumlah_orang,
+                }
 
-              try {
-                await api(
-                  'https://cors-anywhere.herokuapp.com/http://dev.avianbrands.com/api/post-csr',
-                  postData
+                const isCompleted = Object.values(csrData).every(
+                  (val) => val ?? !!val
                 )
-              } catch (error) {
-                console.log(error)
+                if (isCompleted) {
+                  data.is_training = 'Y'
+
+                  // Connect API post CSR
+                  const postData = {
+                    judul: data.nama_project_csr,
+                    lokasi: data.lokasi,
+                    type: data.id_pillar,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                  }
+
+                  try {
+                    await api(
+                      'https://cors-anywhere.herokuapp.com/http://dev.avianbrands.com/api/post-csr',
+                      postData
+                    )
+                  } catch (error) {
+                    console.log(error)
+                  }
+                }
               }
 
-              data.no_kegiatan = random(8)
-              data.created_date = new Date()
-              data.created_by = (window as any).user.id
+              if (!data.id) {
+                data.no_kegiatan = random(8)
+                data.created_date = new Date()
+                data.created_by = (window as any).user.id
+              }
+
               save()
             },
             params: {
