@@ -88,6 +88,30 @@ base(
                     title: 'Nama Project',
                   },
                 ],
+                [
+                  'is_training',
+                  {
+                    title: 'View',
+                    width: 200,
+                    value: (item) => {
+                      return (
+                        <>
+                          {item.is_training === 'Y' && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                alert(item.id)
+                              }}
+                              class="bg-green-600 text-white font-semibold rounded-full px-2"
+                            >
+                              View
+                            </button>
+                          )}
+                        </>
+                      )
+                    },
+                  },
+                ],
               ],
             },
             params: {
@@ -108,7 +132,8 @@ base(
           // form header
           form: {
             onLoad: (data) => {
-              // console.log(data.is_training);
+              console.log(data)
+
               meta.isDone = data.is_training === 'Y' && true
             },
             onSave: async ({ data, save }) => {
@@ -192,7 +217,7 @@ base(
               },
             },
             action: () => ({
-              save: ({ data }) => {
+              save: () => {
                 if (meta.roleUser === 'hrd' && !meta.isDone) return false
 
                 if (meta.roleUser !== 'hrd') return 'Simpan'
@@ -530,7 +555,7 @@ base(
               ['m_instansi_penerima', 'm_jenis_instansi'],
               ({ row, watch, layout }) => {
                 watch(['m_jenis_instansi'])
-                if (row?.m_jenis_instansi?.jenis_instansi === 'Lainnya')
+                if (row?.m_jenis_instansi?.jenis_instansi === 'Sebutkan')
                   return layout([
                     ['jumlah_orang', 'keterangan'],
                     [],
