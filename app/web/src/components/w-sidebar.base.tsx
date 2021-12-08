@@ -5,12 +5,12 @@ base(
   },
   ({ meta, children }) => (
     <div
-      class="flex self-stretch flex-col items-start justify-start border border-indigo-50"
+      class="flex self-stretch flex-col items-start justify-start border border-indigo-50 overflow-y-auto"
       style={css`
         background: linear-gradient(178.29deg, #0d6d68 59.99%, #52b949 98.55%);
         background-size: 100% 100%;
         background-repeat: no-repeat;
-        height: 100vh;
+        height: 100%;
       `}
     >
       <div class="flex self-stretch items-start justify-start p-2.5 ">
