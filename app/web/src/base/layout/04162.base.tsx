@@ -1,22 +1,23 @@
 base(
   {
     meta: {
+      userLoggedIn: (window as any).user,
       titleHeader: '-',
       open: false,
     },
-    init: ({ meta, children }) => {
+    init: ({ meta }) => {
       if (
-        window.user.role === 'guest' &&
+        meta.userLoggedIn.role === 'guest' &&
         window.location.pathname !== '/login'
       ) {
         return (window.location.href = '/login')
       } else if (
-        window.user.role !== 'guest' &&
+        meta.userLoggedIn.role !== 'guest' &&
         window.location.pathname === '/login'
       ) {
         return (window.location.href = '/')
       } else if (
-        window.user.role !== 'guest' &&
+        meta.userLoggedIn.role !== 'guest' &&
         window.location.pathname !== '/'
       ) {
         const roles = {
@@ -28,12 +29,12 @@ base(
             '/admin/change-password',
           ],
         }
-        if (window.user.role === 'hrd') {
+        if (meta.userLoggedIn.role === 'hrd') {
           if (roles.hrd.findIndex((x) => window.location.pathname.match(x)) < 0)
             return (window.location.href = '/')
         }
 
-        if (window.user.role === 'director') {
+        if (meta.userLoggedIn.role === 'director') {
           if (
             roles.director.findIndex((x) => window.location.pathname.match(x)) <
             0
@@ -63,20 +64,30 @@ base(
 
       runInAction(() => {
         const f = Object.keys(titleHeader).find(
-          (x) => window.location.pathname.indexOf(x) >= 0
-        )
+          (x) => window.location.pathname === x
+        ) as any
         meta.titleHeader = titleHeader[f] || '-'
       })
     },
   },
   ({ meta, children }) => (
     <div class={`bg-white flex flex-1`}>
-      <div className="fixed h-screen z-50">
-        <w-sidebar role={window.user.role} />
+      <div
+        className={`${
+          meta.open ? 'flex' : 'hidden'
+        }  lg:flex fixed h-screen z-50 show-me`}
+      >
+        <w-sidebar role={meta.userLoggedIn.role} />
       </div>
       <div
-        class="z-40 flex flex-1 self-stretch flex-col items-start justify-start bg-white"
-        style="margin-left: 220px"
+        class="h-screen z-40 flex flex-1 self-stretch flex-col items-start justify-start bg-white"
+        style={`
+        @media only screen and (min-width: 1024px) {
+          & {
+             padding-left: 230px
+          }
+        }
+        `}
       >
         <div class={`flex self-stretch flex-col items-start justify-start`}>
           <w-topbar
