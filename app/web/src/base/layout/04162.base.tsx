@@ -76,6 +76,7 @@ base(
         className={`${
           meta.open ? 'flex' : 'hidden'
         }  lg:flex fixed h-screen z-50 show-me`}
+        style="width: 250px"
       >
         <w-sidebar role={meta.userLoggedIn.role} />
       </div>
@@ -84,7 +85,7 @@ base(
         style={`
         @media only screen and (min-width: 1024px) {
           & {
-             padding-left: 230px
+             padding-left: 250px
           }
         }
         `}

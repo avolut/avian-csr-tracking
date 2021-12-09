@@ -5,7 +5,7 @@ base(
   },
   ({ meta, children }) => (
     <div
-      class="flex self-stretch flex-col items-start justify-start border border-indigo-50 overflow-y-auto"
+      class="w-full flex self-stretch flex-col items-start justify-start border border-indigo-50 overflow-y-auto"
       style={css`
         background: linear-gradient(178.29deg, #0d6d68 59.99%, #52b949 98.55%);
         background-size: 100% 100%;
@@ -119,9 +119,9 @@ base(
           {['admin'].indexOf(user.role) >= 0 ? (
             <div
               class="flex flex-1 flex-col"
-              style={css`
-                width: 16vw;
-              `}
+              // style={css`
+              //   width: 16vw;
+              // `}
             >
               <div class="flex self-stretch flex-col items-start justify-start">
                 <button
