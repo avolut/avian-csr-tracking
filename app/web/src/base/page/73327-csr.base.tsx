@@ -132,7 +132,7 @@ base(
           // form header
           form: {
             onLoad: (data) => {
-              console.log(data)
+              // console.log(data)
 
               meta.isDone = data.is_training === 'Y' && true
             },
@@ -150,35 +150,12 @@ base(
                 return result
               }
 
-              if (data.is_training === 'N') {
-                const csrData = {
-                  no_kegiatan: data.no_kegiatan,
-                  id_division: data.id_division,
-                  id_pillar: data.id_pillar,
-                  id_kegiatan: data.id_kegiatan,
-                  is_training: data.is_training,
-                  tgl_kegiatan: data.tgl_kegiatan,
-                  nama_project_csr: data.nama_project_csr,
-                  id_supplier: data.id_supplier,
-                  id_area_tirta: data.id_area_tirta,
-                  id_cabang: data.id_cabang,
-                  id_covered_area: data.id_covered_area,
-                  id_pulau: data.id_pulau,
-                  lokasi: data.lokasi,
-                  longitude: data.longitude,
-                  latitude: data.latitude,
-                  deskripsi_singkat: data.deskripsi_singkat,
-                  budget_by: data.budget_by,
-                  value_biaya: data.value_biaya,
-                  id_instansi_penerima: data.id_instansi_penerima,
-                  id_jenis_instansi: data.id_jenis_instansi,
-                  jumlah_orang: data.jumlah_orang,
-                }
+              const documents = await db.query(
+                `SELECT * FROM t_csr_dokumentasi WHERE id_csr=${data.id}`
+              )
 
-                const isCompleted = Object.values(csrData).every(
-                  (val) => val ?? !!val
-                )
-                if (isCompleted) {
+              if (documents.length) {
+                if (data.is_training === 'N') {
                   data.is_training = 'Y'
 
                   // Connect API post CSR
@@ -199,6 +176,8 @@ base(
                     console.log(error)
                   }
                 }
+              } else {
+                data.is_training = 'N'
               }
 
               if (!data.id) {
