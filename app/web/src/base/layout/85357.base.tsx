@@ -1,27 +1,29 @@
 base(
   {
-    meta: {},
-    init: ({ meta, children }) => {
+    meta: {
+    },
+    init: ({ meta }) => {
+      const user = (window as any).user
       if (
-        window.user.role === "guest" &&
+        user.role === "guest" &&
         window.location.pathname !== "/login"
       ) {
         return (window.location.href = "/login");
       } else if (
-        window.user.role !== "guest" &&
+        user.role !== "guest" &&
         window.location.pathname === "/login"
       ) {
         return (window.location.href = "/");
-      } else if (window.user.role !== "guest" && window.location.pathname !== "/") {
+      } else if (user.role !== "guest" && window.location.pathname !== "/") {
         const roles = {
           hrd: ["/admin/dashboard", "/admin/csr", "/changePassword"],
           director: ["/admin/dashboard", "/admin/summary-report", "admin/lacak-csr", "/changePassword"]
         }
-        if (window.user.role === "hrd") {
+        if (user.role === "hrd") {
           if (roles.hrd.findIndex(x => window.location.pathname.match(x)) < 0) return (window.location.href = "/");
         }
 
-        if (window.user.role === "director") {
+        if (user.role === "director") {
           if (roles.director.findIndex(x => window.location.pathname.match(x)) < 0) return (window.location.href = "/");
         }
       }

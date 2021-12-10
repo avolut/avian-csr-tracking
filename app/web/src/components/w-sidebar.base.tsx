@@ -39,7 +39,7 @@ base(
           </div>
         </div>
         <div class="flex flex-col flex-1 w-full mb-10">
-          {!['director'].includes(user.role) && (
+          {['admin'].includes(user.role) && (
             <div class="flex self-stretch items-center justify-start px-2.5">
               <img src="/fimgs/dashboard.x1.svg" />
               <button
@@ -251,7 +251,7 @@ base(
             <button
               class="flex flex-1 space-x-1 items-center justify-start p-2.5"
               onClick={() =>
-                api('/api/logout').then(() => (window.location.href = '/'))
+                api('/api/logout').then(() => (window.location.href = '/login'))
               }
             >
               <div class="text-sm leading-tight text-white">Keluar</div>

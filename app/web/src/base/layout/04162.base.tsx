@@ -1,10 +1,11 @@
 base(
   {
     meta: {
-      userLoggedIn: (window as any).user,
+      userLoggedIn: (window as any).user as any,
       titleHeader: '-',
       open: false,
-    },
+      render: null
+    } as any,
     init: ({ meta }) => {
       if (
         meta.userLoggedIn.role === 'guest' &&
@@ -16,22 +17,14 @@ base(
         window.location.pathname === '/login'
       ) {
         return (window.location.href = '/')
-      } else if (
-        meta.userLoggedIn.role !== 'guest' &&
-        window.location.pathname !== '/'
-      ) {
+      } else if (meta.userLoggedIn.role !== 'guest') {
         const roles = {
-          hrd: ['/admin/dashboard', '/admin/csr', '/admin/change-password'],
-          director: [
-            '/admin/dashboard',
-            '/admin/summary-report',
-            'admin/lacak-csr',
-            '/admin/change-password',
-          ],
+          hrd: ['/admin/csr', '/admin/change-password'],
+          director: ['/admin/summary-report', '/admin/change-password'],
         }
         if (meta.userLoggedIn.role === 'hrd') {
           if (roles.hrd.findIndex((x) => window.location.pathname.match(x)) < 0)
-            return (window.location.href = '/')
+            return (window.location.href = roles.hrd[0])
         }
 
         if (meta.userLoggedIn.role === 'director') {
@@ -39,7 +32,7 @@ base(
             roles.director.findIndex((x) => window.location.pathname.match(x)) <
             0
           )
-            return (window.location.href = '/')
+            return (window.location.href = roles.director[0])
         }
       }
 
@@ -63,10 +56,12 @@ base(
       }
 
       runInAction(() => {
+        meta.open = false;
         const f = Object.keys(titleHeader).find(
           (x) => window.location.pathname === x
         ) as any
         meta.titleHeader = titleHeader[f] || '-'
+        meta.render = Date.now()
       })
     },
   },
@@ -75,14 +70,14 @@ base(
       <div
         className={`${
           meta.open ? 'flex' : 'hidden'
-        }  lg:flex fixed h-screen z-50 show-me`}
+        } lg:flex fixed h-screen z-50 show-me`}
         style="width: 250px"
       >
         <w-sidebar role={meta.userLoggedIn.role} />
       </div>
       <div
         class="h-screen z-40 flex flex-1 self-stretch flex-col items-start justify-start bg-white"
-        style={`
+        style={css`
         @media only screen and (min-width: 1024px) {
           & {
              padding-left: 250px
@@ -103,7 +98,7 @@ base(
         </div>
         <div
           class="flex-1 flex items-stretch self-stretch relative"
-          style="> div { flex:1 }"
+          style={css`> div { flex:1 }`}
         >
           {children}
         </div>
