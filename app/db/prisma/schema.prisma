@@ -78,6 +78,7 @@ model m_kegiatan {
 model m_pillar {
   id         Int          @id @default(autoincrement())
   name       String       @db.VarChar(20)
+  type_web   Int          @default(1) @db.SmallInt
   m_kegiatan m_kegiatan[]
   t_csr      t_csr[]
 }
@@ -126,7 +127,7 @@ model m_user {
   username    String        @db.VarChar(50)
   password    String        @db.VarChar
   last_login  DateTime      @db.Timestamp(6)
-  role        String        @db.VarChar(10)
+  role        String?       @db.VarChar(10)
   m_user_role m_user_role[]
 }
 
@@ -231,7 +232,7 @@ model t_csr_detail_bantuan {
   id_product_csr   Int?
   t_csr            t_csr            @relation(fields: [id_csr], references: [id], onDelete: Cascade)
   m_jenis_bantuan  m_jenis_bantuan? @relation(fields: [id_jenis_bantuan], references: [id], onDelete: Cascade)
-  m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Restrict, onUpdate: Restrict)
 }
 
 model t_csr_dokumentasi {

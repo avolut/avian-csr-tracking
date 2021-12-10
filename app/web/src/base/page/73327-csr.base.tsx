@@ -4,6 +4,14 @@ base(
       form: {},
       roleUser: (window as any).user.role,
       isDone: false,
+      csr: {
+        id: 0,
+        judul: '',
+        lokasi: '',
+        type: '',
+        latitude: 0,
+        longitude: 0,
+      },
       isTraining: [
         {
           value: 'Y',
@@ -132,9 +140,13 @@ base(
           // form header
           form: {
             onLoad: (data) => {
-              // console.log(data)
-
               meta.isDone = data.is_training === 'Y' && true
+              meta.csr.id = data.id
+              ;(meta.csr.judul = data.nama_project_csr),
+                (meta.csr.lokasi = data.lokasi)
+              meta.csr.type = data.m_pillar.type_web
+              meta.csr.latitude = data.latitude
+              meta.csr.longitude = data.longitude
             },
             onSave: async ({ data, save }) => {
               const random = (length) => {
@@ -150,35 +162,35 @@ base(
                 return result
               }
 
-              const documents = await db.query(
-                `SELECT * FROM t_csr_dokumentasi WHERE id_csr=${data.id}`
-              )
+              // const documents = await db.t_csr_dokumentasi.findFirst({
+              //   where: { id_csr: data.id },
+              // })
 
-              if (documents.length) {
-                if (data.is_training === 'N') {
-                  data.is_training = 'Y'
+              // if (documents) {
+              //   if (data.is_training === 'N') {
+              //     data.is_training = 'Y'
 
-                  // Connect API post CSR
-                  const postData = {
-                    judul: data.nama_project_csr,
-                    lokasi: data.lokasi,
-                    type: data.id_pillar,
-                    latitude: data.latitude,
-                    longitude: data.longitude,
-                  }
+              //     // Connect API post CSR
+              //     const postData = {
+              //       judul: data.nama_project_csr,
+              //       lokasi: data.lokasi,
+              //       type: data.m_pillar.type_web,
+              //       latitude: data.latitude,
+              //       longitude: data.longitude,
+              //     }
 
-                  try {
-                    await api(
-                      'https://cors-anywhere.herokuapp.com/http://dev.avianbrands.com/api/post-csr',
-                      postData
-                    )
-                  } catch (error) {
-                    console.log(error)
-                  }
-                }
-              } else {
-                data.is_training = 'N'
-              }
+              //     try {
+              //       await api(
+              //         'https://cors-anywhere.herokuapp.com/http://dev.avianbrands.com/api/post-csr',
+              //         postData
+              //       )
+              //     } catch (error) {
+              //       console.log(error)
+              //     }
+              //   }
+              // } else {
+              //   data.is_training = 'N'
+              // }
 
               if (!data.id) {
                 data.no_kegiatan = random(8)
@@ -474,7 +486,44 @@ base(
                     },
                   },
                   form: {
-                    onSave: ({ data, save }) => {
+                    onSave: async ({ data, save }) => {
+                      const documents = await db.t_csr_dokumentasi.findFirst({
+                        where: { id_csr: meta.csr.id },
+                      })
+
+                      if (
+                        !documents &&
+                        !!data.tipe &&
+                        !!data.caption &&
+                        !!data.url_file
+                      ) {
+                        await db.t_csr.update({
+                          data: { is_training: 'Y' },
+                          where: { id: meta.csr.id },
+                        })
+
+                        const { judul, lokasi, type, latitude, longitude } =
+                          meta.csr
+
+                        // Connect API post CSR
+                        const postData = {
+                          judul,
+                          lokasi,
+                          type,
+                          latitude,
+                          longitude,
+                        }
+
+                        try {
+                          await api(
+                            'https://cors-anywhere.herokuapp.com/http://dev.avianbrands.com/api/post-csr',
+                            postData
+                          )
+                        } catch (error) {
+                          console.log(error)
+                        }
+                      }
+
                       data.created_date = new Date()
                       save()
                     },
