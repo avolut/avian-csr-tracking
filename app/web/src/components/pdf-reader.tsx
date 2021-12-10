@@ -1,0 +1,163 @@
+/** @jsx jsx */
+import { jsx, css } from '@emotion/react'
+import { Pdf } from 'web-view/src/Pdf'
+import { db } from 'libs'
+import { useEffect } from 'react'
+import { observer, useLocalObservable } from 'mobx-react-lite'
+import RenderHTML from 'web-utils/components/RenderHTML'
+
+const currencyFormat = (number: number) =>
+  new Intl.NumberFormat('id').format(number)
+
+const numberFormat = (number: number) =>
+  new Intl.NumberFormat('en-IN', {
+    maximumSignificantDigits: 3,
+  }).format(number)
+
+const PDFReader = ({ csrId }) => {
+  const state = useLocalObservable(() => ({
+    csr: {} as any,
+    loading: true as boolean,
+  }))
+
+  useEffect(() => {
+    loadCsr()
+  }, [])
+  const loadCsr = async () => {
+    const res = await db.t_csr.findFirst({
+      select: {
+        no_kegiatan: true,
+        tgl_kegiatan: true,
+        nama_project_csr: true,
+        lokasi: true,
+        jumlah_orang: true,
+        deskripsi_singkat: true,
+        m_pillar: { select: { name: true } },
+        m_supplier: { select: { nama_supplier: true } },
+        m_instansi_penerima: { select: { instansi_penerima: true } },
+        t_csr_detail_bantuan: {
+          select: {
+            bantuan: true,
+            merek: true,
+            jenis: true,
+            value: true,
+            jumlah: true,
+          },
+        },
+      },
+      where: { id: csrId },
+    })
+
+    runInAction(() => {
+      state.csr = res
+      state.loading = false
+    })
+    console.log(res)
+  }
+
+  const pdfContent = [
+    { label: 'Nomor Kegiatan CSR', value: ': ' + state.csr?.no_kegiatan },
+    { label: 'Tanggal-Bulan-Tahun', value: ': ' + state.csr?.tgl_kegiatan },
+    { label: 'Pilar CSR', value: ': ' + state.csr?.m_pillar?.name },
+    { label: 'Nomor Project CSR', value: ': ' + state.csr?.no_kegiatan },
+    { label: 'Lokasi', value: ': ' + state.csr?.lokasi },
+    {
+      label: 'Supply Dari',
+      value: ': ' + state.csr?.m_supplier?.nama_supplier,
+    },
+  ]
+  return (
+    <div
+      className="h-full"
+      css={css`
+        & div {
+          height: 100%;
+        }
+      `}
+    >
+      <Pdf loading={state.loading}>
+        <div className="mx-4">
+          {pdfContent.map((item, idx) => (
+            <div key={idx} className="flex justify-between mt-4 text-sm">
+              <div className="font-semibold">{item.label}</div>
+              <div className="text-left w-2/3">{item.value}</div>
+            </div>
+          ))}
+          <div className="border-t border-b my-2 pb-2 text-sm">
+            <div className="flex mt-4 justify-between">
+              <div className="font-semibold">Instansi Penerima</div>
+              <div className="text-left w-2/3">
+                : {state.csr?.m_instansi_penerima?.instansi_penerima}
+              </div>
+            </div>
+            <div className="flex mt-4  justify-between">
+              <div className="font-semibold">Penerima Manfaat</div>
+              <div className="text-left w-2/3">
+                : {numberFormat(state.csr?.jumlah_orang)} Orang
+              </div>
+            </div>
+          </div>
+          <div className="font-semibold py-3">Bantuan CSR</div>
+          <table className="w-full border text-sm">
+            <thead>
+              <tr className="text-left">
+                <th className="p-3">Jenis</th>
+                <th>Merek</th>
+                <th>Keterangan</th>
+                <th>Biaya</th>
+                <th>Jumlah</th>
+              </tr>
+            </thead>
+            <tbody>
+              {state.csr?.t_csr_detail_bantuan?.map((item, idx) => (
+                <tr key={idx} className="border-t">
+                  <td className="p-3">{item.bantuan}</td>
+                  <td>{item.merek}</td>
+                  <td>{item.jenis}</td>
+                  <td>Rp {currencyFormat(item.value)}</td>
+                  <td>{item.jumlah}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="font-semibold py-3">Total Bantuan</div>
+          <div className="border-t border-b my-2 pb-2 text-sm">
+            <div className="flex justify-between mt-4">
+              <div className="font-semibold">Biaya</div>
+              <div className="text-left w-2/3">
+                : Rp{' '}
+                {currencyFormat(
+                  state.csr?.t_csr_detail_bantuan?.reduce(
+                    (acc, curr) => acc + curr.value,
+                    0
+                  )
+                )}
+              </div>
+            </div>
+            <div className="flex justify-between mt-4">
+              <div className="font-semibold">Cat</div>
+              <div className="text-left w-2/3">
+                :{' '}
+                {numberFormat(
+                  state.csr?.t_csr_detail_bantuan?.reduce(
+                    (acc, curr) => acc + curr.jumlah,
+                    0
+                  )
+                )}{' '}
+                Kg
+              </div>
+            </div>
+          </div>
+
+          <div className="font-semibold py-3">Deskripsi Singkat</div>
+          <div className="text-sm">
+            <RenderHTML>{state.csr?.deskripsi_singkat}</RenderHTML>
+          </div>
+        </div>
+      </Pdf>
+    </div>
+  )
+}
+
+export default observer(PDFReader)

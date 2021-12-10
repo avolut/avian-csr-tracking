@@ -100,7 +100,7 @@ base(
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                alert(item.id)
+                                navigate(`/admin/pdf/${item.id}`)
                               }}
                               class="bg-green-600 text-white font-semibold rounded-full px-2"
                             >
