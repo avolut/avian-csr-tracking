@@ -10,7 +10,7 @@ async ({
   ext,
   isDev,
 }: Server) => {
-  if (user.role === "admin") {
+  if (["admin", "director"].indexOf(user.role) >= 0 ) {
     const payload = {
       resource: req.body.resource,
       params: req.body.params,

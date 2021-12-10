@@ -1,8 +1,8 @@
 base(
   {
     meta: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
       action: {},
     },
     init: async ({ meta }) => {
@@ -10,26 +10,38 @@ base(
         meta.action = {
           onChange: (e, field) => {
             runInAction(() => {
-              meta[field] = e.target.value;
-            });
+              meta[field] = e.target.value
+            })
           },
           login: async () => {
             // await api("/api/update-password", { id: 1, password: "12345" });
-            const res = await api("/api/login", {
+            const res = await api('/api/login', {
               username: meta.username,
               password: meta.password,
-              role: "admin",
-            });
+              role: 'admin',
+            })
 
-            if (res.status === "success") {
-              localStorage.setItem("user", JSON.stringify(res.user));
-              window.location.href = "/";
+            if (res.status === 'success') {
+              localStorage.setItem('user', JSON.stringify(res.user))
+              const roles = {
+                hrd: '/admin/csr',
+                director: '/admin/summary-report',
+              }
+              if (res.user.role === 'hrd') {
+                return (window.location.href = roles.hrd)
+              }
+
+              if (res.user.role === 'director') {
+                return (window.location.href = roles.director)
+              }
+
+              return (window.location.href = '/')
             } else {
-              alert(res.msg || res.error);
+              alert(res.msg || res.error)
             }
           },
-        };
-      });
+        }
+      })
     },
   },
   ({ meta }) => (
@@ -63,8 +75,8 @@ base(
                   height: 261px;
                 `}
                 onSubmit={(e) => {
-                  e.preventDefault();
-                  meta.action.login();
+                  e.preventDefault()
+                  meta.action.login()
                 }}
               >
                 <div class={`flex self-stretch items-end justify-start p-2.5`}>
@@ -73,7 +85,7 @@ base(
                     label="Username"
                     placeholder="Username"
                     value={meta.username}
-                    onChange={(e) => meta.action.onChange(e, "username")}
+                    onChange={(e) => meta.action.onChange(e, 'username')}
                   />
                 </div>
                 <div class={`flex self-stretch items-end justify-start p-2.5`}>
@@ -83,7 +95,7 @@ base(
                     placeholder="Password"
                     type="password"
                     value={meta.password}
-                    onChange={(e) => meta.action.onChange(e, "password")}
+                    onChange={(e) => meta.action.onChange(e, 'password')}
                   />
                 </div>
                 <div
@@ -91,8 +103,10 @@ base(
                 >
                   <btn
                     class={`flex items-center justify-center px-4 py-2 bg-green-600 rounded w-full text-white`}
-                    type={"submit"}
-                  >Masuk</btn>
+                    type={'submit'}
+                  >
+                    Masuk
+                  </btn>
                 </div>
               </form>
             </div>
@@ -101,4 +115,4 @@ base(
       </>
     </>
   )
-);
+)
