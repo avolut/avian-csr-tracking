@@ -6,14 +6,6 @@ import { useEffect } from 'react'
 import { observer, useLocalObservable } from 'mobx-react-lite'
 import RenderHTML from 'web-utils/components/RenderHTML'
 
-const currencyFormat = (number: number) =>
-  new Intl.NumberFormat('id').format(number)
-
-const numberFormat = (number: number) =>
-  new Intl.NumberFormat('en-IN', {
-    maximumSignificantDigits: 3,
-  }).format(number)
-
 const PDFReader = ({ csrId }) => {
   const state = useLocalObservable(() => ({
     csr: {} as any,
@@ -57,7 +49,7 @@ const PDFReader = ({ csrId }) => {
 
   const pdfContent = [
     { label: 'Nomor Kegiatan CSR', value: ': ' + state.csr?.no_kegiatan },
-    { label: 'Tanggal-Bulan-Tahun', value: ': ' + state.csr?.tgl_kegiatan },
+    { label: 'Tanggal-Bulan-Tahun', value: ': ' + globalVar.formatDate(state.csr?.tgl_kegiatan) },
     { label: 'Pilar CSR', value: ': ' + state.csr?.m_pillar?.name },
     { label: 'Nomor Project CSR', value: ': ' + state.csr?.no_kegiatan },
     { label: 'Lokasi', value: ': ' + state.csr?.lokasi },
@@ -93,7 +85,7 @@ const PDFReader = ({ csrId }) => {
             <div className="flex mt-4  justify-between">
               <div className="font-semibold">Penerima Manfaat</div>
               <div className="text-left w-2/3">
-                : {numberFormat(state.csr?.jumlah_orang)} Orang
+                : {globalVar.numberFormat(state.csr?.jumlah_orang)} Orang
               </div>
             </div>
           </div>
@@ -114,7 +106,7 @@ const PDFReader = ({ csrId }) => {
                   <td className="p-3">{item.bantuan}</td>
                   <td>{item.merek}</td>
                   <td>{item.jenis}</td>
-                  <td>Rp {currencyFormat(item.value)}</td>
+                  <td>Rp {globalVar.currencyFormat(item.value)}</td>
                   <td>{item.jumlah}</td>
                 </tr>
               ))}
@@ -127,7 +119,7 @@ const PDFReader = ({ csrId }) => {
               <div className="font-semibold">Biaya</div>
               <div className="text-left w-2/3">
                 : Rp{' '}
-                {currencyFormat(
+                {globalVar.currencyFormat(
                   state.csr?.t_csr_detail_bantuan?.reduce(
                     (acc, curr) => acc + curr.value,
                     0
@@ -139,7 +131,7 @@ const PDFReader = ({ csrId }) => {
               <div className="font-semibold">Cat</div>
               <div className="text-left w-2/3">
                 :{' '}
-                {numberFormat(
+                {globalVar.numberFormat(
                   state.csr?.t_csr_detail_bantuan?.reduce(
                     (acc, curr) => acc + curr.jumlah,
                     0

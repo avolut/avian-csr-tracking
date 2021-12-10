@@ -31,4 +31,12 @@ const formatDate = (
   }
 }
 
-export const globalVar = { asyncForEach, formatDate }
+const currencyFormat = (number: number) =>
+  new Intl.NumberFormat('id').format(number)
+
+const numberFormat = (number: number) =>
+  new Intl.NumberFormat('en-IN', {
+    maximumSignificantDigits: 3,
+  }).format(number)
+
+export const globalVar = { asyncForEach, formatDate ,currencyFormat,numberFormat}
