@@ -44,14 +44,13 @@ const PDFReader = ({ csrId }) => {
       state.csr = res
       state.loading = false
     })
-    console.log(res)
   }
 
   const pdfContent = [
     { label: 'Nomor Kegiatan CSR', value: ': ' + state.csr?.no_kegiatan },
     { label: 'Tanggal-Bulan-Tahun', value: ': ' + globalVar.formatDate(state.csr?.tgl_kegiatan) },
     { label: 'Pilar CSR', value: ': ' + state.csr?.m_pillar?.name },
-    { label: 'Nomor Project CSR', value: ': ' + state.csr?.no_kegiatan },
+    { label: 'Nama Project CSR', value: ': ' + state.csr?.nama_project_csr },
     { label: 'Lokasi', value: ': ' + state.csr?.lokasi },
     {
       label: 'Supply Dari',
