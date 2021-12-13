@@ -108,7 +108,7 @@ base(
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                navigate(`/admin/pdf/${item.id}`)
+                                window.open(`/admin/pdf/${item.id}`, "_blank")
                               }}
                               class="bg-green-600 text-white font-semibold rounded-full px-2"
                             >
@@ -209,17 +209,11 @@ base(
             },
             action: () => ({
               save: () => {
-                if (meta.roleUser === 'hrd' && !meta.isDone) return false
-
-                if (meta.roleUser !== 'hrd') return 'Simpan'
-
+                if (meta.roleUser === 'hrd' && meta.isDone) return false
                 return 'Simpan'
               },
               delete: () => {
-                if (meta.roleUser === 'hrd' && !meta.isDone) return false
-
-                if (meta.roleUser !== 'hrd') return true
-
+                if (meta.roleUser === 'hrd' && meta.isDone) return false
                 return true
               },
               jsonEdit: false,
@@ -290,7 +284,10 @@ base(
                 fieldProps: {
                   list: {
                     action: {
-                      create: 'Tambah',
+                      create: () => {
+                        if (meta.roleUser === 'hrd' && meta.isDone) return false
+                        return 'Tambah'
+                      },
                     },
                     table: {
                       columns: [
@@ -307,9 +304,17 @@ base(
                   },
                   form: {
                     action: () => ({
-                      save: 'Simpan',
+                      save: () => {
+                        if (meta.roleUser === 'hrd' && meta.isDone) return false
+                        return 'Simpan'
+                      },
+                      delete: () => {
+                        if (meta.roleUser === 'hrd' && meta.isDone) return false
+                        return true
+                      },
                       jsonEdit: false,
                     }),
+
                     layout: [
                       'm_fasilitas_lainnya',
                       ({ row, watch, layout }) => {
@@ -327,7 +332,10 @@ base(
                 fieldProps: {
                   list: {
                     action: {
-                      create: 'Tambah',
+                      create: () => {
+                        if (meta.roleUser === 'hrd' && meta.isDone) return false
+                        return 'Tambah'
+                      },
                     },
                     table: {
                       columns: [
@@ -373,7 +381,15 @@ base(
                       save()
                     },
                     action: () => ({
-                      save: 'Simpan',
+                      save: () => {
+                        console.log(meta.roleUser)
+                        if (meta.roleUser === 'hrd' && meta.isDone) return false
+                        return 'Simpan'
+                      },
+                      delete: () => {
+                        if (meta.roleUser === 'hrd' && meta.isDone) return false
+                        return true
+                      },
                       jsonEdit: false,
                     }),
                     alter: {
@@ -486,41 +502,31 @@ base(
                     },
                   },
                   form: {
-                    onSave: async ({ data, save }) => {
-                      const documents = await db.t_csr_dokumentasi.findFirst({
-                        where: { id_csr: meta.csr.id },
-                      })
+                    onSave: async ({ data, save, state }) => {
+                      if (state.tree.parent.tree.parent.db.data.is_training === "N") {
+                        if (!!data.tipe && !!data.caption && !!data.url_file) {
+                          await db.t_csr.update({
+                            data: { is_training: 'Y' },
+                            where: { id: meta.csr.id },
+                          })
 
-                      if (
-                        !documents &&
-                        !!data.tipe &&
-                        !!data.caption &&
-                        !!data.url_file
-                      ) {
-                        await db.t_csr.update({
-                          data: { is_training: 'Y' },
-                          where: { id: meta.csr.id },
-                        })
+                          const { judul, lokasi, type, latitude, longitude } =
+                            meta.csr
 
-                        const { judul, lokasi, type, latitude, longitude } =
-                          meta.csr
+                          // Connect API post CSR
+                          const postData = {
+                            judul,
+                            lokasi,
+                            type,
+                            latitude,
+                            longitude,
+                          }
 
-                        // Connect API post CSR
-                        const postData = {
-                          judul,
-                          lokasi,
-                          type,
-                          latitude,
-                          longitude,
-                        }
-
-                        try {
-                          await api(
-                            'https://cors-anywhere.herokuapp.com/http://dev.avianbrands.com/api/post-csr',
-                            postData
-                          )
-                        } catch (error) {
-                          console.log(error)
+                          try {
+                            await api('/api/post-csr', postData)
+                          } catch (error) {
+                            console.log(error)
+                          }
                         }
                       }
 

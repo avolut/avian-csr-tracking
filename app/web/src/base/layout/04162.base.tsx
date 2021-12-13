@@ -19,7 +19,7 @@ base(
         return (window.location.href = '/')
       } else if (meta.userLoggedIn.role !== 'guest') {
         const roles = {
-          hrd: ['/admin/csr', '/admin/change-password'],
+          hrd: ['/admin/csr', '/admin/change-password', '/admin/pdf'],
           director: ['/admin/summary-report', '/admin/change-password'],
         }
         if (meta.userLoggedIn.role === 'hrd') {
@@ -53,12 +53,13 @@ base(
         '/admin/master-data-jenis-instanis': 'Jenis Instansi',
         '/admin/change-password': 'Ubah Password',
         '/admin/users': 'Manajemen Pengguna',
+        '/admin/pdf': 'Download CSR',
       }
 
       runInAction(() => {
         meta.open = false;
         const f = Object.keys(titleHeader).find(
-          (x) => window.location.pathname === x
+          (x) => window.location.pathname.match(x)
         ) as any
         meta.titleHeader = titleHeader[f] || '-'
         meta.render = Date.now()
