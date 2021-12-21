@@ -203,6 +203,7 @@ model t_csr {
   id_jenis_instansi       Int
   keterangan              String?
   jumlah_orang            Int
+  status                  String                    @default("N") @db.Char(1)
   m_area_tirta            m_area_tirta?             @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
   m_cabang                m_cabang                  @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
   m_covered_area          m_covered_area            @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)
@@ -230,6 +231,7 @@ model t_csr_detail_bantuan {
   id_csr           Int
   id_jenis_bantuan Int?
   id_product_csr   Int?
+  diskon           Int              @default(0)
   t_csr            t_csr            @relation(fields: [id_csr], references: [id], onDelete: Cascade)
   m_jenis_bantuan  m_jenis_bantuan? @relation(fields: [id_jenis_bantuan], references: [id], onDelete: Cascade)
   m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Restrict, onUpdate: Restrict)
@@ -266,4 +268,9 @@ model m_metabase {
   type     String @db.VarChar
   title    String @db.VarChar
   resource Json
+}
+
+model m_merek_cat {
+  id        Int    @id @default(autoincrement())
+  merek_cat String @db.VarChar(255)
 }

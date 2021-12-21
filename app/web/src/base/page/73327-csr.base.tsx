@@ -73,18 +73,18 @@ base(
                   },
                 ],
                 [
-                  'is_training',
+                  'status',
                   {
                     title: 'Status',
                     width: 200,
                     value: (item) => {
                       const color =
-                        item.is_training === 'Y'
+                        item.status === 1
                           ? 'bg-green-600 text-white font-semibold rounded-full px-2'
                           : 'bg-yellow-500 text-white font-semibold rounded-full px-2'
                       return (
                         <span class={color}>
-                          {item.is_training === 'Y' ? 'Selesai' : 'Draft'}
+                          {item.status === 1 ? 'Selesai' : 'Draft'}
                         </span>
                       )
                     },
@@ -97,14 +97,14 @@ base(
                   },
                 ],
                 [
-                  'is_training',
+                  'status',
                   {
                     title: 'View',
                     width: 200,
                     value: (item) => {
                       return (
                         <>
-                          {item.is_training === 'Y' && (
+                          {item.status === 1 && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -140,7 +140,7 @@ base(
           // form header
           form: {
             onLoad: (data) => {
-              meta.isDone = data.is_training === 'Y' && true
+              meta.isDone = data.status === 1 ? true : false
               meta.csr.id = data.id
               ;(meta.csr.judul = data.nama_project_csr),
                 (meta.csr.lokasi = data.lokasi)
@@ -377,12 +377,12 @@ base(
                   },
                   form: {
                     onSave: ({ data, save }) => {
-                      if (!data.harga_nett) data.harga_nett = 0
+                      if (!data.diskon) data.diskon = 0
+                      data.harga_nett = typeof data.harga_nett === "string" ? parseInt(data.harga_nett.replace(/\D/g, '')) : data.harga_nett;
                       save()
                     },
                     action: () => ({
                       save: () => {
-                        console.log(meta.roleUser)
                         if (meta.roleUser === 'hrd' && meta.isDone) return false
                         return 'Simpan'
                       },
@@ -410,10 +410,40 @@ base(
                       },
                       harga_nett: {
                         type: 'money',
+                        readonly: true
                       },
                       value: {
-                        title: 'Value (IDR)',
+                        title: 'Total Harga (IDR)',
                         type: 'money',
+                        onChange: (_, {state, row}) => {
+                          let v = row.value;
+                          let d = 0;
+                          if (!row.value) v = 0;
+                          if (!!row.diskon) d = row.diskon
+                          
+                          if (v === 0 || d === 0) state.db.data.harga_nett = v.toString()
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                          else state.db.data.harga_nett = Math.round(v * (100 - d) / 100).toString()
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                          state.config.fields.harga_nett.state.render()
+                        }
+                      },
+                      diskon: {
+                        title: 'Diskon',
+                        suffix: "%",
+                        required: false,
+                        onChange: (_, {state, row}) => {
+                          let d = row.diskon;
+                          let v = 0;
+                          if (!row.diskon) d = 0;
+                          if (!!row.value) v = row.value
+
+                          if (v === 0 || d === 0) state.db.data.harga_nett = v.toString()
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                          else state.db.data.harga_nett = Math.round(v * (100 - d) / 100).toString()
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                          state.config.fields.harga_nett.state.render()
+                        }
                       },
                     },
                     layout: [
@@ -427,6 +457,7 @@ base(
                             ['m_product_csr'],
                             ['jenis', 'warna'],
                             ['jumlah', 'value'],
+                            ['diskon', "harga_nett"],
                           ])
                         else if (row.bantuan === 'Lainnya') {
                           return layout([[], ['m_jenis_bantuan']])
@@ -440,7 +471,7 @@ base(
                           return layout([])
                         if (row.m_jenis_bantuan.jenis_bantuan === 'Lainnya')
                           return layout([['merek', 'value']])
-                        return layout([['value', []]])
+                        return layout([['value', "diskon"], ["harga_nett", []]])
                       },
                     ],
                   },
@@ -503,10 +534,10 @@ base(
                   },
                   form: {
                     onSave: async ({ data, save, state }) => {
-                      if (state.tree.parent.tree.parent.db.data.is_training === "N") {
+                      if (state.tree.parent.tree.parent.db.data.status === 0) {
                         if (!!data.tipe && !!data.caption && !!data.url_file) {
                           await db.t_csr.update({
-                            data: { is_training: 'Y' },
+                            data: { status: 1 },
                             where: { id: meta.csr.id },
                           })
 

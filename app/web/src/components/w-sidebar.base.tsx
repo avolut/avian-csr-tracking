@@ -89,32 +89,33 @@ base(
             </div>
           )}
 
+          {['admin', 'director'].indexOf(user.role) >= 0 && (
+            <div class="flex self-stretch items-center justify-start px-2.5">
+              <img src="/fimgs/676_4759.x1.svg" />
+              <button
+                class="flex flex-1 space-x-1 items-center justify-start p-2.5"
+                onClick={() => navigate('/admin/lacak-csr')}
+              >
+                <div class="text-sm leading-tight text-white">Lacak</div>
+              </button>
+            </div>
+          )}
+
           {['admin'].indexOf(user.role) >= 0 && (
-            <>
-              <div class="flex self-stretch items-center justify-start px-2.5">
-                <img src="/fimgs/676_4759.x1.svg" />
-                <button
-                  class="flex flex-1 space-x-1 items-center justify-start p-2.5"
-                  onClick={() => navigate('/admin/lacak-csr')}
-                >
-                  <div class="text-sm leading-tight text-white">Lacak</div>
-                </button>
-              </div>
-              <div class="flex self-stretch items-center justify-start px-2.5">
-                <img
-                  src="/fimgs/user.x1.svg"
-                  style={css`
-                    height: 16px !important;
-                  `}
-                />
-                <button
-                  class="flex flex-1 space-x-1 items-center justify-start p-2.5"
-                  onClick={() => navigate('/admin/users')}
-                >
-                  <div class="text-sm leading-tight text-white">User</div>
-                </button>
-              </div>
-            </>
+            <div class="flex self-stretch items-center justify-start px-2.5">
+              <img
+                src="/fimgs/user.x1.svg"
+                style={css`
+                  height: 16px !important;
+                `}
+              />
+              <button
+                class="flex flex-1 space-x-1 items-center justify-start p-2.5"
+                onClick={() => navigate('/admin/users')}
+              >
+                <div class="text-sm leading-tight text-white">User</div>
+              </button>
+            </div>
           )}
           {['admin'].indexOf(user.role) >= 0 ? (
             <div
