@@ -17,7 +17,7 @@ export const queryFilterDate: IBaseFilterDef['modifyQuery'] = (props) => {
   if (instance.value instanceof Date) {
     if (instance.operator === 'equals') {
       const now = setDate(new Date(instance.value), {
-        hours: 0,
+        hours: 7,
         minutes: 0,
         seconds: 0,
         milliseconds: 0,

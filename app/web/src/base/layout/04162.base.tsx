@@ -20,7 +20,7 @@ base(
       } else if (meta.userLoggedIn.role !== 'guest') {
         const roles = {
           hrd: ['/admin/csr', '/admin/change-password', '/admin/pdf'],
-          director: ['/admin/summary-report', '/admin/change-password'],
+          director: ['/admin/summary-report', '/admin/lacak-csr', '/admin/change-password'],
         }
         if (meta.userLoggedIn.role === 'hrd') {
           if (roles.hrd.findIndex((x) => window.location.pathname.match(x)) < 0)

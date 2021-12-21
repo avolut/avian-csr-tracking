@@ -79,14 +79,10 @@ base(
                     width: 200,
                     value: (item) => {
                       const color =
-                        item.status === 1
+                        item.status === 'Completed'
                           ? 'bg-green-600 text-white font-semibold rounded-full px-2'
                           : 'bg-yellow-500 text-white font-semibold rounded-full px-2'
-                      return (
-                        <span class={color}>
-                          {item.status === 1 ? 'Selesai' : 'Draft'}
-                        </span>
-                      )
+                      return <span class={color}>{item.status}</span>
                     },
                   },
                 ],
@@ -97,18 +93,18 @@ base(
                   },
                 ],
                 [
-                  'status',
+                  '_',
                   {
                     title: 'View',
                     width: 200,
                     value: (item) => {
                       return (
                         <>
-                          {item.status === 1 && (
+                          {item.status === 'Completed' && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                window.open(`/admin/pdf/${item.id}`, "_blank")
+                                window.open(`/admin/pdf/${item.id}`, '_blank')
                               }}
                               class="bg-green-600 text-white font-semibold rounded-full px-2"
                             >
@@ -140,7 +136,7 @@ base(
           // form header
           form: {
             onLoad: (data) => {
-              meta.isDone = data.status === 1 ? true : false
+              meta.isDone = data.status === 'Completed' ? true : false
               meta.csr.id = data.id
               ;(meta.csr.judul = data.nama_project_csr),
                 (meta.csr.lokasi = data.lokasi)
@@ -230,6 +226,14 @@ base(
               m_kegiatan: {
                 title: 'Kegiatan CSR',
                 required: true,
+                params: (row) => {
+                  if (!row.id_pillar) return {}
+                  return {
+                    where: {
+                      id_pillar: row.id_pillar,
+                    },
+                  }
+                },
               },
               is_training: {
                 title: 'Training',
@@ -376,9 +380,15 @@ base(
                     },
                   },
                   form: {
+                    onInit: (state) => {
+                      state.db.data.diskon = 100 - (state.db.data.harga_nett * 100 / state.db.data.value)
+                    },
                     onSave: ({ data, save }) => {
                       if (!data.diskon) data.diskon = 0
-                      data.harga_nett = typeof data.harga_nett === "string" ? parseInt(data.harga_nett.replace(/\D/g, '')) : data.harga_nett;
+                      data.harga_nett =
+                        typeof data.harga_nett === 'string'
+                          ? parseInt(data.harga_nett.replace(/\D/g, ''))
+                          : data.harga_nett
                       save()
                     },
                     action: () => ({
@@ -410,40 +420,52 @@ base(
                       },
                       harga_nett: {
                         type: 'money',
-                        readonly: true
+                        readonly: true,
                       },
                       value: {
                         title: 'Total Harga (IDR)',
                         type: 'money',
-                        onChange: (_, {state, row}) => {
-                          let v = row.value;
-                          let d = 0;
-                          if (!row.value) v = 0;
+                        onChange: (_, { state, row }) => {
+                          let v = row.value
+                          let d = 0
+                          if (!row.value) v = 0
                           if (!!row.diskon) d = row.diskon
-                          
-                          if (v === 0 || d === 0) state.db.data.harga_nett = v.toString()
-                          .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                          else state.db.data.harga_nett = Math.round(v * (100 - d) / 100).toString()
-                          .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+                          if (v === 0 || d === 0)
+                            state.db.data.harga_nett = v
+                              .toString()
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                          else
+                            state.db.data.harga_nett = Math.round(
+                              (v * (100 - d)) / 100
+                            )
+                              .toString()
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
                           state.config.fields.harga_nett.state.render()
-                        }
+                        },
                       },
                       diskon: {
                         title: 'Diskon',
-                        suffix: "%",
+                        suffix: '%',
                         required: false,
-                        onChange: (_, {state, row}) => {
-                          let d = row.diskon;
-                          let v = 0;
-                          if (!row.diskon) d = 0;
+                        onChange: (_, { state, row }) => {
+                          let d = row.diskon
+                          let v = 0
+                          if (!row.diskon) d = 0
                           if (!!row.value) v = row.value
 
-                          if (v === 0 || d === 0) state.db.data.harga_nett = v.toString()
-                          .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                          else state.db.data.harga_nett = Math.round(v * (100 - d) / 100).toString()
-                          .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                          if (v === 0 || d === 0)
+                            state.db.data.harga_nett = v
+                              .toString()
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                          else
+                            state.db.data.harga_nett = Math.round(
+                              (v * (100 - d)) / 100
+                            )
+                              .toString()
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
                           state.config.fields.harga_nett.state.render()
-                        }
+                        },
                       },
                     },
                     layout: [
@@ -457,7 +479,7 @@ base(
                             ['m_product_csr'],
                             ['jenis', 'warna'],
                             ['jumlah', 'value'],
-                            ['diskon', "harga_nett"],
+                            ['diskon', 'harga_nett'],
                           ])
                         else if (row.bantuan === 'Lainnya') {
                           return layout([[], ['m_jenis_bantuan']])
@@ -471,7 +493,10 @@ base(
                           return layout([])
                         if (row.m_jenis_bantuan.jenis_bantuan === 'Lainnya')
                           return layout([['merek', 'value']])
-                        return layout([['value', "diskon"], ["harga_nett", []]])
+                        return layout([
+                          ['value', 'diskon'],
+                          ['harga_nett', []],
+                        ])
                       },
                     ],
                   },
@@ -534,10 +559,12 @@ base(
                   },
                   form: {
                     onSave: async ({ data, save, state }) => {
-                      if (state.tree.parent.tree.parent.db.data.status === 0) {
+                      if (
+                        state.tree.parent.tree.parent.db.data.status === 'Draft'
+                      ) {
                         if (!!data.tipe && !!data.caption && !!data.url_file) {
                           await db.t_csr.update({
-                            data: { status: 1 },
+                            data: { status: 'Completed' },
                             where: { id: meta.csr.id },
                           })
 
