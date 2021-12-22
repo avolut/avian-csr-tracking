@@ -36,7 +36,7 @@ base(
                 return (window.location.href = roles.director)
               }
 
-              return (window.location.href = '/')
+              return (window.location.href = '/admin/dashboard')
             } else {
               alert(res.msg || res.error)
             }
