@@ -108,7 +108,7 @@ base(
                 [
                   '_',
                   {
-                    title: 'View',
+                    title: '',
                     width: 200,
                     value: (item) => {
                       return (
@@ -121,7 +121,7 @@ base(
                               }}
                               class="bg-green-600 text-white font-semibold rounded-full px-2"
                             >
-                              View
+                              Lihat PDF
                             </button>
                           )}
                         </>

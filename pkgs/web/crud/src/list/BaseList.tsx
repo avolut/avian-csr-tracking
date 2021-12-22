@@ -635,7 +635,7 @@ const createListContext = (
       lateQuery,
       queryTimeout: null as unknown as ReturnType<typeof setTimeout>,
       paging: {
-        take: 150,
+        // take: 150,
         skip: 0,
         fetching: false,
         allRowFetched: false,

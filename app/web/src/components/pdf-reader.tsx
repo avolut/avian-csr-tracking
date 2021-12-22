@@ -29,10 +29,10 @@ const PDFReader = ({ csrId }) => {
         m_instansi_penerima: { select: { instansi_penerima: true } },
         t_csr_detail_bantuan: {
           select: {
+          harga_nett: true,
             bantuan: true,
             merek: true,
             jenis: true,
-            value: true,
             jumlah: true,
           },
         },
@@ -105,7 +105,7 @@ const PDFReader = ({ csrId }) => {
                   <td className="p-3">{item.bantuan}</td>
                   <td>{item.merek}</td>
                   <td>{item.jenis}</td>
-                  <td>Rp {globalVar.currencyFormat(item.value)}</td>
+                  <td>Rp {globalVar.currencyFormat(item.harga_nett)}</td>
                   <td>{item.jumlah}</td>
                 </tr>
               ))}
@@ -120,7 +120,7 @@ const PDFReader = ({ csrId }) => {
                 : Rp{' '}
                 {globalVar.currencyFormat(
                   state.csr?.t_csr_detail_bantuan?.reduce(
-                    (acc, curr) => acc + curr.value,
+                    (acc, curr) => acc + curr.harga_nett,
                     0
                   )
                 )}
