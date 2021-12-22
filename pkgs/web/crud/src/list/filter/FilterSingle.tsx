@@ -12,6 +12,7 @@ import { FilterDate, queryFilterDate } from './FilterDate'
 import { FilterNumber, queryFilterNumber } from './FilterNumber'
 import { FilterTab, queryFilterTab } from './FilterTab'
 import { FilterText, queryFilterText } from './FilterText'
+import { FilterDropdown, queryFilterDropdown } from './FilterDropdown'
 
 declare const window: BaseWindow
 
@@ -98,6 +99,11 @@ export const initializeSingleFilter = (
       defaultOperator: '',
       component: FilterTab,
       query: queryFilterTab,
+    },
+    select: {
+      defaultOperator: 'equals',
+      component: FilterDropdown,
+      query: queryFilterDropdown,
     },
   }
 

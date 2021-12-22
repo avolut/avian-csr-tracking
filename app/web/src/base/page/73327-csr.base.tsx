@@ -14,11 +14,11 @@ base(
       },
       isTraining: [
         {
-          value: 'Y',
+          value: 1,
           label: 'Ya',
         },
         {
-          value: 'N',
+          value: 0,
           label: 'Tidak',
         },
       ],
@@ -34,6 +34,19 @@ base(
           label: 'CSR',
           // list header
           list: {
+            filter: {
+              web: {
+                mode: 'topbar',
+                selector: true,
+              },
+              alter: {
+                status: {
+                  visible: true,
+                  type: 'select',
+                  options: [{ key: 'Completed', text: 'Selesai' }, { key: 'Draft', text: 'Draft' }],
+                },
+              },
+            },
             action: {
               create: 'Tambah',
             },
@@ -73,7 +86,7 @@ base(
                   },
                 ],
                 [
-                  'status',
+                  '_',
                   {
                     title: 'Status',
                     width: 200,
@@ -82,7 +95,7 @@ base(
                         item.status === 'Completed'
                           ? 'bg-green-600 text-white font-semibold rounded-full px-2'
                           : 'bg-yellow-500 text-white font-semibold rounded-full px-2'
-                      return <span class={color}>{item.status}</span>
+                      return <span class={color}>{item.status === "Completed" ? "Selesai" : "Draft"}</span>
                     },
                   },
                 ],

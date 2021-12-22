@@ -142,7 +142,7 @@ model m_user_role {
 
 model t_csr {
   id                      Int                       @id @default(autoincrement())
-  no_kegiatan             String                    @db.VarChar(8)
+  no_kegiatan             String                    @db.VarChar(11)
   id_division             Int
   id_pillar               Int
   id_kegiatan             Int
