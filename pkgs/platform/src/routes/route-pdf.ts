@@ -78,7 +78,7 @@ export const startPptr = async () => {
         global.pptr = pptr
       })
   } else {
-    if (chromePaths.chrome) {
+    if (chromePaths.chrome || chromePaths.chromium) {
       global.bin.pptr
         .launch({
           headless: false,
