@@ -389,7 +389,8 @@ base(
                     },
                     onSave: ({ data, save }) => {
                       if (!data.diskon) data.diskon = 0;
-                      data.harga_nett =
+                      if (!data.harga_nett) data.harga_nett = data.value;
+                      else data.harga_nett =
                         typeof data.harga_nett === "string"
                           ? parseInt(data.harga_nett.replace(/\D/g, ""))
                           : data.harga_nett;
@@ -432,6 +433,7 @@ base(
                         title: "Total Harga (IDR)",
                         type: "money",
                         onChange: (_, { state, row }) => {
+                          if (!state.config.fields.harga_nett) return;
                           let v = row.value;
                           let d = 0;
                           if (!row.value) v = 0;
@@ -498,8 +500,7 @@ base(
                         if (row.m_jenis_bantuan.jenis_bantuan === "Lainnya")
                           return layout([["merek", "value"]]);
                         return layout([
-                          ["value", "diskon"],
-                          ["harga_nett", []],
+                          ["value", []],
                         ]);
                       },
                     ],
