@@ -56,15 +56,13 @@ base(
         '/admin/pdf': 'Download CSR',
       }
 
-      runInAction(() => {
-        meta.open = false
-        const f = Object.keys(titleHeader).find((x) =>
-          window.location.pathname.match(x)
-        ) as any
-        meta.titleHeader = titleHeader[f] || '-'
-        meta.render = Date.now()
-        meta.user = user;
-      })
+      meta.open = false
+      const f = Object.keys(titleHeader).find((x) =>
+        window.location.pathname.match(x)
+      ) as any
+      meta.titleHeader = titleHeader[f] || '-'
+      meta.render = Date.now()
+      meta.user = user;
     },
   },
   ({ meta, children }) => (

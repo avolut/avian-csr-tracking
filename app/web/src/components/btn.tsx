@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
+import { observer } from 'mobx-react-lite'
 
 interface IProps {
   children: any
@@ -10,7 +11,7 @@ interface IProps {
   disabled?: boolean
 }
 
-export default ({
+export default observer(({
   children,
   onClick,
   onBlur,
@@ -33,4 +34,4 @@ export default ({
       </div>
     </button>
   )
-}
+})

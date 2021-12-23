@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
 import { TextField } from '@fluentui/react'
+import { observer } from 'mobx-react-lite'
 
 interface IProps {
   value: string
@@ -16,7 +17,7 @@ interface IProps {
   placeholder?: string
 }
 
-export default (props: IProps) => {
+export default observer((props: IProps) => {
   return (
     <div
       className={`flex self-stretch flex-col space-y-2.5 items-start justify-start w-full ${props.className}`}
@@ -47,4 +48,4 @@ export default (props: IProps) => {
       />
     </div>
   )
-}
+})

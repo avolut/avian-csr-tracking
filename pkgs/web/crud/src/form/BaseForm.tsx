@@ -760,7 +760,7 @@ export const createFormContext = (
                   value === null ||
                   value === '' ||
                   (typeof value !== 'boolean' && !value))) ||
-              (typeof value === 'object' && Object.keys(value).length === 0)
+              (typeof value === 'object' && Object.keys(value).length === 0 && Object.prototype.toString.call(value) !== '[object Date]')
             ) {
               if (!errors[name]) {
                 errors[name] = []

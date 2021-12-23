@@ -1,7 +1,8 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
+import { observer } from 'mobx-react-lite'
 
-export default ({ title, open, onClickOpen }) => {
+export default observer(({ title, open, onClickOpen }: any) => {
   const date = new Date()
 
   return (
@@ -46,4 +47,4 @@ export default ({ title, open, onClickOpen }) => {
       </div>
     </div>
   )
-}
+})

@@ -1,7 +1,8 @@
 /** @jsx jsx */
 import { jsx, css } from '@emotion/react'
+import { observer } from 'mobx-react-lite'
 
-export default ({ user }) => {
+export default observer(({ user }: any) => {
   return (
     <div
       className="w-full flex self-stretch flex-col items-start justify-start border border-indigo-50 overflow-y-auto"
@@ -268,4 +269,4 @@ export default ({ user }) => {
       )}
     </div>
   )
-}
+})

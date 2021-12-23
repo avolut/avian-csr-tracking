@@ -477,7 +477,7 @@ export const PureTab = ({
         }
       `}
     >
-      <div className="tab-inner inset-0">
+      <div className="flex tab-inner inset-0">
         {meta.tabs.map((e, idx) => {
           return (
             <Label

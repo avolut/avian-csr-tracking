@@ -126,7 +126,6 @@ base(
                   "_",
                   {
                     title: "",
-                    width: 50,
                     value: (item) => {
                       return (
                         <>
@@ -137,9 +136,7 @@ base(
                                 window.open(`/admin/pdf/${item.id}`, "_blank");
                               }}
                               className="bg-green-600 text-white font-semibold rounded-full px-2"
-                              style={{
-                                width: 50
-                              }}
+                              css={css`width: 100px;`}
                             >
                               Lihat PDF
                             </button>

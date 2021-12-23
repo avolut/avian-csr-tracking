@@ -25,6 +25,7 @@ export const WDate = ({ name, internalChange, ctx }: IBaseFieldProps) => {
   }
   if (isNaN(date as any)) {
     date = new Date()
+    set(form.db.data, name, date)
   }
 
   return (
