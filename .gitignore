@@ -61,3 +61,5 @@ sessions.db-lock
 sessions.db
 .history
 package-lock.json
+build/
+
