@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/mobile/src/m-cardfooter.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { CardFooter } from 'framework7-react'\n\nexport default (props) => {\n  return <CardFooter {...props} />\n}\n"],
+  "mappings": "kLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAgB,IADV",
+  "names": []
+}

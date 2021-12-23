@@ -1,14 +1,9 @@
-import { FastifyInstance } from 'fastify'
 import fp from 'fastify-plugin'
 import serializeJavascript from 'serialize-javascript'
 import { PlatformGlobal } from './types'
 declare const global: PlatformGlobal
 
-export const jsonPlugin = fp(function (
-  server: FastifyInstance,
-  _: any,
-  next: () => void
-) {
+export const jsonPlugin = fp(function (server, _: any, done: () => void) {
   server.addContentTypeParser(
     'application/javascript',
     { parseAs: 'string' },
@@ -36,43 +31,17 @@ export const jsonPlugin = fp(function (
       }
     }
   )
-  server.addContentTypeParser(
-    'application/base.query',
-    function (req, payload, done) {
-      const data: any[] = []
+  server.addContentTypeParser('text/plain', function (req, payload, done) {
+    const data: any[] = []
 
-      payload
-        .on('data', function (chunk) {
-          data.push(chunk)
-        })
-        .on('end', function () {
-          const result = Buffer.concat(data)
-          const nonceHeader = req.headers['x-nonce']
-          if (nonceHeader && typeof nonceHeader === 'string') {
-            const nonceMatch = nonceHeader.match(/.{1,2}/g)
-            if (nonceMatch) {
-              const nonce = new Uint8Array(
-                nonceMatch.map((byte) => parseInt(byte, 16))
-              )
-              var decrypted = Buffer.alloc(
-                result.length - global.bin.sodium.crypto_secretbox_MACBYTES
-              )
-
-              if (
-                global.bin.sodium.crypto_secretbox_open_easy(
-                  decrypted,
-                  result,
-                  nonce,
-                  global.build.secret
-                )
-              ) {
-                done(null, decrypted.toString('utf-8'))
-              }
-            }
-          }
-        })
-    }
-  )
+    payload
+      .on('data', function (chunk) {
+        data.push(chunk)
+      })
+      .on('end', function () {
+        done(null, Buffer.concat(data))
+      })
+  })
 
   server.addHook('onSend', (_req, reply, payload, done) => {
     const err = null
@@ -94,5 +63,5 @@ export const jsonPlugin = fp(function (
     done(err, payload)
   })
   // your plugin code
-  next()
+  done()
 })

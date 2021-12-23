@@ -42,7 +42,13 @@ export interface IBaseFieldContext {
   render: () => void
   onChange: (
     value: any,
-    opt: { state: IBaseFormContext; row: any; rowIdx?: number; col: string }
+    opt: {
+      state: IBaseFormContext
+      row: any
+      rowIdx?: number
+      col: string
+      detail?: any
+    }
   ) => void
   parent: IBaseFormContext | null
   popup?: {

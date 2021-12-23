@@ -1,10 +1,7 @@
-import { readFile, writeFile } from 'fs-extra'
-import { join } from 'path'
 import { dirs } from 'boot'
-import traverse, { NodePath } from '@babel/traverse'
-import { parse } from '@babel/parser'
-import { template } from '@babel/core'
-import generate from '@babel/generator'
+import { generate, NodePath, parse, template, traverse } from 'libs/babel'
+import { readFile, writeFile } from 'libs/fs'
+import { join } from 'path'
 
 export const genTypeGlobal = async () => {
   const globalSource = await readFile(

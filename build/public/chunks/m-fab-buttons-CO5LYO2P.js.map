@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/mobile/src/m-fab-buttons.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { FabButtons } from 'framework7-react'\n\nexport default (props) => {\n  return <FabButtons {...props} />\n}\n"],
+  "mappings": "mLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAgB,IADV",
+  "names": []
+}

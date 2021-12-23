@@ -1,6 +1,6 @@
 import { dirs, log } from 'boot'
 import { BuilderPool, Watcher } from 'builder'
-import { copy, pathExists, readFile, remove } from 'fs-extra'
+import { copy, pathExists, readFile, remove } from 'libs/fs'
 import { join } from 'path'
 import { dbFiles } from '../utils/devFiles'
 import { ensureMain } from '../utils/ensureMain'
@@ -8,22 +8,6 @@ import { ensureProject } from '../utils/ensureProject'
 import { runPnpm } from '../utils/pnpm'
 export const buildDB = async (pool: BuilderPool) => {
   return new Promise<void>(async (resolve) => {
-    process.stdout.write(' • DB')
-
-    // try {
-    //   require('db')
-    // } catch (e: any) {
-    //   if (e && e.message && e.message.indexOf('did not initialize yet') >= 0) {
-    //     console.log('')
-    //     await runPnpm(['prisma', 'generate'], { npx: true, cwd: dirs.app.db })
-    //     log('boot', 'Prisma ')
-    //     delete require.cache['db']
-    //   } else {
-    //     console.log('')
-    //     console.log(e)
-    //   }
-    // }
-
     if (
       await ensureProject('db', dirs.app.db, {
         pkgs: {
@@ -77,13 +61,11 @@ export const buildDB = async (pool: BuilderPool) => {
             join(dirs.app.db, 'prisma', 'schema.prisma')
           )
           if (schemaPrisma.indexOf('model') < 0) {
-            console.log('')
             await runPnpm(['prisma', 'db', 'pull'], {
               npx: true,
               cwd: dirs.app.db,
             })
           }
-          console.log('')
           await runPnpm(['prisma', 'generate'], { npx: true, cwd: dirs.app.db })
           log('boot', 'Building', false)
         }

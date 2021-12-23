@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/crud/src/lang/lang.ts"],
+  "sourcesContent": ["export const lang = (\n  text: string,\n  args: Record<string, string> | 'en' | 'id',\n  recordedLang?: 'id' | 'en'\n) => {\n  let result = text\n  for (let [i, v] of Object.entries(args)) {\n    result = replaceAll(result, `[${i}]`, v)\n  }\n\n  return result\n}\nfunction replaceAll(str, find, replace) {\n  return str.replace(new RegExp(escapeRegExp(find), 'g'), replace)\n}\nfunction escapeRegExp(string) {\n  return string.replace(/[.*+\\-?^${}()|[\\]\\\\]/g, '\\\\$&') // $& means the whole matched string\n}\n"],
+  "mappings": "wCAAO,GAAM,GAAO,GAClB,EACA,EACA,IACG,CACH,GAAI,GAAS,EACb,OAAS,CAAC,EAAG,IAAM,QAAO,QAAQ,GAChC,EAAS,EAAW,EAAQ,IAAI,KAAM,GAGxC,MAAO,IAVW,QAYpB,WAAoB,EAAK,EAAM,EAAS,CACtC,MAAO,GAAI,QAAQ,GAAI,QAAO,EAAa,GAAO,KAAM,GADjD,kBAGT,WAAsB,EAAQ,CAC5B,MAAO,GAAO,QAAQ,wBAAyB,QADxC",
+  "names": []
+}

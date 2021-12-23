@@ -1,9 +1,8 @@
 import { log } from 'boot'
-import { createHash } from 'crypto'
-import { pathExists, readFile, rename, writeFile } from 'fs-extra'
-import { snakeCase, trim } from 'lodash'
+import { pathExists, readFile, rename, writeFile } from 'libs/fs'
+import { snakeCase, trim } from 'lodash-es'
 import { join } from 'path'
-import { Layout, Page } from 'platform/src/types'
+import { Layout, Page } from '../../../../platform/src/types'
 import { preProcessJSX } from './page-compiler'
 
 export const pageJSXNameMap = {}
@@ -52,7 +51,7 @@ export const reloadSinglePage = async (pageID: string, pagePath: string) => {
 
 export const prepPageJsx = (page: Page, jsx: string) => {
   try {
-    const { meta, code } = preProcessJSX(page, jsx)
+    const { meta, code, use_mobx } = preProcessJSX(page, jsx)
     return `
   // page: ${page.id} | layout: ${page.layout_id} | url: ${page.url}
   if (window.cms_pages['${page.url}']) {
@@ -71,8 +70,11 @@ export const prepPageJsx = (page: Page, jsx: string) => {
       meta,
       base
     ) {
-      return ${trim(code.trim(), ';').trim()}
+       ${trim(code.trim(), ';').trim().replace('base(', 'return base(')}
     }
+    window.cms_pages['${page.url}'].render.use_mobx = ${
+      use_mobx ? 'true' : 'false'
+    };
     window.cms_pages['${page.url}'].render.child_meta = ${meta};
   }`
   } catch (e: any) {
@@ -87,7 +89,7 @@ export const prepPageJsx = (page: Page, jsx: string) => {
 
 export const prepLayoutJsx = (layout: Layout, jsx: string) => {
   try {
-    const { meta, code } = preProcessJSX(layout, jsx)
+    const { meta, code, use_mobx } = preProcessJSX(layout, jsx)
     return `
 // layout: ${layout.id} | name: ${layout.name}
 if (window.cms_layouts['${layout.id}']) {
@@ -110,8 +112,12 @@ if (window.cms_layouts['${layout.id}']) {
     base,
     children
   ) {
-    return ${trim(code.trim(), ';').trim()}
+    ${trim(code.trim(), ';').trim().replace('base(', 'return base(')}
   }
+  
+  window.cms_layouts['${layout.id}'].render.use_mobx = ${
+      use_mobx ? 'true' : 'false'
+    };
   window.cms_layouts['${layout.id}'].render.child_meta = ${meta};
 }`
   } catch (e: any) {

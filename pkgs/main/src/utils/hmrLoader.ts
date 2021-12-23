@@ -1,6 +1,6 @@
 import { dirs } from 'boot'
 import { Plugin } from 'esbuild'
-import { lstat, pathExists, readdir } from 'fs-extra'
+import { lstat, pathExists, readdir } from 'libs/fs'
 import { join, basename } from 'path'
 
 export const hmrLoader: (entryPoints: Record<string, string>) => Plugin = (

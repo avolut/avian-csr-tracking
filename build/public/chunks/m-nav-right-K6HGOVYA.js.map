@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/mobile/src/m-nav-right.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { NavRight } from 'framework7-react'\n\nexport default (props) => {\n  return <NavRight {...props} />\n}\n"],
+  "mappings": "mLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAc,IADR",
+  "names": []
+}

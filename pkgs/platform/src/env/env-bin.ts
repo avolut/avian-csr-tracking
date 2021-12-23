@@ -1,11 +1,12 @@
 import { dirs, log } from 'boot'
-import execa from 'execa'
-import { pathExists, readJSON, readJsonSync, remove, writeJSON } from 'fs-extra'
+import type esbuild from 'esbuild'
+import { execa } from 'execa'
+import { pathExists, readJSON, remove, writeJSON } from 'libs/fs'
 import type lmdb from 'lmdb'
 import type msgpackr from 'msgpackr'
-import type esbuild from 'esbuild'
-import type puppeteer from 'puppeteer-core'
+import type prettier from 'prettier'
 import { join } from 'path'
+import type puppeteer from 'puppeteer-core'
 import { PlatformGlobal } from '../types'
 
 declare const global: PlatformGlobal
@@ -16,8 +17,19 @@ interface IConfig {
   ready: boolean
 }
 
+const importLib = async (path: string, sub?: string) => {
+  const result = await import(path)
+  if (!sub) {
+    if (result.default) return result.default
+  } else {
+    return result[sub]
+  }
+  return result
+}
+
 export const fetchBin: () => Promise<{
   sodium: any
+  prettier: typeof prettier
   lmdb: typeof lmdb
   esbuild: typeof esbuild
   msgpackr: typeof msgpackr
@@ -28,58 +40,34 @@ export const fetchBin: () => Promise<{
   )
 
   if (global.pool) {
-    const oldPkg = readDeps(dirs.pkgs.platform)
-    const pkgPath = join(global.buildPath.pkgs, 'package.json')
-    await writeJSON(pkgPath, {
-      name: 'base',
-      license: 'ISC',
-      dependencies: {
-        esbuild: oldPkg['esbuild'],
-        prisma: oldPkg['@prisma/sdk'],
-        puppeteer: oldPkg['puppeteer-core'],
-        msgpackr: oldPkg['msgpackr'],
-        '@prisma/sdk': oldPkg['@prisma/sdk'],
-        '@prisma/client': oldPkg['@prisma/sdk'],
-        'sodium-universal': oldPkg['sodium-universal'],
-        lmdb: oldPkg['lmdb'],
-      },
-    })
-
     return {
-      sodium: require(join(
-        dirs.pkgs.platform,
-        'node_modules',
-        'sodium-universal',
-        'index.js'
-      )),
+      prettier: await importLib(
+        join(dirs.pkgs.platform, 'node_modules', 'prettier', 'index.js')
+      ),
+      sodium: await importLib(
+        join(dirs.pkgs.platform, 'node_modules', 'sodium-universal', 'index.js')
+      ),
       pptr: hasFullPptr
-        ? require(join(dirs.root, 'node_modules', 'puppeteer', 'cjs-entry.js'))
-        : require(join(
-            dirs.pkgs.platform,
-            'node_modules',
-            'puppeteer-core',
-            'cjs-entry.js'
-          )),
-      lmdb: require(join(
-        dirs.pkgs.platform,
-        'node_modules',
-        'lmdb',
-        'index.js'
-      )),
-      esbuild: require(join(
-        dirs.pkgs.platform,
-        'node_modules',
-        'esbuild',
-        'lib',
-        'main.js'
-      )),
-      msgpackr: require(join(
-        dirs.pkgs.platform,
-        'node_modules',
-        'msgpackr',
-        'dist',
-        'node.cjs'
-      )),
+        ? await importLib(
+            join(dirs.root, 'node_modules', 'puppeteer', 'cjs-entry.js')
+          )
+        : await importLib(
+            join(
+              dirs.pkgs.platform,
+              'node_modules',
+              'puppeteer-core',
+              'cjs-entry.js'
+            )
+          ),
+      lmdb: await importLib(
+        join(dirs.pkgs.platform, 'node_modules', 'lmdb', 'node-index.js')
+      ),
+      esbuild: await importLib(
+        join(dirs.pkgs.platform, 'node_modules', 'esbuild', 'lib', 'main.js')
+      ),
+      msgpackr: await importLib(
+        join(dirs.pkgs.platform, 'node_modules', 'msgpackr', 'dist', 'node.cjs')
+      ),
     }
   }
 
@@ -129,43 +117,44 @@ export const fetchBin: () => Promise<{
   )
 
   return {
-    sodium: require(join(
-      global.buildPath.pkgs,
-      'node_modules',
-      'sodium-universal',
-      'index.js'
-    )),
-    esbuild: require(join(
-      global.buildPath.pkgs,
-      'node_modules',
-      'esbuild',
-      'lib',
-      'main.js'
-    )),
-    pptr: require(join(
-      global.buildPath.pkgs,
-      'node_modules',
-      hasFullPptr ? 'puppeteer' : 'puppeteer-core',
-      'cjs-entry.js'
-    )),
-    lmdb: require(join(
-      global.buildPath.pkgs,
-      'node_modules',
-      'lmdb',
-      'index.js'
-    )),
-    msgpackr: require(join(
-      global.buildPath.pkgs,
-      'node_modules',
-      'msgpackr',
-      'dist',
-      'node.cjs'
-    )),
+    prettier: await importLib(
+      join(
+        global.buildPath.pkgs,
+        'node_modules',
+        'prettier',
+        'index.js'
+      )
+    ),
+    sodium: await importLib(
+      join(
+        global.buildPath.pkgs,
+        'node_modules',
+        'sodium-universal',
+        'index.js'
+      )
+    ),
+    esbuild: await importLib(
+      join(global.buildPath.pkgs, 'node_modules', 'esbuild', 'lib', 'main.js')
+    ),
+    pptr: await importLib(
+      join(
+        global.buildPath.pkgs,
+        'node_modules',
+        hasFullPptr ? 'puppeteer' : 'puppeteer-core',
+        'cjs-entry.js'
+      )
+    ),
+    lmdb: await importLib(
+      join(global.buildPath.pkgs, 'node_modules', 'lmdb', 'node-index.js')
+    ),
+    msgpackr: await importLib(
+      join(
+        global.buildPath.pkgs,
+        'node_modules',
+        'msgpackr',
+        'dist',
+        'node.cjs'
+      )
+    ),
   }
-}
-
-const readDeps = (pkgdir: string) => {
-  const pkg = join(pkgdir, 'package.json')
-  const json = readJsonSync(pkg)
-  return json.dependencies
 }

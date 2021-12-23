@@ -1,6 +1,6 @@
 import { dirs, log } from 'boot'
 import { BuildResult } from 'esbuild'
-import { pathExists, readJSON, writeJSON, writeFile } from 'fs-extra'
+import { pathExists, readJSON, writeJSON, writeFile } from 'libs/fs'
 import { dirname, join } from 'path'
 import { Builder, IBuilderArgs } from './builder'
 import { Runner } from './runner'
@@ -154,15 +154,17 @@ export class BuilderPool {
 
       const buildres = this._buildResult[name]
 
-      if (buildres && buildres.rebuild) {
-        const result = await buildres.rebuild()
-        const onBuilt = this.builders[name].onBuilt
-        if (onBuilt) {
-          onBuilt(result)
+      if (this.builders[name]) {
+        if (buildres && buildres.rebuild) {
+          const result = await buildres.rebuild()
+          const onBuilt = this.builders[name].onBuilt
+          if (onBuilt) {
+            onBuilt(result)
+          }
+          return result
+        } else {
+          return await this.builders[name].build(buildInfo)
         }
-        return result
-      } else {
-        return await this.builders[name].build(buildInfo)
       }
     }
   }

@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex: 1;
+  align-items: stretch;
+  flex-direction: column;
+}

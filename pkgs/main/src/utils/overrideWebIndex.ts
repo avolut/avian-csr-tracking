@@ -1,8 +1,9 @@
 import { dirs } from 'boot'
-import { readFile } from 'fs-extra'
+import { readFile } from 'libs/fs'
 import { join } from 'path'
-import { publicBundle } from 'src/bundler/public/public'
+// import { publicBundle } from 'src/bundler/public/public'
 export const overrideWebIndex = async (mode) => {
+  return
   let index = await readFile(
     join(dirs.app.web, 'public', 'index.html'),
     'utf-8'
@@ -52,16 +53,16 @@ export const overrideWebIndex = async (mode) => {
   }
 
   const indexBuffer = Buffer.from(index)
-  await publicBundle.db.save(
-    'public',
-    'app/web/build/web/index.html',
-    indexBuffer
-  )
-  publicBundle.db.compressSingle(
-    'public',
-    'app/web/build/web/index.html',
-    indexBuffer
-  )
+  // await publicBundle.db.save(
+  //   'public',
+  //   'app/web/build/web/index.html',
+  //   indexBuffer
+  // )
+  // publicBundle.db.compressSingle(
+  //   'public',
+  //   'app/web/build/web/index.html',
+  //   indexBuffer
+  // )
 
   let fwPath = join(
     dirs.pkgs.web,
@@ -72,6 +73,6 @@ export const overrideWebIndex = async (mode) => {
   )
 
   const f7 = await readFile(fwPath)
-  publicBundle.db.items.raw.public.put('app/web/build/web/f7.css', f7)
-  publicBundle.db.compressSingle('public', 'app/web/build/web/f7.css', f7)
+  // publicBundle.db.items.raw.public.put('app/web/build/web/f7.css', f7)
+  // publicBundle.db.compressSingle('public', 'app/web/build/web/f7.css', f7)
 }

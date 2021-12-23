@@ -44,7 +44,6 @@ export const routeAPI = async ({
               log: console.log,
             })
           } catch (e: any) {
-            console.log(typeof e)
             console.log(`\
 Error: 
 ${page.serverOnLoad.toString()}   

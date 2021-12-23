@@ -1,11 +1,8 @@
-import { transformAsync, TransformOptions } from '@babel/core'
-import generate from '@babel/generator'
-import { parse } from '@babel/parser'
-import traverse from '@babel/traverse'
 import { JSXElement } from '@babel/types'
 import { log } from 'boot'
+import { generate, parse, transformAsync, TransformOptions, traverse } from 'libs/babel'
 import get from 'lodash.get'
-import { Layout, Page } from 'platform/src/types'
+import { Layout, Page } from '../../../../platform/src/types'
 
 export const compileSinglePage = async (
   id: string,
@@ -71,6 +68,7 @@ export const compileSinglePage = async (
 // extract meta and remove fnode
 // also replace figma-react-elements (__.)
 export const preProcessJSX = (page: Page | Layout, code: string) => {
+  let use_mobx = true
   const parsed = parse(code, {
     sourceType: 'module',
     plugins: ['jsx', 'typescript'],
@@ -247,19 +245,27 @@ export const preProcessJSX = (page: Page | Layout, code: string) => {
       if (
         c.type === 'CallExpression' &&
         c.callee.type === 'Identifier' &&
-        c.callee.name === 'base' 
+        c.callee.name === 'base'
       ) {
         const arg = c.arguments[0]
         if (arg.type === 'ObjectExpression') {
           for (let prop of arg.properties) {
             if (
               prop.type === 'ObjectProperty' &&
-              prop.key.type === 'Identifier' &&
-              prop.key.name === 'meta'
+              prop.key.type === 'Identifier'
             ) {
-              const val = prop.value
-              if (val.start && val.end) {
-                meta = code.substring(val.start, val.end)
+              if (prop.key.name === 'meta') {
+                const val = prop.value
+                if (val.start && val.end) {
+                  meta = code.substring(val.start, val.end)
+                }
+              } else if (prop.key.name === 'mobx') {
+                if (
+                  prop.value.type === 'BooleanLiteral' &&
+                  prop.value.value === false
+                ) {
+                  use_mobx = false
+                }
               }
             }
           }
@@ -290,5 +296,5 @@ export const preProcessJSX = (page: Page | Layout, code: string) => {
     },
   })
 
-  return { meta: meta || '{}', code: generate(parsed).code }
+  return { meta: meta || '{}', use_mobx, code: generate(parsed).code }
 }

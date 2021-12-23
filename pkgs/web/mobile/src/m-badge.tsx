@@ -5,3 +5,4 @@ import { Badge } from 'framework7-react'
 export default (props) => {
   return <Badge {...props} />
 }
+  

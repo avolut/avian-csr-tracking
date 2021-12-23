@@ -1,16 +1,17 @@
 import arg from 'arg'
 import { dirs } from 'boot'
 import { logo } from 'boot/src/utils/logging'
-import type { ParentThread } from 'builder/src/thread'
 import fetch, { Headers } from 'cross-fetch'
-import { ensureDir } from 'fs-extra'
+import { ensureDir } from 'libs/fs'
 import get from 'lodash.get'
-import { join } from 'path'
+import { dirname, join } from 'path'
+import type { ParentThread } from '../../../builder/src/thread'
 import { PlatformGlobal } from '../types'
 import { fetchBin } from './env-bin'
 import { bundleEnv } from './env-bundle'
-import { cacheEnv } from './env-cache'
+import { cacheEnv, reloadAsset } from './env-cache'
 import { setupDbEnv as dbEnv } from './env-db'
+import { prodEnv } from './env-prod'
 
 declare const global: PlatformGlobal
 export const initEnv = async (mode: 'dev' | 'prod', parent?: ParentThread) => {
@@ -18,9 +19,8 @@ export const initEnv = async (mode: 'dev' | 'prod', parent?: ParentThread) => {
     '--port': Number,
   })
 
-  global.host = 'localhost'
   global.mode = mode
-  global.port = args['--port'] || (mode === 'prod' ? 8200 : 3200)
+  if (!parent) global.port = args['--port'] || 3200
 
   // setup parent pool - for dev
   if (parent) {
@@ -44,19 +44,17 @@ export const initEnv = async (mode: 'dev' | 'prod', parent?: ParentThread) => {
     global.buildPath = {
       bundle: {
         base: join(dirs.build, 'bundle', 'base.bundle'),
-        public: join(dirs.build, 'bundle', 'public.bundle'),
         session: join(dirs.build, 'bundle', 'session.bundle'),
       },
-      public: join(dirs.pkgs.web, 'public'),
+      public: join(dirs.build, 'public'),
       upload: join(dirs.root, 'uploads'),
       pkgs: join(dirs.build, 'pkgs'),
     }
   } else {
-    const root = join(__dirname, '..')
+    const root = join(dirname(import.meta.url), '..')
     global.buildPath = {
       bundle: {
         base: join(root, 'bundle', 'base.bundle'),
-        public: join(root, 'bundle', 'public.bundle'),
         session: join(root, 'bundle', 'session.bundle'),
       },
       public: join(root, 'public'),
@@ -65,21 +63,26 @@ export const initEnv = async (mode: 'dev' | 'prod', parent?: ParentThread) => {
     }
   }
 
-  // enseure dir
+  // ensure dir
   await ensureDir(global.buildPath.public)
   await ensureDir(global.buildPath.upload)
 
+  await reloadAsset()
+
   // setup required native bin
   global.bin = await fetchBin()
+
+  global.componentList = {}
 
   // setup secret
   global.build = {
     id: new Date().getTime().toString(),
     secret: null as any,
     tstamp: get(global, 'build.tstamp', new Date().getTime()),
-    cms_layout: {},
+    cms_layouts: {},
     cms_pages: {},
   }
+
   global.build.secret = global.bin.sodium.sodium_malloc(
     global.bin.sodium.crypto_secretbox_KEYBYTES
   )
@@ -109,5 +112,8 @@ export const initEnv = async (mode: 'dev' | 'prod', parent?: ParentThread) => {
   // load cache
   await cacheEnv()
 
-  // log('base', `Environment Initialized`)
+  if (global.mode === 'prod') {
+    await prodEnv()
+  }
+
 }

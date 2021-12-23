@@ -1,12 +1,19 @@
 import type prismasdk from '@prisma/sdk'
-import type { ParentThread } from '../../builder/src/thread'
 import { db } from 'db'
 import type { BaseHistory } from 'dev/src/base/history'
-import type lmdb, { Database, RootDatabase } from 'lmdb'
-import type msgpackr from 'msgpackr'
 import type esbuild from 'esbuild'
+import { requestContext } from 'fastify-request-context'
+import type lmdb from 'lmdb'
+import type { Database, RootDatabase } from 'lmdb'
+import type msgpackr from 'msgpackr'
+import type prettier from 'prettier'
 import type pptr from 'puppeteer-core'
+import type react from 'react'
+import type react_dom from 'react-dom/server'
 import WebSocket from 'ws'
+import type { ParentThread } from '../../builder/src/thread'
+import type { BaseWindow } from '../../web/init/src/window'
+
 export type API = {
   id: string
   name: string
@@ -18,6 +25,7 @@ export type API = {
 export type Layout = {
   id: string
   name: string
+  ssr?: boolean
   jsx?: { raw: string; code: string; map: string }
   serverOnLoad?: (args: any) => Promise<void>
 }
@@ -53,10 +61,11 @@ export interface IPlatformCache {
     bgMaps: Record<string, { raw: any; gz?: any; br?: any }>
     imageMaps: Record<string, { to?: string; raw?: any; gz?: any; br?: any }>
   }
+  ssrstamp: Record<string, number>
   public: {
-    gz: Database
-    br: Database
-    raw: Database
+    gz: Record<string, any>
+    br: Record<string, any>
+    raw: Record<string, any>
   }
 }
 
@@ -73,20 +82,32 @@ export interface IPlatformFigma {
 }
 
 export interface PlatformGlobal {
-  host: string
+  hostname?: string
   port: number
   mode: 'dev' | 'prod'
+  require: any
+  requestContext: typeof requestContext
+  React: typeof react
+  cssLoader: Record<string, true>
+  generateIndexHTML?: {
+    window: BaseWindow
+  }
+  ReactDOM: typeof react_dom
+  componentList: BaseWindow['cms_components']
   buildPath: {
-    bundle: { base: string; public: string; session: string }
+    bundle: { base: string; session: string }
     upload: string
     public: string
     pkgs: string
   }
+  assets: Record<string, string>
+  assetStamp: string
   bin: {
     lmdb: typeof lmdb
     msgpackr: typeof msgpackr
     esbuild: typeof esbuild
     pptr: typeof pptr
+    prettier: typeof prettier
     sodium: any
   }
   pdf: {
@@ -111,7 +132,6 @@ export interface PlatformGlobal {
   fetch: typeof fetch
   Headers: typeof Headers
   bundle: {
-    public: RootDatabase
     base: RootDatabase
     session: RootDatabase
   }
@@ -123,7 +143,7 @@ export interface PlatformGlobal {
       string,
       { id: Page['id']; lid: Page['layout_id']; url: Page['url']; sol: boolean }
     >
-    cms_layout: Record<
+    cms_layouts: Record<
       string,
       { id: Layout['id']; name: Layout['name']; source?: string }
     >

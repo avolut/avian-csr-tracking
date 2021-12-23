@@ -10,7 +10,7 @@ import { runPnpm } from '../utils/pnpm'
 declare const global: MainGlobal
 
 export const buildServer = async (pool: BuilderPool, mode: 'dev' | 'prod') => {
-  process.stdout.write(' • Server')
+  ;(' • Server')
   if (
     await ensureProject('server', dirs.app.server, {
       pkgs: {
@@ -48,6 +48,7 @@ export const buildServer = async (pool: BuilderPool, mode: 'dev' | 'prod') => {
             await pool.rebuild('platform')
             pool.send('platform', `start|${global.rootstamp}`)
           },
+
     onBuilt: async () => {
       await ensureMain(dirs.app.server)
     },

@@ -7,6 +7,7 @@ import {
   Navbar,
   NavRight,
   Link,
+  Popup,
 } from 'framework7-react'
 import set from 'lodash.set'
 import { useContext, useRef } from 'react'
@@ -129,75 +130,86 @@ export const MSelect = ({ ctx, internalChange, name }: IBaseFieldProps) => {
           />
         )}
       </List>
-      {crud &&
-        meta.list.open &&
-        createPortal(
-          <div
-            className="fixed inset-0 flex flex-1 flex-col bg-white"
+      {crud && (
+        <div className="hidden">
+          <Popup
+            opened={meta.list.open}
             css={css`
-              z-index: 100000;
+              z-index: 99999999;
+
+              .list > ul {
+                ::before,
+                ::after {
+                  display: none;
+                }
+              }
             `}
           >
-            <Navbar
-              backLinkShowText
-              backLink="Back"
-              onBackClick={() => {
-                meta.list.open = false
-                render()
-              }}
-              title={state.title as any}
-            >
-              <NavRight>
-                <Link
-                  onClick={() => {
-                    const value = null
+            <div className="flex flex-1 w-full h-full flex-col">
+              <Navbar
+                backLinkShowText
+                backLink="Back"
+                onBackClick={() => {
+                  meta.list.open = false
+                  render()
+                }}
+                title={state.title as any}
+              >
+                <NavRight>
+                  <Link
+                    onClick={() => {
+                      const value = null
+
+                      if (crud.onSelect) {
+                        crud.onSelect(null)
+                      }
+                      meta.list.open = false
+                      set(form.db.data, name, value)
+
+                      if (state && typeof state.onChange === 'function')
+                        state.onChange(value, {
+                          state: form,
+                          row: form.db.data,
+                          col: name,
+                        })
+                      internalChange(value)
+                    }}
+                  >
+                    Clear
+                  </Link>
+                </NavRight>
+              </Navbar>
+              {meta.list.open && (
+                <BaseList
+                  title={state.title}
+                  table={crud.table}
+                  header={{ action: { create: false } }}
+                  onRowClick={(row, idx, ev) => {
+                    meta.list.open = false
 
                     if (crud.onSelect) {
-                      crud.onSelect(null)
+                      crud.onSelect(row)
                     }
-                    meta.list.open = false
+
+                    const value = crud.label(row)
                     set(form.db.data, name, value)
 
                     if (state && typeof state.onChange === 'function')
                       state.onChange(value, {
                         state: form,
                         row: form.db.data,
+                        detail: row,
                         col: name,
                       })
                     internalChange(value)
                   }}
-                >
-                  Clear
-                </Link>
-              </NavRight>
-            </Navbar>
-            <BaseList
-              title={state.title}
-              table={crud.table}
-              header={{ action: { create: false } }}
-              onRowClick={(row, idx, ev) => {
-                meta.list.open = false
-
-                if (crud.onSelect) {
-                  crud.onSelect(row)
-                }
-
-                const value = crud.label(row)
-                set(form.db.data, name, value)
-
-                if (state && typeof state.onChange === 'function')
-                  state.onChange(value, {
-                    state: form,
-                    row: form.db.data,
-                    col: name,
-                  })
-                internalChange(value)
-              }}
-              {...(crud.list || {})}
-            />
-          </div>,
-          document.getElementById('framework7-root') as any
-        )}
+                  {...(crud.list || {})}
+                />
+              )}
+            </div>
+          </Popup>
+        </div>
+      )}
     </>
   )
 }

@@ -23,7 +23,6 @@ export const BaseFilterMobile = ({
   const meta = _.current
   const render = useRender()
   useEffect(() => {
-
     const firstCol = state.table.columns[0]
     if (firstCol) {
       if (!state.db.params) {
@@ -128,16 +127,51 @@ export const BaseFilterMobile = ({
               state.db.params.where = {} as any
             }
 
-            const where = state.db.params.where
+            const where = {}
 
             if (text) {
               where[firstCol] = {
                 contains: text,
                 mode: 'insensitive',
+                found: false,
               }
             } else {
               delete where[firstCol]
             }
+
+            if (state.table.columns[1]) {
+              const secondCol = state.table.columns[1]
+
+              if (text) {
+                where[secondCol] = {
+                  contains: text,
+                  mode: 'insensitive',
+                  found: false,
+                }
+              } else {
+                delete where[secondCol]
+              }
+            }
+
+            let or = state.db.params.where.OR
+            if (!or) {
+              state.db.params.where.OR = []
+              or = state.db.params.where.OR
+            }
+
+            for (let orCol of or) {
+              for (let [k, v] of Object.entries(orCol)) {
+                if (where[k]) {
+                  where[k].found = true
+                }
+              }
+            }
+
+            for (let [k, v] of Object.entries(where) as any) {
+              delete v.found
+              or.push({ [k]: v })
+            }
+
             state.db.paging.reset()
             state.filter.quickSearch = text
             state.db.query()

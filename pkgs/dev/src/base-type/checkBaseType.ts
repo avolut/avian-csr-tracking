@@ -1,8 +1,8 @@
-import { pathExists, readFile, writeFile } from 'fs-extra'
+import { pathExists, readFile, writeFile } from 'libs/fs'
 import { join } from 'path'
 import { dirs } from 'boot'
-import traverse from '@babel/traverse'
-import { parse } from '@babel/parser'
+import { traverse } from 'libs/babel'
+import { parse } from 'libs/babel'
 import * as __db from 'db'
 
 export const checkBaseType = async () => {
@@ -17,9 +17,12 @@ export const checkBaseType = async () => {
 export {}
 import {} from './src/external'
 import {} from './src/global'
+import * as __db from '../db'
 import * as __emotion_react from '@emotion/react'
 import * as __utils_api from 'web-utils/src/api'
 import { ReactElement } from 'react'
+import * as __waitUntil from '../../pkgs/libs/src/wait-until'
+import { BaseWindow } from 'web-init/src/window'
 
 type ExtractProps<T extends (args?: any) => any> =
   Parameters<T>[0] extends undefined ? {} : Parameters<T>[0]
@@ -27,19 +30,42 @@ type ExtractProps<T extends (args?: any) => any> =
 declare global {
     const css: typeof __emotion_react.css
     const api: typeof __utils_api.api
-    const db: typeof __db.db
+    const waitUntil: typeof __waitUntil
+    const db: typeof __db.db & { query: (sql: string) => Promise<any[]> }
+    const params: any
+  
+    function ssr(arg: {
+      update: { mode: 'auto' | 'manual' }
+      render: (arg: {
+        html: (...text: any[]) => string
+        window: BaseWindow & Window & typeof __glb
+      }) => {}
+      css: string[]
+    })
+    
     function base<T extends Record<string, any>>(
-        effect: {
-        meta: T
+      effect: {
+        meta: () => T
+        mobx?: boolean
         init?: (args: {
-            meta: T & { render: () => void }
-            children?: any
-        }) => void | Promise<void>
+          meta: T
+          children?: any
+          window: BaseWindow & Window & typeof  __glb
+          render: () => void
+          layout?: { meta: any; render: () => void }
+        }) => any | Promise<any>
+      },
+      content: (
+        args: {
+          meta: T
+          window: BaseWindow & Window & typeof __glb
+          layout?: { meta: any; render: () => void }
+          children?: any
+          render: () => void
         },
-        content: (args: {
-        meta: T & { render: () => void }
-        children?: any
-        }) => ReactElement
+        props?: any
+      ) => ReactElement,
+      props?: any
     ): void
 
     function runInAction(func: () => void): void
@@ -52,7 +78,8 @@ declare global {
     }
     namespace React {
         interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
-        class?: string | null | number | boolean
+          class?: string | null | number | boolean
+          style?: any
         }
     }
 }`

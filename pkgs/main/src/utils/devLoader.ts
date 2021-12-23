@@ -1,6 +1,6 @@
 import { dirs } from 'boot'
 import { Plugin } from 'esbuild'
-import { lstat, pathExists, readdir, readJSON, stat } from 'fs-extra'
+import { lstat, pathExists, readdir, readJSON, stat } from 'libs/fs'
 import { join } from 'path'
 export const devLoader: Plugin = {
   name: 'dev-loader',

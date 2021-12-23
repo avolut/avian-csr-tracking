@@ -1,47 +1,57 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import { db, dbAll, waitUntil } from 'libs'
-import { loadExt } from 'web-utils/src/loadExt'
-
+import { db, matchRoute, useWindow, waitUntil } from 'libs'
 import get from 'lodash.get'
 import set from 'lodash.set'
 import { action, observable, runInAction, toJS } from 'mobx'
 import { observer, useLocalObservable } from 'mobx-react-lite'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { api } from 'web-utils/src/api'
-import { BaseWindow } from '../window'
-import * as global from 'web-app/src/global'
+import { loadExt } from 'web-utils/src/loadExt'
+import * as appGlobal from '../../../../../app/web/src/global'
+import { renderCMS } from './internal/render'
+import { renderLog } from './internal/utils'
+import { loadPage } from './page/loader'
+import { detectPlatform } from './platform'
 
-declare const window: BaseWindow
+const { window } = useWindow()
 
-export const defineWindow = async () => {}
-
-for (let [k, v] of Object.entries(global)) {
-  window[k] = v
+let win = {} as any
+if (!window.isSSR) {
+  win = window
+} else {
+  win.isSSR = window.isSSR
 }
 
-
-if (!(window as any).process) {
-  ;(window as any).process = { env: {} }
+for (let [k, v] of Object.entries(appGlobal)) {
+  win[k] = v
 }
 
-window.figmaAsk = {
+if (!(win as any).process) {
+  ;(win as any).process = { env: {} }
+}
+
+if (window.secret && (window.secret as any).type === 'Buffer') {
+  window.secret = (window.secret as any).data
+}
+
+win.figmaAsk = {
   lastId: 0,
   answers: {},
   callbacks: {},
 }
-window.user = observable(window.user)
-window.set = set
-window.get = get
-window.toJS = toJS
-window.useEffect = useEffect
-window.useRef = useRef
-window.api = api
-window.db = db as any
-window.dbAll = dbAll
-window.waitUntil = waitUntil
-window.loadExt = loadExt
-window.sql = (texts: string[], ...args: any[]) => {
+win.renderCMS = renderCMS
+win.user = observable(win.user)
+win.set = set
+win.get = get
+win.toJS = toJS
+win.useEffect = useEffect
+win.useRef = useRef
+win.api = api
+win.db = db as any
+win.waitUntil = waitUntil
+win.loadExt = loadExt
+win.sql = (texts: string[], ...args: any[]) => {
   let final = [] as any[]
   for (let i of texts) {
     final.push(i)
@@ -54,43 +64,75 @@ window.sql = (texts: string[], ...args: any[]) => {
   return final.join('')
 }
 
-window.React = React
-window.jsx = jsx
-window.css = css
-
-window.useState = useState
-window.runInAction = runInAction
-window.action = action
-window.css = css
-window.fragment = Fragment
-window.observer = observer
-window.useLocalObservable = useLocalObservable
-window.babel = {}
-window.addEventListener('popstate', (e) => {
-  if (window.preventPopChange) {
-    window.preventPopChange = false
-    return
+win.preload = async (urls: string[]) => {
+  const loaders: Promise<any>[] = []
+  for (let url of urls) {
+    for (let [k, page] of Object.entries(window.cms_pages)) {
+      if (k) {
+        if (page && matchRoute(url, k)) {
+          loaders.push(loadPage(page))
+        }
+      }
+    }
   }
+  console.log(loaders)
+  await Promise.all(loaders)
+}
 
-  if (window.platform === 'mobile') {
-    window.mobileApp.back(location.pathname)
-  } else {
-    window.webApp.render(location.pathname)
-  }
-})
-window.back = async (href) => {
+if (!win.platform) {
+  detectPlatform()
+}
+
+let showClientRootTimeout = null as any
+win.showClientRoot = (reason?: string) => {
+  clearTimeout(showClientRootTimeout)
+  showClientRootTimeout = setTimeout(() => {
+    const sel = document.querySelectorAll('[data-ssr]')
+    renderLog('compnt | loader', 'show client root:' + reason)
+    if (sel) {
+      sel.forEach((e) => {
+        if (e.getAttribute('id') === 'server-root') {
+          e.classList.add('transition-opacity', 'opacity-0')
+          setTimeout(() => {
+            e.remove()
+          }, 300)
+        } else {
+          e.remove()
+        }
+      })
+    }
+  }, 500)
+}
+
+win.React = React
+win.jsx = jsx
+win.css = css
+win.useState = useState
+win.runInAction = runInAction
+win.action = action
+win.css = css
+win.fragment = Fragment
+win.observer = observer
+win.useLocalObservable = useLocalObservable
+win.babel = {}
+if (!win.isSSR) {
+  ;(win as any).addEventListener('popstate', (e) => {
+    if (window.preventPopChange) {
+      window.preventPopChange = false
+      return
+    }
+    window.app.render()
+  })
+}
+win.back = async () => {
   history.back()
 }
-window.navigate = async (href, opt) => {
-  if (window.platform === 'mobile') {
-    console.log('nav', href)
-    history.pushState({}, '', href)
-    window.mobileApp.navigate(href)
-  } else {
-    history.pushState({}, '', href)
-    window.webApp.render(href)
-  }
+win.next = async (href: string) => {}
+win.navigate = async (href: string) => {
+  history.pushState({}, '', href)
+  window.app.render()
 }
+win.next = win.navigate
 
 // capacitor arguments callback function
 // di index disini, dipanggil ketika capacitor manggil.
@@ -116,7 +158,8 @@ export const sendCapacitor = (type: 'ready' | 'exec' | 'exit', data?: any) => {
     }
   }
 
-  window.parent.postMessage(JSON.stringify({ type, data }), '*')
+  if (!win.isSSR)
+    (win as any).parent.postMessage(JSON.stringify({ type, data }), '*')
 }
 
 const capacitorResult: Record<
@@ -124,78 +167,87 @@ const capacitorResult: Record<
   { args: any; resolve: (result: any) => void }[]
 > = {}
 
-window.capacitor = {}
-window.addEventListener('message', (e) => {
-  let msg = { type: '', data: {} as any }
-  try {
-    msg = JSON.parse(e.data)
-  } catch (e) {}
+win.capacitor = window.Capacitor
+// if (!win.isSSR) {
+//   ;(win as any).addEventListener('message', (e) => {
+//     let msg = { type: '', data: {} as any }
+//     try {
+//       msg = JSON.parse(e.data)
+//     } catch (e) {}
 
-  const { data } = msg
+//     const { data } = msg
 
-  switch (msg.type) {
-    case 'init-capacitor':
-      sendCapacitor('ready')
-      break
-    case 'go-back':
-      if (typeof window.onback === 'function') {
-        window.onback()
-      }
-      window.back()
-      break
-    case 'call-args':
-      if (capacitorACB.map.has(data.id)) {
-        const func = capacitorACB.map.get(data.id)
-        const params = JSON.parse(data.params)
-        func(...params)
-      }
-      break
-    case 'exec-result':
-      if (data && data.func) {
-        const results = [...capacitorResult[data.func]].reverse()
-        for (let i in results) {
-          const r = results[i]
-          if (JSON.stringify(r.args) === JSON.stringify(data.args)) {
-            capacitorResult[data.func].slice(results.length - parseInt(i), 1)
-            r.resolve(data.result)
-            break
-          }
-        }
-      }
-      break
-    case 'init-plugins':
-      if (data.plugins) {
-        const capacitor = {}
-        for (let i of data.plugins) {
-          const props = {}
-          for (let p of i.props) {
-            if (p.type === 'function') {
-              props[p.name] = function (...args: any[]) {
-                const func = `${i.name}.${p.name}`
-                if (!capacitorResult[func]) {
-                  capacitorResult[func] = []
-                }
-                return new Promise((resolve) => {
-                  capacitorResult[func].push({ args, resolve })
-                  sendCapacitor('exec', {
-                    func,
-                    args,
-                  })
-                })
-              }
-            } else {
-              Object.defineProperty(props, p.name, {
-                get: function () {
-                  return p.type
-                },
-              })
-            }
-          }
+//     switch (msg.type) {
+//       case 'init-capacitor':
+//         sendCapacitor('ready')
+//         break
+//       case 'go-back':
+//         if (typeof win.onback === 'function') {
+//           win.onback()
+//         }
+//         win.back()
+//         break
+//       case 'call-args':
+//         if (capacitorACB.map.has(data.id)) {
+//           const func = capacitorACB.map.get(data.id)
+//           const params = JSON.parse(data.params)
+//           func(...params)
+//         }
+//         break
+//       case 'exec-result':
+//         if (data && data.func) {
+//           const results = [...capacitorResult[data.func]].reverse()
+//           for (let i in results) {
+//             const r = results[i]
+//             if (JSON.stringify(r.args) === JSON.stringify(data.args)) {
+//               capacitorResult[data.func].slice(results.length - parseInt(i), 1)
+//               r.resolve(data.result)
+//               break
+//             }
+//           }
+//         }
+//         break
+//       case 'init-plugins':
+//         if (data.plugins) {
+//           const capacitor = {}
+//           for (let i of data.plugins) {
+//             const props = {}
+//             for (let p of i.props) {
+//               if (p.type === 'function') {
+//                 props[p.name] = function (...args: any[]) {
+//                   const func = `${i.name}.${p.name}`
+//                   if (!capacitorResult[func]) {
+//                     capacitorResult[func] = []
+//                   }
+//                   return new Promise((resolve) => {
+//                     capacitorResult[func].push({ args, resolve })
+//                     sendCapacitor('exec', {
+//                       func,
+//                       args,
+//                     })
+//                   })
+//                 }
+//               } else {
+//                 Object.defineProperty(props, p.name, {
+//                   get: function () {
+//                     return p.type
+//                   },
+//                 })
+//               }
+//             }
 
-          capacitor[i.name] = props
-        }
-        window.capacitor = capacitor
-      }
-      break
+//             capacitor[i.name] = props
+//           }
+//           win.capacitor = capacitor
+//         }
+//         break
+//     }
+//   })
+// }
+
+if (window.isSSR) {
+  for (let [k, v] of Object.entries(win)) {
+    window[k] = v
+    if (!global[k]) global[k] = v
   }
-})
+}

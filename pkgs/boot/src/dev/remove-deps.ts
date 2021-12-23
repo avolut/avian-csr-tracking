@@ -1,4 +1,4 @@
-import { dirs, log } from 'boot'
+import { dirs, log } from '../main'
 import hasCommand from 'command-exists'
 import execa from 'execa'
 import { join } from 'path'

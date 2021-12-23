@@ -36,31 +36,36 @@ export const loadExt = async (inputURL: string) => {
 
   let result: any = null
 
-  if (!window.is_dev) {
-    window.imported[url] = new Promise(async (resolve) => {
-      const src = await (
-        await fetch(importURL, {
-          headers: {
-            'x-ext-transpile-es5': 'y',
-          },
-        })
-      ).text()
+  // if (!window.is_dev) {
+  //   window.imported[url] = new Promise(async (resolve) => {
+  //     const src = await (
+  //       await fetch(importURL, {
+  //         headers: {
+  //           'x-ext-transpile-es5': 'y',
+  //         },
+  //       })
+  //     ).text()
 
-      ;(() => {
-        const exports = {}
-        ;(0, eval)(src)
+  //     ;(() => {
+  //       const exports = {}
+  //       try {
+  //         ;(0, eval)(src)
 
-        result = exports
+  //         result = exports
 
-        if (result.default) {
-          window.imported[url] = result.default
-        } else {
-          window.imported[url] = result
-        }
-        resolve(window.imported[url])
-      })()
-    })
-  } else {
+  //         if (result.default) {
+  //           window.imported[url] = result.default
+  //         } else {
+  //           window.imported[url] = result
+  //         }
+
+  //         resolve(window.imported[url])
+  //       } catch (e) {
+  //         resolve(null)
+  //       }
+  //     })()
+  //   })
+  // } else {
     result = await import(importURL)
 
     if (result.default) {
@@ -68,7 +73,7 @@ export const loadExt = async (inputURL: string) => {
     } else {
       window.imported[url] = result
     }
-  }
+  // }
 
   return window.imported[url]
 }

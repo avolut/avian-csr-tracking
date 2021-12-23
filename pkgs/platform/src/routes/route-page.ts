@@ -4,6 +4,8 @@ import { waitUntil } from 'libs'
 export const routePage = async (req: FastifyRequest, reply: FastifyReply) => {
   const params = req.params as { id: string; ext: 'js' | 'js.map' }
   const page = global.cache.page[params.id]
+
+
   if (page) {
     if (!page.jsx) {
       await waitUntil(() => !!page.jsx)

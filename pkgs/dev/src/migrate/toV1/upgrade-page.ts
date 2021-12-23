@@ -1,11 +1,10 @@
-import { traverse } from '@babel/core'
-import generate from '@babel/generator'
-import { parse } from '@babel/parser'
-import { pathExists, readFile, writeFile } from 'fs-extra'
+
+import { generate, parse, traverse } from 'libs/babel'
+import { pathExists, readFile, writeFile } from 'libs/fs'
 import trim from 'lodash.trim'
 import { join } from 'path'
-import { Page } from 'platform/src/types'
 import prettier from 'prettier'
+import type { Page } from '../../../../platform/src/types'
 import { baseDir, templateDir } from './parse-jsx'
 
 export const parseEffect = async (existingHtmlPath: string) => {

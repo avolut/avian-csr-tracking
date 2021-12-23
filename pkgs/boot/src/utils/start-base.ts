@@ -7,9 +7,6 @@ export const startBase = async () => {
     while (await boot()) {}
   } else {
     base()
-
-    //wait forever
-    await new Promise(() => {})
   }
 }
 
@@ -39,7 +36,7 @@ const boot = () => {
       argv: args,
     })
     worker.addListener('message', async (msg) => {
-      if (msg === 'restart') {
+      if (msg === 'restart' && parentPort) {
         parentPort.postMessage('restart')
         worker.terminate()
       }

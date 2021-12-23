@@ -1,7 +1,10 @@
 base(
   {
-    meta: {},
-    init: ({ meta }) => { },
+    meta: () => {
+      const meta = {};
+      return meta;
+    },
+    init: ({ meta }) => {},
   },
   ({ meta }) => (
     <admin
@@ -12,7 +15,7 @@ base(
           label: "Setting Target",
           list: {
             action: {
-              create: "Tambah"
+              create: "Tambah",
             },
             table: {
               columns: [
@@ -76,7 +79,7 @@ base(
                 title: "Bantuan",
                 type: "select",
                 required: true,
-                items: ["Bantuan Cat", "Bantuan Lainnya"]
+                items: ["Bantuan Cat", "Bantuan Lainnya"],
               },
             },
             layout: ["m_instansi_penerima", "target", "bantuan", "periode"],

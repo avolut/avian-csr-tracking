@@ -1,7 +1,7 @@
 import { waitUntil } from 'libs'
 import { BaseWindow } from 'web-init/src/window'
 import type { PlatformGlobal } from '../../../../platform/src/types'
-import { readFile, writeFile } from 'fs-extra'
+import { readFile, writeFile } from 'libs/fs'
 import { dirs } from 'boot'
 
 declare const window: BaseWindow

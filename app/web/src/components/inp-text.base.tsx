@@ -1,6 +1,9 @@
 base(
   {
-    meta: {},
+    meta: () => {
+      const meta = {};
+      return meta;
+    },
     init: ({ meta, params, children }) => {},
   },
   ({ meta, children }) => (

@@ -1,4 +1,4 @@
-import { readJSON, writeJSON } from 'fs-extra'
+import { readJSON, writeJSON } from 'libs/fs'
 import { join } from 'path'
 
 export const ensureMain = async (dir, main = './build/index.js') => {

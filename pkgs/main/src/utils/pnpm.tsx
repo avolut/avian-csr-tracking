@@ -1,7 +1,5 @@
-import { dirs, log } from 'boot'
+import { log } from 'boot'
 import execa from 'execa'
-import { pathExists } from 'fs-extra'
-import { join } from 'path'
 
 export const runPnpm = async (
   args: string | any[] = '',

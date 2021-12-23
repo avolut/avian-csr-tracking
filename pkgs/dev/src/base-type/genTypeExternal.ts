@@ -1,9 +1,6 @@
-import { template } from '@babel/core'
-import generate from '@babel/generator'
-import { parse } from '@babel/parser'
-import traverse, { NodePath } from '@babel/traverse'
 import { dirs } from 'boot'
-import { readFile, writeFile } from 'fs-extra'
+import { generate, NodePath, parse, template, traverse } from 'libs/babel'
+import { readFile, writeFile } from 'libs/fs'
 import get from 'lodash.get'
 import { join } from 'path'
 

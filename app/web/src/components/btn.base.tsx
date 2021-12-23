@@ -1,6 +1,9 @@
 base(
   {
-    meta: {},
+    meta: () => {
+      const meta = {};
+      return meta;
+    },
     init: ({ meta, params, children }) => {},
   },
   ({ meta }) => (
@@ -14,8 +17,8 @@ base(
       disabled={disabled}
     >
       <div class={`text-base leading-normal text-center text-white`}>
-        {children ?? 'Button'}
+        {children ?? "Button"}
       </div>
     </button>
   )
-)
+);

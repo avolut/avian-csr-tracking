@@ -1,22 +1,32 @@
 import arg from 'arg'
 import { build } from 'esbuild'
-import { pathExists, readJSON, remove, writeJSON } from 'fs-extra'
-import { aliasLoader } from 'main/src/utils/aliasLoader'
+import { readFile, writeFile } from 'libs/fs'
 import { join } from 'path'
 import { parentPort } from 'worker_threads'
+import type * as builderpool from '../../builder/src/builderpool'
 import { readDeps } from './dev/install-deps'
-import { dirs, log } from './main'
-import { welcomeToBase } from './utils/logging'
+import { dirs } from './main'
+import { timelog, welcomeToBase } from './utils/logging'
 
 const main = async () => {
+  const { pathExists, readJson, remove, writeJSON } = await import('libs/fs')
+
   const rootstamp = new Date().getTime()
   const args = arg({
     '--port': Number,
   })
   const mode = (args._[0] || 'dev') as 'dev' | 'prod'
+
+  let docs = false
+  if ((mode as any) === 'docs') {
+    docs = true
+  }
+
   const port = args['--port'] || 3200
 
   welcomeToBase(mode, port)
+
+  const done = timelog('boot', 'Booting')
 
   // make sure builder is built first
   if (
@@ -28,15 +38,12 @@ const main = async () => {
       outfile: join(dirs.pkgs.builder, 'build', 'index.js'),
       bundle: true,
       logLevel: 'silent',
-      loader: {
-        '.node': 'binary',
-      },
-      external: readDeps(dirs.pkgs.builder),
+      external: await readDeps(dirs.pkgs.builder),
       platform: 'node',
-      format: 'cjs',
+      format: 'esm',
     })
 
-    const json = await readJSON(join(dirs.pkgs.builder, 'package.json'))
+    const json = await readJson(join(dirs.pkgs.builder, 'package.json'))
     json.main = './build/index.js'
     await writeJSON(join(dirs.pkgs.builder, 'package.json'), json, {
       spaces: 2,
@@ -44,11 +51,10 @@ const main = async () => {
   }
 
   // start main boot
-  const start = async (importBuilder) => {
+  const start = async (importBuilder: typeof builderpool) => {
     const { BuilderPool } = importBuilder
     const pool = new BuilderPool()
 
-    log('boot', 'Builder', false)
     let mainReady = false
 
     pool.onParentMessage(async (msg) => {
@@ -61,9 +67,11 @@ const main = async () => {
       watch: [join(dirs.pkgs.boot, 'src')],
       buildOptions: {
         external: ['esbuild'],
-        minify: true,
-        treeShaking: true,
+        // minify: true,
+        // treeShaking: true,
         bundle: true,
+        format: 'esm',
+        target: 'node' + process.versions.node,
       },
       metafile: false,
       onChange:
@@ -81,57 +89,66 @@ const main = async () => {
                 process.exit(0)
               }
             },
+      onBuilt: async () => {
+        const source = await readFile(join(dirs.root, 'base.js'), 'utf-8')
+
+        if (!source.startsWith(`import { createRequire } from 'module'`)) {
+          await writeFile(
+            join(dirs.root, 'base.js'),
+            `\
+import { createRequire } from 'module';const require = createRequire(import.meta.url);
+      ${source}`
+          )
+        }
+      },
     })
 
-    await pool.add('builder', {
-      in: join(dirs.pkgs.builder, 'src', 'index.ts'),
-      out: join(dirs.pkgs.builder, 'build', 'index.js'),
-      watch: mode === 'prod' ? undefined : [join(dirs.pkgs.builder, 'src')],
-      external: readDeps(dirs.pkgs.builder),
-      onChange:
-        mode === 'prod'
-          ? undefined
-          : async (event, file, builder) => {
-              welcomeToBase(mode, port)
-              const res = await pool.rebuild('builder')
-              await pool.destroy()
-              delete require.cache['builder']
+    await pool.add('libs', {
+      root: dirs.pkgs.libs,
+      in: join(dirs.pkgs.libs, 'src', 'index.tsx'),
+      out: join(dirs.pkgs.libs, 'build', 'index.js'),
+      buildOptions: {
+        target: 'node16',
+        format: 'esm',
+      },
+    })
 
-              if (res) {
-                const out = join(
-                  dirs.root,
-                  Object.keys(res.metafile.outputs)[0]
-                )
-                delete require.cache[out]
-                start(require(out))
-              }
-            },
+    await pool.add('dev', {
+      root: dirs.pkgs.dev,
+      in: join(dirs.pkgs.dev, 'src', 'index.tsx'),
+      out: join(dirs.pkgs.dev, 'build', 'index.js'),
+      buildOptions: {
+        target: 'node16',
+        format: 'esm',
+      },
     })
 
     await pool.add('boot', {
       in: join(dirs.pkgs.main, 'src', 'index.ts'),
       out: join(dirs.pkgs.main, 'build', 'index.js'),
-      external: readDeps(dirs.pkgs.main),
+      external: await readDeps(dirs.pkgs.main),
       buildOptions: {
         metafile: true,
+        format: 'esm',
       },
       onChange:
         mode === 'prod'
           ? undefined
           : async () => {
               welcomeToBase(mode, port)
-              log('boot', 'Builder', false)
               await pool.rebuild('boot')
             },
-      onBuilt: () => {
-        pool.run('boot', { mode, port, rootstamp })
+      onBuilt: async () => {
+        pool.run('boot', { mode, port, rootstamp, docs })
       },
     })
 
-    // run main from boot
-    process.stdout.write(` • Main`)
+    done()
   }
-  start(require('builder'))
+
+  const builder = await import(join(dirs.root, 'pkgs/builder/build/index.js'))
+  start(builder)
 }
+
 
 main()

@@ -62,8 +62,9 @@ export class Runner {
     this.path = path
     this.pool = pool
     this.startArgs = args
-    if (pool.builders[name].onMessage) {
-      this.onMessage(pool.builders[name].onMessage)
+    const onMessage = pool.builders[name].onMessage
+    if (onMessage) {
+      this.onMessage(onMessage)
     }
     this.start()
   }

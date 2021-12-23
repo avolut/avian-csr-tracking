@@ -1,4 +1,4 @@
-import { readdir } from 'fs-extra'
+import { readdir } from 'libs/fs'
 
 export const aliasLoader = (args: { from: RegExp; to: string }) => {
   return {

@@ -20,6 +20,7 @@ export const WFormSplitter = (props: IWFormSplitter) => {
   if (props.mode === 'left' || props.mode === 'right') {
     return <WFormSplitterInternal {...props} enabled={false} />
   }
+
   return (
     <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
       <WFormSplitterInternal {...props} />

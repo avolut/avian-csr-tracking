@@ -1,31 +1,32 @@
+import klaw from 'klaw'
 import { waitUntil } from 'libs'
+import { pathExists, readFile, writeFile } from 'libs/fs'
 import type { Database } from 'lmdb'
 import get from 'lodash.get'
 import trim from 'lodash.trim'
-import { basename } from 'path'
+import { basename, join } from 'path'
+import { initPage } from 'src/routes/route-init'
+import {
+  initWindow,
+  renderLayoutHtml,
+  renderRootHtml,
+  tryUpdateLayoutSSR,
+} from 'src/routes/route-main-ssr'
 import { Layout, Page, PlatformGlobal } from 'src/types'
+import { findPage } from '../../../../pkgs/web/init/src/core/page/util'
+import { BaseHtml } from '../../../../pkgs/web/init/src/start'
+import { generateMobile } from './env-mobile'
 
 declare const global: PlatformGlobal
 export const cacheEnv = async () => {
   // global cache
   global.cache = {
     figma: { bgMaps: {}, imageMaps: {} },
+    ssrstamp: {},
     public: {
-      br: global.bundle.public.openDB('public-br', {
-        name: `public-br`,
-        compression: true,
-        useVersions: false,
-      }),
-      gz: global.bundle.public.openDB('public-gz', {
-        name: `public-gz`,
-        compression: true,
-        useVersions: false,
-      }),
-      raw: global.bundle.public.openDB('public-raw', {
-        name: `public-raw`,
-        compression: true,
-        useVersions: false,
-      }),
+      br: {},
+      gz: {},
+      raw: {},
     },
     index: '',
     db: {
@@ -52,9 +53,65 @@ export const cacheEnv = async () => {
     component: {},
   }
 
-  await reloadIndexCache()
   reloadBaseCache()
   reloadComponentCache()
+  generateIndexHTML().then(async () => {
+    await generateMobile()
+  })
+}
+
+const generateIndexHTML = async () => {
+  await waitUntil(() => global.port)
+  const url = '/'
+  const init = await initPage()
+  global.generateIndexHTML = { window: await initWindow(url) }
+
+  if (init) {
+    init.cms_id = '00000'
+
+    const baseDir = global.buildPath.public
+    const indexPath = join(baseDir, 'index.js')
+    const starter = (await import(indexPath + '#' + global.assetStamp)) as {
+      html: BaseHtml
+      default: typeof ssr
+    }
+
+    global.hostname = global.generateIndexHTML.window.hostname
+
+    const page = findPage(url, init.cms_pages as any)
+
+    let layout = { html: '', css: '' }
+    if (page && init.cms_layouts[page.lid]) {
+      const layoutFound = global.cache.layout[page.lid]
+      layout = await renderLayoutHtml({
+        layout: layoutFound,
+        init,
+        page,
+        window: global.generateIndexHTML.window,
+      })
+    }
+
+    let { error, html } = await renderRootHtml({
+      starter,
+      init,
+      url,
+      window: global.generateIndexHTML.window,
+    })
+
+    delete global.generateIndexHTML
+
+    if (!error) {
+      if (layout.css) html = html.replace('</title>', `</title>${layout.css}`)
+
+      if (layout.html)
+        html = html.replace(
+          '<div id="server-root"></div>',
+          `<div id="server-root" data-ssr>${layout.html}</div>`
+        )
+
+      await writeFile(join(baseDir, 'index.html'), html)
+    }
+  }
 }
 
 const reloadComponentCache = () => {
@@ -194,7 +251,7 @@ const _reloadSingleInit = (
     }
   } else if (type === 'layout' && item.layout) {
     const layout = item.layout
-    global.build.cms_layout[layout.id] = {
+    global.build.cms_layouts[layout.id] = {
       id: layout.id,
       name: layout.name,
       source: layout.jsx?.code,
@@ -222,29 +279,35 @@ const reloadBaseCache = () => {
     _reloadSingleInit('page', { page })
   })
 
-  global.build.cms_layout = {}
+  global.build.cms_layouts = {}
   Object.entries(get(global, 'cache.layout', {})).map((e) => {
     const layout = e[1] as Layout
     _reloadSingleInit('layout', { layout })
   })
 }
 
-const reloadIndexCache = async () => {
-  const cache = global.cache
-
-  if (!cache.public.raw.doesExist('app/web/build/web/index.html')) {
-    await waitUntil(() =>
-      cache.public.raw.doesExist('app/web/build/web/index.html')
-    )
+export const reloadAsset = async () => {
+  global.assets = {}
+  if (global.cache) {
+    global.cache.public.raw = {}
   }
 
-  const index = cache.public.raw.getEntry('app/web/build/web/index.html')
-    ?.value as Buffer
-  if (index) {
-    cache.index = index.toString('utf-8')
-    cache.index = cache.index.replace(
-      `</body>`,
-      `<script type="module" src="/index.js"></script>`
-    )
+  const stampFile = join(global.buildPath.public, 'build.timestamp')
+  if (!(await pathExists(stampFile))) {
+    await waitUntil(async () => await pathExists(stampFile))
   }
+
+  global.assetStamp = await readFile(
+    join(global.buildPath.public, 'build.timestamp'),
+    'utf-8'
+  )
+  await new Promise((resolve) => {
+    klaw(global.buildPath.public)
+      .on('data', async (item) => {
+        if (!item.stats.isFile()) return
+        const path = item.path.substring(global.buildPath.public.length + 1)
+        global.assets[path] = `/${path}`
+      })
+      .on('end', resolve)
+  })
 }

@@ -1,6 +1,9 @@
 base(
   {
-    meta: {},
+    meta: () => {
+      const meta = {};
+      return meta;
+    },
     init: ({ meta }) => {},
   },
   ({ meta }) => (
@@ -15,7 +18,7 @@ base(
               label: "Instansi Penerima",
               list: {
                 action: {
-                  create: "Tambah"
+                  create: "Tambah",
                 },
                 table: {
                   columns: [

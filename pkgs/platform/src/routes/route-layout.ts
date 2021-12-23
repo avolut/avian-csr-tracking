@@ -4,6 +4,7 @@ import { waitUntil } from 'libs'
 export const routeLayout = async (req: FastifyRequest, reply: FastifyReply) => {
   const params = req.params as { id: string; ext: 'js' | 'js.map' }
   const layout = global.cache.layout[params.id]
+
   if (layout) {
     if (!layout.jsx) {
       await waitUntil(() => !!layout.jsx)

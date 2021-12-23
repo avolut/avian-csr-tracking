@@ -1,15 +1,13 @@
 import { dirs, log } from 'boot'
-import { traverse } from '@babel/core'
-import { parse } from '@babel/parser'
-import { ParentThread } from 'builder/src/thread'
 import { FastifyReply, FastifyRequest } from 'fastify'
-import { readdir, readFile } from 'fs-extra'
-import { join } from 'path'
-
+import { parse, traverse } from 'libs/babel'
+import { readdir, readFile } from 'libs/fs'
 import { runPnpm } from 'main/src/utils/pnpm'
-import { PlatformGlobal } from 'src/types'
+import { join } from 'path'
 import { setupDbEnv } from 'src/env/env-db'
+import { PlatformGlobal } from 'src/types'
 import zlib from 'zlib'
+import type { ParentThread } from '../../../builder/src/thread'
 
 declare const global: PlatformGlobal
 ;(BigInt.prototype as any).toJSON = function () {
@@ -22,7 +20,22 @@ export const routeData = async (
   mode: 'dev' | 'prod',
   parent?: ParentThread
 ) => {
-  let reqBody = req.body
+  const db = global.db
+  let reqBody = '' as any
+
+  if (req.body instanceof Buffer) {
+    if (req.url === '/__data/query') {
+      reqBody = req.body
+    } else {
+      try {
+        reqBody = JSON.parse(req.body.toString('utf-8'))
+      } catch (e) {
+        console.error('data', 'Failed to parse data query as Json')
+        reqBody = {}
+      }
+    }
+  }
+
   if (req.url.indexOf('/__data') === 0) {
     if (req.url.indexOf('/__data/types') === 0) {
       const dir = join(dirs.pkgs.web, 'ext', 'types')
@@ -83,30 +96,60 @@ export const routeData = async (
       )
     }
     if (req.url === '/__data/query') {
-      try {
-        if (global.db['$queryRawUnsafe']) {
+      let sql = ''
+      const result = reqBody
+      const nonceHeader = req.headers['x-nonce']
+      if (nonceHeader && typeof nonceHeader === 'string') {
+        const nonceMatch = nonceHeader.match(/.{1,2}/g)
+        if (nonceMatch) {
+          const nonce = new Uint8Array(
+            nonceMatch.map((byte) => parseInt(byte, 16))
+          )
+          var decrypted = Buffer.alloc(
+            result.length - global.bin.sodium.crypto_secretbox_MACBYTES
+          )
+
+          const decryptResult = global.bin.sodium.crypto_secretbox_open_easy(
+            decrypted,
+            result,
+            nonce,
+            global.build.secret
+          )
+
+          if (decryptResult) {
+            sql = decrypted.toString('utf-8')
+          }
+        }
+      }
+
+      if (sql) {
+        try {
+          let result = null as any
+          let ts = new Date().getTime()
+
           let final = {
             result: new Promise<null>((resolve) => resolve(null)),
-            dbx: global.db,
+            dbx: db,
           }
-          new Function(`this.result = this.dbx.$queryRaw\`${reqBody}\``).bind(
+          new Function(`this.result = this.dbx.$queryRaw\`${sql}\``).bind(
             final
           )()
           const finalResult = await final.result
-          if (finalResult) return compress(req, reply, finalResult)
-        } else {
-          return compress(req, reply, await global.db.$queryRaw(reqBody as any))
+
+          if (finalResult) result = compress(req, reply, finalResult)
+
+          return result
+        } catch (e) {
+          console.log('')
+          log('error', 'Failed when executing sql:')
+          console.error(`${sql}\n\n`, e)
         }
-      } catch (e) {
-        console.log('')
-        log('error', 'Failed when executing sql:')
-        console.error(`${reqBody}\n\n`, e)
       }
       return reply.send('[]')
     }
   }
 
-  if (req.method.toLowerCase() === 'post') {
+  if (req.method === 'POST') {
     const body: {
       action: string
       db: string
@@ -114,7 +157,7 @@ export const routeData = async (
       params: string
     } = reqBody as any
 
-    if (!global.db) {
+    if (!db) {
       reply.code(403).send('Forbidden')
       return
     }
@@ -127,7 +170,7 @@ export const routeData = async (
     reply.removeHeader('Transfer-encoding')
 
     if (
-      !global.db[body.table] &&
+      !db[body.table] &&
       body.table &&
       body.action !== 'tables' &&
       body.action !== 'typedef' &&
@@ -137,7 +180,7 @@ export const routeData = async (
         status: 'failed',
         reason: `Table ${
           body.table
-        } not found. Available tables are: ${Object.keys(global.db)
+        } not found. Available tables are: ${Object.keys(db)
           .filter((e) => {
             !e.startsWith('_')
           })
@@ -309,7 +352,7 @@ export const routeData = async (
             }
           }
 
-          let final = { func: async (_: any) => {}, db: global.db }
+          let final = { func: async (_: any) => {}, db: db }
           new Function(`this.func = this.db.${body.table}.findMany`).bind(
             final
           )()
@@ -321,11 +364,11 @@ export const routeData = async (
           if (body.action === 'upsertMany') {
             const params: Array<any> = body.params[0] as any
 
-            result = await global.db.$transaction(
-              params.map((e) => global.db[body.table].upsert(e))
+            result = await db.$transaction(
+              params.map((e) => db[body.table].upsert(e))
             )
           } else {
-            let final = { func: async (...v: any[]) => {}, db: global.db }
+            let final = { func: async (...v: any[]) => {}, db: db }
             new Function(
               `this.func = this.db.${body.table}.${body.action}`
             ).bind(final)()
@@ -401,14 +444,14 @@ export const convertOldQueryParams = (tableName: string, prms: any) => {
     if (k === 'select' && typeof v === 'object' && v) {
       const select = {}
 
-      const rels = {}
+      const rels: any = {}
       const model = global.dmmf.datamodel.models.find(
         (e) => e.name === tableName
       )
       if (model) {
         for (let i of model?.fields) {
           if (i.relationName) {
-            rels[i.type] = true
+            rels[i.type.toString()] = true
           }
         }
       }

@@ -1,5 +1,17 @@
-import { clearScreen, dirs, log } from 'boot'
+import { clearScreen, dirs, log, timelog } from 'boot'
 import { BuilderPool, Watcher } from 'builder'
+import {
+  baseDir,
+  checkBaseType,
+  genTypeExternal,
+  genTypeGlobal,
+  startMigration,
+  startMigrationV2,
+  startMigrationV3,
+  upgradeComponentsToV1,
+  upgradeComponentsToV2,
+} from 'dev'
+import { waitUntil } from 'libs'
 import {
   ensureDir,
   lstat,
@@ -8,20 +20,12 @@ import {
   readFile,
   readJSON,
   remove,
-} from 'fs-extra'
+} from 'libs/fs'
 import { basename, dirname, join } from 'path'
 import { compileSingleComponent } from 'src/bundler/base/comp-compiler'
 import { compileSinglePage } from 'src/bundler/base/page-compiler'
 import { prepLayoutJsx, prepPageJsx } from 'src/bundler/base/page-reload'
 import { MainGlobal } from 'src/start'
-import { checkBaseType } from '../../../dev/src/base-type/checkBaseType'
-import { genTypeExternal } from '../../../dev/src/base-type/genTypeExternal'
-import { genTypeGlobal } from '../../../dev/src/base-type/genTypeGlobal'
-import { baseDir } from '../../../dev/src/migrate/toV1/parse-jsx'
-import { startMigration } from '../../../dev/src/migrate/toV1/start-migrate'
-import { upgradeComponentsToV1 } from '../../../dev/src/migrate/toV1/upgrade-component'
-import { startMigrationV2 } from '../../../dev/src/migrate/toV2/start-migrate'
-import { upgradeComponentsToV2 } from '../../../dev/src/migrate/toV2/upgrade-components'
 import { baseBundle, baseType, baseTypes } from '../bundler/base/base'
 import { getExternalImportMap } from '../bundler/base/comp-info'
 
@@ -33,8 +37,7 @@ export const baseTypeFiles = [
 ]
 
 export const buildDev = async (pool: BuilderPool) => {
-  process.stdout.write(' • Dev')
-
+  let done = timelog('boot.dev', 'Generating Base Type')
   let externals: Record<string, string> = {}
   if (
     (await pathExists(baseBundle.path)) &&
@@ -47,6 +50,8 @@ export const buildDev = async (pool: BuilderPool) => {
     await genTypeExternal()
     await genTypeGlobal()
   }
+
+  done()
 
   pool.watchers[`base-types`] = new Watcher(baseTypeFiles, async (e, file) => {
     if (file.endsWith('external.tsx')) {
@@ -78,10 +83,8 @@ export const buildDev = async (pool: BuilderPool) => {
           true
         )
         if (compName) {
-          process.stdout.write(' [DONE]\n')
           pool.send('platform', `reload|comp|${compName}`)
         } else {
-          process.stdout.write(' [CANCELED]\n')
           log(
             'warning',
             '🚧 WARN: Component does not exists on app/web/src/external.tsx'
@@ -91,6 +94,7 @@ export const buildDev = async (pool: BuilderPool) => {
     }
   )
 
+  done = timelog('boot.dev', 'Checking Migration To V2')
   let migrating = false
   if (await pathExists(join(dirs.app.web, 'cms'))) {
     try {
@@ -118,25 +122,37 @@ export const buildDev = async (pool: BuilderPool) => {
     }
     await startMigrationV2(oldJsx)
   }
-  const compDir = join(dirs.app.web, 'src', 'components')
 
   if (migrating) {
+    const compDir = join(dirs.app.web, 'src', 'components')
     let compFiles = await readdir(compDir)
-    compFiles = await upgradeComponentsToV1({ compFiles, migrating, compDir })
-  }
-
-  let compFiles = await readdir(compDir)
-
-  if (compFiles.filter((e) => e.endsWith('.jsx')).length > 0) {
     const externals = await getExternalImportMap()
-    // compFiles = await upgradeComponentsToV2({
-    //   compFiles,
-    //   migrating,
-    //   compDir,
-    //   externals,
-    // })
+
+    compFiles = await upgradeComponentsToV1({ compFiles, migrating, compDir })
+    compFiles = await upgradeComponentsToV2({
+      compFiles,
+      migrating,
+      compDir,
+      externals,
+    })
   }
 
+  done()
+  done = timelog('boot.dev', 'Checking Migration To V3')
+
+  if (await pathExists(join(dirs.root, 'app', 'base.version'))) {
+    let version = parseFloat(
+      await readFile(join(dirs.root, 'app', 'base.version'), 'utf-8')
+    )
+    if (version <= 3.0) {
+      migrating = true
+      await startMigrationV3()
+      await waitUntil(1000)
+    }
+  }
+  done()
+
+  done = timelog('boot.dev', 'Running Page Watcher')
   await pool.add('dev', {
     root: dirs.pkgs.dev,
     in: join(dirs.pkgs.dev, 'src', 'index.tsx'),
@@ -147,10 +163,13 @@ export const buildDev = async (pool: BuilderPool) => {
       clearScreen()
       log('boot', 'Development • Restarting Web Server')
       await pool.rebuild('platform')
+
       pool.send('platform', `start|${global.rootstamp}`)
     },
   })
 
+  done()
+  done = timelog('boot.dev', 'Loading Layout/API/Pages')
   const loadAll: Promise<void>[] = []
 
   // load layouts, apis, pages
@@ -168,6 +187,8 @@ export const buildDev = async (pool: BuilderPool) => {
       pool.watchers[`${type}-dev`] = new Watcher(
         [join(dirs.app.web, 'src', 'base', type)],
         async (e, file) => {
+          if (file.endsWith('.ssr.ts')) return
+
           try {
             log('refresh', `🚧 ${file.substring(dirs.root.length + 1)}`, false)
             await baseBundle.db.delete(type, basename(file).substring(0, 5))
@@ -180,10 +201,15 @@ export const buildDev = async (pool: BuilderPool) => {
       )
     }
   }
+  done()
+ 
+  done = timelog('boot.dev', 'Loading Components')
 
   // load components
   loadAll.push(loadAllComponents(externals))
   await Promise.all(loadAll)
+  done()
+
 }
 
 const loadAllComponents = async (externals: Record<string, string>) => {
@@ -199,14 +225,14 @@ const loadAllComponents = async (externals: Record<string, string>) => {
   const compList = compFiles
     .map((i) => {
       if (i.endsWith('.html')) {
-        return i.substr(0, i.length - 5) + '.base.tsx'
+        return i.substring(0, i.length - 5) + '.base.tsx'
       }
       return i
     })
     .filter((e) => e.endsWith('.base.tsx'))
 
   const compLoad: Promise<any>[] = []
-  for (let [_, p] of Object.entries(compList)) {
+  for (let [_, p] of Object.entries(compList) as any) {
     compLoad.push(loadSingleComp(p, externals))
   }
 }
@@ -316,7 +342,7 @@ const loadSingleFile = async (type: baseType, file: string) => {
         }
       } catch (e) {
         console.log('')
-        log('error', `Failed to save ${shortPath}: ${e}`)
+        log('error', `Failed to save ${shortPath}: \n${e}`)
       }
     }
   } else if (file.endsWith('_api.ts')) {

@@ -1,4 +1,4 @@
-import { copy } from 'fs-extra'
+import { copy } from 'libs/fs'
 import { join } from 'path'
 import fs from 'fs'
 

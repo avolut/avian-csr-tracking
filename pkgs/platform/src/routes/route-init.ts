@@ -9,13 +9,13 @@ import { api } from 'web-utils/src/api'
 import { routeAPI } from './route-api'
 import { routeComponent } from './route-component'
 import { routeData } from './route-data'
+import { routeDocs } from './route-docs'
 import { routeLayout } from './route-layout'
 import { routeMain } from './route-main'
 import { routePage } from './route-page'
 import { routeParams } from './route-params'
 import { routePdf } from './route-pdf'
 import { routePublic } from './route-public'
-import { routeUpload } from './route-upload'
 
 const ext =
   extServer && (extServer as any).default
@@ -27,16 +27,19 @@ declare const global: PlatformGlobal
 export const routeInit = (server: ServerInstance) => {
   server.get('/__component/:id', routeComponent)
   server.get('/__page/:id.:ext', routePage)
+  server.all('/__docs*', routeDocs)
   server.post('/__params/:id', routeParams)
   server.get('/__layout/:id.:ext', routeLayout)
-  server.get('/__init/*', routeInitPage)
   server.all('/__pdf/:mode/:id', routePdf)
-  server.get('/upload/*', routeUpload)
-  server.post('/__upload', routeUpload)
+  server.get('/__init*', async (req, reply) => {
+    const init = await initPage(req, reply)
+    reply.send(serializeJavascript(init))
+  })
   server.all('/__data*', async (req, reply) => {
     routeData(req, reply, global.mode, global.pool?.parent)
   })
-  server.all('*', async (req, reply) => {
+
+  const mainRoute = async (req, reply) => {
     let url = req.url.split('?')[0]
 
     if (await routeAPI({ url, req, reply })) {
@@ -50,15 +53,20 @@ export const routeInit = (server: ServerInstance) => {
     if (await routeMain({ url, req, reply })) {
       return
     }
-  })
+  }
+  server.get('*', mainRoute)
+  server.post('*', mainRoute)
 }
 
-const routeInitPage = async (req: FastifyRequest, reply: FastifyReply) => {
-  let url = req.url.split('?')[0]
-
-  const session = await loadSession(req, reply)
+export const initPage = async (req?: FastifyRequest, reply?: FastifyReply) => {
+  let url = '/'
+  let session = { user: {} }
+  if (req && reply) {
+    req.url.split('?')[0]
+    session = await loadSession(req, reply)
+  }
   const cms_pages = global.build.cms_pages
-  const cms_layouts = global.build.cms_layout
+  const cms_layouts = global.build.cms_layouts
 
   const parsed = await parseParams({
     url,
@@ -70,32 +78,21 @@ const routeInitPage = async (req: FastifyRequest, reply: FastifyReply) => {
   })
 
   if (parsed) {
-    const initialData = {
+    return {
+      cli_port: global.port,
       build_id: global.build.id,
       user: JSON.stringify(session.user),
       params: parsed.params,
       cms_id: parsed.cms_id,
       cms_pages,
       cms_layouts,
-      tstamp: new Date().getTime(),
+      inject_css: [],
+      assets: global.assets,
+      tstamp: global.assetStamp,
       is_dev: global.mode === 'dev',
       secret: global.build.secret,
     }
-
-    reply.type('application/javascript')
-    const packer = new global.bin.msgpackr.Packr({})
-    const content = Buffer.from(
-      `window.cms_base_pack = ${JSON.stringify(
-        packer.pack(initialData).toJSON().data
-      )}`,
-      'utf-8'
-    )
-    reply.send(content)
-    return
   }
-
-  reply.status(404)
-  reply.send('NOT FOUND')
 }
 
 const parseParams = async ({
@@ -107,8 +104,8 @@ const parseParams = async ({
   ext,
 }: {
   url: string
-  req: FastifyRequest
-  reply: FastifyReply
+  req?: FastifyRequest
+  reply?: FastifyReply
   user: any
   cms_layouts: any
   ext: any
@@ -122,12 +119,12 @@ const parseParams = async ({
         output.push(i)
       }
     }
-    reply.send(output.join('\n'))
+    if (reply) reply.send(output.join('\n'))
   }
 
   let result = { params: {}, cms_id: '00000' }
 
-  for (let [key, page] of Object.entries(global.cache.page)) {
+  for (let [_, page] of Object.entries(global.cache.page)) {
     if (page && page.url) {
       let matchedParams = matchRoute(url, page.url)
       if (matchedParams) {
@@ -156,7 +153,7 @@ const parseParams = async ({
           }
         }
 
-        if (page.serverOnLoad) {
+        if (reply && page.serverOnLoad) {
           await page.serverOnLoad({
             template: null,
             params: result.params,
@@ -194,10 +191,10 @@ export const renderParamsLayout = async (
   ext: any,
   params: any,
   layout: Layout,
-  req: FastifyRequest,
-  reply: FastifyReply
+  req?: FastifyRequest,
+  reply?: FastifyReply
 ) => {
-  if (layout && layout.serverOnLoad) {
+  if (layout && layout.serverOnLoad && req && reply) {
     const session = await loadSession(req, reply)
     return await new Promise(async (resolve) => {
       if (layout && layout.serverOnLoad)

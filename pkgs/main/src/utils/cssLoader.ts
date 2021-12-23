@@ -1,10 +1,8 @@
-import { dirs, log } from 'boot'
-import { readFile } from 'fs/promises'
-import padEnd from 'lodash.padend'
+import { dirs } from 'boot'
+import { build } from 'esbuild'
 import trim from 'lodash.trim'
-import { basename, join } from 'path'
-import { publicBundle } from 'src/bundler/public/public'
-import { ellapsedTime } from '../../../libs/src/ellapsed-time'
+import { dirname, join } from 'path'
+import { basename } from 'path/posix'
 import { MainGlobal } from '../start'
 export const cssFilesBuilt: any = {}
 
@@ -13,13 +11,6 @@ declare const global: MainGlobal
 export const cssLoader = () => ({
   name: 'css-loader',
   setup: async function (build: any) {
-    if (!global.twconf) {
-      global.twconf = await readFile(
-        join(dirs.app.web, 'tailwind.config.js'),
-        'utf-8'
-      )
-    }
-
     build.onResolve({ filter: /^loadStyle$/ }, () => {
       return { path: 'loadStyle', namespace: 'loadStyleShim' }
     })
@@ -27,6 +18,18 @@ export const cssLoader = () => ({
       return {
         contents: `export function loadStyle(href) {  
         return new Promise(function (resolve, reject) {
+          if (typeof window === 'undefined') {
+            if (global)  {
+              if (!global.cssLoader) {
+                global.cssLoader = {}
+              }
+              const css = global.cssLoader;
+              if (css) {
+                css[href] = true
+              }
+            }
+            return ;
+          }
           const ex = document.querySelector(\`link[href="\${href}?${new Date().getTime()}"]\`);
           if (ex) ex.remove();
       
@@ -37,27 +40,27 @@ export const cssLoader = () => ({
           link.onload = () => resolve(link);
           link.onerror = () => reject(new Error(\`Style load error for \${href}\`));
       
-          document.head.append(link);
+          const title_node = document.querySelector('head > title')
+          if (title_node && title_node.parentNode)
+            title_node.parentNode.insertBefore(link, title_node.nextSibling)
         });
       }`,
       }
     })
 
     build.onLoad({ filter: /\.s?css$/ }, async (args: any) => {
-      if (args.path == join(dirs.app.web, 'src', 'index.css')) {
+      if (args.path === join(dirs.app.web, 'src', 'index.css')) {
         return {}
       }
 
-      const time = new Date().getTime()
-      cssFilesBuilt[args.path] = await buildCss(args.path)
+      const buf = Buffer.from(args.path).toString('hex')
+      const encodedPath = '/' + join('css', buf.substring(buf.length - 15))
+      cssFilesBuilt[encodedPath] = await buildCss(args.path, encodedPath)
 
       return {
-        contents:
-          args.path.indexOf('index.css') > 0
-            ? ''
-            : `
+        contents: `
 import {loadStyle} from 'loadStyle'
-loadStyle(${cssFilesBuilt[args.path]})
+loadStyle(${cssFilesBuilt[encodedPath]})
         `.trim(),
         loader: 'js',
       }
@@ -65,29 +68,29 @@ loadStyle(${cssFilesBuilt[args.path]})
   },
 })
 
-const buildCss = (from: any) => {
+const buildCss = (from: string, encodedPath: string) => {
   return new Promise(async (resolve) => {
-    const srcpath = join(dirs.root, 'app', 'web', 'src')
-    const nodepath = join(dirs.root, 'node_modules')
-    const buildpath = join(dirs.app.web, 'build', 'web')
-    let topath = ''
+    let topath = join(encodedPath, basename(from))
 
-    if (from.indexOf(srcpath) === 0) {
-      topath =
-        '/' + trim(from.substr(srcpath.length + 1).replace(/\\/g, '/'), '/', {})
-    } else if (from.indexOf(nodepath) === 0) {
-      topath =
-        '/node/' +
-        trim(from.substr(nodepath.length + 1).replace(/\\/g, '/'), '/', {})
-    } else if (from.indexOf(dirs.pkgs.web) === 0) {
-      topath =
-        '/pkgs/web/' +
-        trim(from.substr(dirs.pkgs.web.length + 1).replace(/\\/g, '/'), '/', {})
-    }
+    await build({
+      entryPoints: [from],
+      bundle: true,
+      minify: true,
+      treeShaking: true,
+      loader: {
+        '.png': 'file',
+        '.woff': 'dataurl',
+        '.woff2': 'dataurl',
+        '.eot': 'dataurl',
+        '.ttf': 'dataurl',
+        '.svg': 'file',
+        '.gif': 'file',
+        '.jpg': 'file',
+        '.mp3': 'file',
+      },
+      outdir: dirname(join(dirs.build, 'public', topath)),
+    })
 
-    const content = await readFile(from)
-    publicBundle.db.items.raw.public.put(topath, content)
-    publicBundle.db.compressSingle('public', topath, content)
     resolve(JSON.stringify(topath))
   })
 }

@@ -1,13 +1,14 @@
-import { dirs, log } from 'boot'
+import { dirs, log } from '../main'
 import hasCommand from 'command-exists'
 import execa from 'execa'
-import { readJSONSync } from 'fs-extra'
 import { join } from 'path'
 import { EXECA_FULL_COLOR, logo } from '../utils/logging'
 
-export const readDeps = (pkgdir) => {
+export const readDeps = async (pkgdir) => {
   const pkg = join(pkgdir, 'package.json')
-  const json = readJSONSync(pkg)
+  const { readJsonSync } = await import('libs/fs')
+
+  const json = readJsonSync(pkg)
   return Object.keys(json.dependencies) || []
 }
 

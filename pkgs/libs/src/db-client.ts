@@ -14,8 +14,15 @@ export const prepareDBClient = (dbname: string) => {
     {},
     {
       get(_, name) {
+        const w: any = window
+
+        let baseUrl = ''
+        if (!w.is_dev && w.hostname) {
+          baseUrl = `${w.hostname}`
+        }
+
         const post = async (params: any) => {
-          let url = `/__data/${toSnake(params.action)}`
+          let url = `${baseUrl}/__data/${toSnake(params.action)}`
 
           if (params.table) {
             url += `...${params.table}`
@@ -25,8 +32,7 @@ export const prepareDBClient = (dbname: string) => {
             method: 'POST',
             headers: {
               Accept: 'application/json',
-              'Sec-Fetch-Dest': 'script',
-              'Content-Type': 'application/json;charset=UTF-8',
+              'Content-Type': 'text/plain', // kalau ga ini ga bisa ke post sama chrome >.<
             },
             body: JSON.stringify(params),
           }
@@ -40,29 +46,33 @@ export const prepareDBClient = (dbname: string) => {
             // todo: process parameterized query
             if (Array.isArray(q)) return []
 
-            const w: any = window
             w.global = w
-            const sodium = (await import('sodium-universal')).default
+            if (!w.sodium) {
+              w.sodium = (await import('sodium-universal')).default
+            }
             if (!w.Buffer) {
               w.Buffer = (await w.loadExt('dev/buffer.js')).buffer.Buffer
             }
-            var nonce = Buffer.alloc(sodium.crypto_secretbox_NONCEBYTES)
-            var key = w.secret
-            var message = Buffer.from(q)
-            var result = Buffer.alloc(
-              message.length + sodium.crypto_secretbox_MACBYTES
+
+            if (typeof w.secret === 'object' && w.secret.data) {
+              w.secret = w.secret.data
+            }
+            var nonce = w.Buffer.alloc(w.sodium.crypto_secretbox_NONCEBYTES)
+            var key = w.Buffer.from(w.secret)
+            var message = w.Buffer.from(q)
+            var result = w.Buffer.alloc(
+              message.length + w.sodium.crypto_secretbox_MACBYTES
             )
 
-            sodium.randombytes_buf(nonce)
-            sodium.crypto_secretbox_easy(result, message, nonce, key)
+            w.sodium.randombytes_buf(nonce)
+            w.sodium.crypto_secretbox_easy(result, message, nonce, key)
+            let url = `${baseUrl}/__data/query`
 
-            const url = '/__data/query'
             const options = {
               method: 'POST',
               headers: {
                 Accept: 'application/json',
-                'Sec-Fetch-Dest': 'script',
-                'Content-Type': 'application/base.query',
+                'Content-Type': 'text/plain',
                 'x-nonce': nonce.toString('hex'),
               },
               body: result,

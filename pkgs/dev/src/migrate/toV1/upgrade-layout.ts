@@ -1,9 +1,10 @@
-import generate from '@babel/generator'
-import { writeFile } from 'fs-extra'
+
+import { generate } from 'libs/babel'
+import { writeFile } from 'libs/fs'
 import trim from 'lodash.trim'
 import { join } from 'path'
-import { Page } from 'platform/src/types'
 import prettier from 'prettier'
+import type { Page } from '../../../../platform/src/types'
 import { baseDir, templateDir } from './parse-jsx'
 import { parseEffect } from './upgrade-page'
 

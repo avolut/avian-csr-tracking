@@ -5,6 +5,7 @@ declare const global: MainGlobal
 expose({
   start: async (parent, args) => {
     global.mode = args.mode
+    global.buildDocs = args.docs
     global.parent = parent
     global.rootstamp = args.rootstamp
     start(args.port, args.mode, parent)

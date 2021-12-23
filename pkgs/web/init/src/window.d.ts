@@ -3,11 +3,11 @@ import generate from '@babel/generator'
 import traverse from '@babel/traverse'
 import { css, jsx } from '@emotion/react'
 import type { db as _db } from 'db'
-import { View } from 'framework7/types'
-import { db, dbAll, waitUntil } from 'libs'
+import { db, waitUntil } from 'libs'
 import type _get from 'lodash.get'
 import get from 'lodash.get'
 import set from 'lodash.set'
+import type createCache from '@emotion/cache'
 import type { toJS as _toJS } from 'mobx'
 import { action, runInAction, toJS } from 'mobx'
 import { observer, useLocalObservable } from 'mobx-react-lite'
@@ -19,9 +19,9 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import * as global from 'web-app/src/global'
 import { api } from 'web-utils/src/api'
 import { loadExt } from 'web-utils/src/loadExt'
+import type * as glb from '../../../../app/web/src/global'
 import { generatePage, renderCMS } from './core/gen-page'
 import { findPage } from './core/load-page'
 export type SingleFallback = {
@@ -38,15 +38,29 @@ declare global {
   type API = Record<string, any> & { db: typeof _db }
 }
 
+// export type InitPack = Exclude<Awaited<ReturnType<typeof initPage>>, undefined>
+
 type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
 type ExcludeDollar<T extends string> = T extends `$${string}` ? never : T
-export type BaseWindow = Window & {
+
+export interface BaseWindow extends glb {
+  isSSR: boolean
   figmaAsk: {
     lastId: 0
     answers: {}
     callbacks: Record<string, any>
   }
   figmaImageCaches: Record<string, HTMLImageElement>
+
+  emotionCache: ReturnType<typeof createCache>
+  hostname: string
+  cli_port: number
+  inject_css: Record<string, true>
+  basePack: InitPack
+  assets: Record<string, string>
+  showClientRoot: (reason?: string) => void
+
+  preload: (urls: string[]) => Promise<void>
 
   tstamp: number // server render timestamp
   params: any
@@ -80,11 +94,9 @@ export type BaseWindow = Window & {
   ) => string | [string, Record<string, any>]
 
   /** capacitor */
-  capacitor?: Record<string, any>
+  Capacitor: { Plugins: Record<string, any> }
 
   /** init stuff */
-  showUpdateApp: () => void
-  updateApp: () => void
   process: {
     env?: {
       MODE: 'development' | 'production'
@@ -98,13 +110,7 @@ export type BaseWindow = Window & {
     packAndSend: (msg: any) => void
   }
   back: (url?: string) => Promise<void>
-  navigate: (
-    href: string,
-    opt?: {
-      animate?: boolean
-      props?: { data: any }
-    }
-  ) => Promise<void>
+  navigate: (href: string) => Promise<void>
   waitUntil: typeof waitUntil
   imported: Record<string, any>
 
@@ -125,6 +131,7 @@ export type BaseWindow = Window & {
         { default: React.FC<any> } | Promise<{ default: React.FC<any> }>,
         { c: string; s: string; h: string }
       ]
+      cache?: any
       template: { code: string; loading: boolean }
       instance?: React.FC<any>
       component: React.FC<any>
@@ -139,6 +146,7 @@ export type BaseWindow = Window & {
         init: boolean
         observable: any
         lastChildren: any
+        lastUrl: any
         mobx: {
           observe: any
           data: any
@@ -159,6 +167,18 @@ export type BaseWindow = Window & {
       lid: string // layoutID
       sol: boolean // serverOnLoad
       name: string
+      running: {
+        init: boolean
+        observable: any
+        lastChildren: any
+        lastUrl: any
+        mobx: {
+          observe: any
+          data: any
+          renderTimeout: any
+        }
+        cache: null | ReturnType<typeof renderCMS>
+      }
       render?: () => ReactElement
       component?: React.FC
       params?: any
@@ -169,18 +189,14 @@ export type BaseWindow = Window & {
 
   /** page stuff */
   cms_id: string
-  cms_page: ReturnType<typeof findPage>
-  cms_layout_id: string
-  cms_base_pack: Uint8Array
-  pageRendered: boolean
 
   db: Omit<typeof db, '$queryRaw'> & { query: (q: string) => Promise<any[]> }
-  dbAll: typeof dbAll
   api: typeof api
   user: any
   platform: 'web' | 'mobile'
   build_id: string
 
+  mobileListHideInfo?: boolean
   baseListComponent: null | Record<string, { Table: FC; Filter: FC }>
 
   /** dev stuff */
@@ -194,21 +210,7 @@ export type BaseWindow = Window & {
   devFormatCode?: () => Promise<void>
   devIsComponentEditorOpen?: boolean
 
-  /** web */
-  webApp: {
-    render: (href: string, init?: boolean) => void
+  app: {
+    render: () => void
   }
-
-  /** mobile */
-  mobileApp: View.View & {
-    navigate: (url: string) => void
-    back: (url: string) => void
-    render: (
-      url: string,
-      opt?: { forward?: boolean; afterRender?: () => void }
-    ) => boolean
-  }
-  mobileTabsActive: Record<string, number>
-  mobileListHideInfo: boolean
-  onback?: () => void
-} & typeof global
+}

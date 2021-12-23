@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/mobile/src/m-panel.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { jsx } from '@emotion/react'\nimport { Panel } from 'framework7-react'\n\nexport default (props) => {\n  return (\n    <Panel\n      {...props}\n    />\n  )\n}\n"],
+  "mappings": "mLACA,MAAoB,OAGpB,GAAO,GAAQ,EAAC,GAEZ,UAAC,EAAD,IACM,IAHK",
+  "names": []
+}

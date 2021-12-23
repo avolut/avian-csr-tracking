@@ -1,7 +1,8 @@
-import generate from "@babel/generator";
+
 import { dirs } from "boot";
-import { remove, writeFile } from "fs-extra";
-import { trim } from "lodash";
+import { generate } from 'libs/babel';
+import { remove, writeFile } from "libs/fs";
+import { trim } from "lodash-es";
 import { join } from "path";
 import prettier from "prettier";
 import { parseEffect } from "../toV1/upgrade-page";

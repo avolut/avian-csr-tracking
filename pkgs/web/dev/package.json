@@ -6,9 +6,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@babel/generator": "^7.16.0",
-    "@babel/parser": "^7.15.7",
-    "@babel/traverse": "^7.15.4",
     "@emotion/core": "^11.0.0",
     "@emotion/react": "^11.5.0",
     "@fluentui/react": "^8.41.0",
@@ -24,8 +21,8 @@
     "mobx-react-lite": "^3.2.1",
     "monaco-editor": "^0.28.1",
     "pako": "^2.0.4",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "beta",
+    "react-dom": "beta",
     "react-icons": "^4.2.0",
     "serialize-javascript": "^6.0.0",
     "web-dev": "workspace:^1.0.0",
@@ -36,8 +33,6 @@
   "main": "./build/index.js",
   "devDependencies": {
     "@figma/plugin-typings": "^1.38.0",
-    "@types/lodash.get": "^4.4.6",
-    "@types/react": "^17.0.3",
-    "@types/react-dom": "^17.0.3"
+    "@types/lodash.get": "^4.4.6"
   }
 }

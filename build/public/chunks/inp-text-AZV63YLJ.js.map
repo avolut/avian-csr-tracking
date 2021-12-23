@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../app/web/src/components/inp-text.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { jsx } from \"@emotion/react\";\nimport { useComponent } from \"web-utils/component\";\nimport { TextField } from \"@fluentui/react\";\n\ninterface IProps {\n  value: string;\n  onChange: (e) => void;\n  type?: string;\n  multiline?: Boolean;\n  defaultValue?: string;\n  styles?: Object;\n  label?: string;\n  isRequired?: Boolean;\n  className?: string;\n  style?: string;\n  errors?: any[];\n  rows?: number;\n}\n\nexport default (props: IProps) => {\n  // errors={props.errors}\n  const _component = useComponent(\"inp-text\",\"/app/web/src/components/inp-text\",{ TextField, props });\n  return new Function(_component.render).bind(_component)()\n}"],
+  "mappings": "wOAoBA,GAAO,GAAQ,EAAC,GAAkB,CAEhC,GAAM,GAAa,EAAa,WAAW,mCAAmC,CAAE,YAAW,UAC3F,MAAO,IAAI,UAAS,EAAW,QAAQ,KAAK,MAH/B",
+  "names": []
+}

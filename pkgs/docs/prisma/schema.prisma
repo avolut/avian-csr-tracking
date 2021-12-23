@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./docs.db"
+}
+
+model article {
+  id            Int       @id @unique(map: "article_id_uindex") @default(autoincrement())
+  parent_id     Int?
+  title         String?
+  content       String?
+  article       article?  @relation("articleToarticle_parent_id", fields: [parent_id], references: [id])
+  other_article article[] @relation("articleToarticle_parent_id")
+  section       section[]
+}
+
+model section {
+  id         Int      @id @unique(map: "section_id_uindex") @default(autoincrement())
+  order      Int?
+  article_id Int?
+  title      String?
+  content    String?
+  article    article? @relation(fields: [article_id], references: [id], onDelete: Cascade)
+}

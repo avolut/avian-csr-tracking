@@ -1,18 +1,17 @@
-import { dirs } from 'boot'
-import { BuilderPool } from 'builder'
-import { ParentThread } from 'builder/src/thread'
+import { dirs, log, timelog } from 'boot'
+import { BuilderPool, ParentThread } from 'builder'
 import { BuildResult, Metafile } from 'esbuild'
-import { pathExists, readFile, writeFile } from 'fs-extra'
+import { ExecaChildProcess } from 'execa'
+import { waitUntil } from 'libs'
+import { pathExists, readFile, writeFile, remove } from 'libs/fs'
 import { join } from 'path'
 import { Worker } from 'worker_threads'
 import { buildDB } from './start/build-db'
 import { buildDev } from './start/build-dev'
-import { buildLibs } from './start/build-libs'
+import { buildDocs } from './start/build-docs'
 import { buildPlatform } from './start/build-platform'
 import { buildServer } from './start/build-server'
-import { buildWebDev } from './start/build-web-dev'
-import { buildWebProd } from './start/build-web-prod'
-
+import { buildWeb } from './start/build-web'
 export interface MainGlobal {
   mode: 'dev' | 'prod'
   parent: ParentThread
@@ -22,11 +21,12 @@ export interface MainGlobal {
     ready: boolean
     metafile?: Metafile
   }
+  buildDocs: boolean
+  tw?: { process: ExecaChildProcess; built: boolean }
   pool: BuilderPool
   devBuild?: BuildResult
+  rebuildPlatformOnChange?: boolean
   entryPoints: Record<string, string>
-  twcwd: string
-  twconf: string
   bundleCompressor: Worker
 }
 
@@ -34,11 +34,17 @@ declare const global: MainGlobal
 
 const pool = new BuilderPool()
 export const stop = async () => {
-  if (global.bundleCompressor) {
-    global.bundleCompressor.terminate()
-  }
-  pool.destroy()
+  try {
+    if (global.bundleCompressor) {
+      global.bundleCompressor.terminate()
+    }
+    if (global.tw?.process) {
+      global.tw.process.kill()
+    }
+    pool.destroy()
+  } catch (e) {}
 }
+
 export const start = async (
   port: number,
   mode: 'dev' | 'prod',
@@ -50,7 +56,7 @@ export const start = async (
   global.platform = {
     ready: false,
   }
-
+  let done = timelog('boot', 'Building server')
   if (mode === 'dev') {
     const uipath = join(dirs.pkgs.figma, 'bin', 'ui.html')
     if (await pathExists(uipath)) {
@@ -65,25 +71,47 @@ export const start = async (
       join(dirs.pkgs.figma, 'src', 'host.js'),
       `module.exports = 'localhost:${port}';`
     )
+  } else {
+    await remove(join(dirs.build))
   }
-
-  await buildLibs(pool, mode)
   await buildServer(pool, mode)
+  done()
+
+  done = timelog('boot', 'Building App')
   await buildDev(pool)
+  done()
+
+  done = timelog('boot', 'Building DB')
   await buildDB(pool)
+  done()
 
-  buildPlatform(pool, mode, port)
-
-  if (mode === 'dev') {
-    await buildWebDev(pool, mode)
-    console.log('')
+  if (global.buildDocs) {
+    done = timelog('boot', 'Building Docs')
+    await buildDocs(pool, mode)
+    done()
   }
-  if (mode === 'prod') await buildWebProd(pool, mode)
+
+  done = timelog('boot', 'Building Static Web')
+  buildPlatform(pool, mode, port)
+  await buildWeb(pool, mode)
+  done()
+
+  done = timelog('boot', 'Starting Server')
+  if (mode === 'prod') {
+    await waitUntil(() => global.tw && global.tw.built)
+  }
+
+  let started = false
 
   pool.send('platform', `start|${port}|${global.rootstamp}`)
   pool.onParentMessage(async (msg) => {
     if (msg === 'platform-ready') {
       pool.send('platform', `start|${port}|${global.rootstamp}`)
+      global.rebuildPlatformOnChange = true
+      if (!started) {
+        started = true
+        done(false)
+      }
     }
   })
 }

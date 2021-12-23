@@ -1,56 +1,59 @@
 base(
   {
-    meta: {
-      username: '',
-      password: '',
-      action: {} as any,
-      isMobile: window.innerWidth <= 768,
+    meta: () => {
+      const meta = {
+        username: "",
+        password: "",
+        action: {} as any,
+        isMobile: window.innerWidth <= 768,
+      };
+      return meta;
     },
     init: ({ meta }) => {
       runInAction(() => {
         meta.action = {
           onChange: (e, field) => {
             runInAction(() => {
-              meta[field] = e.target.value
-            })
+              meta[field] = e.target.value;
+            });
           },
           login: async () => {
             // await api("/api/update-password", { id: 1, password: "12345" });
-            const res = await api('/api/login', {
+            const res = await api("/api/login", {
               username: meta.username,
               password: meta.password,
-              role: 'admin',
-            })
+              role: "admin",
+            });
 
-            if (res.status === 'success') {
-              localStorage.setItem('user', JSON.stringify(res.user))
+            if (res.status === "success") {
+              localStorage.setItem("user", JSON.stringify(res.user));
               const roles = {
-                hrd: '/admin/csr',
-                director: '/admin/summary-report',
-              }
-              if (res.user.role === 'hrd') {
-                return (window.location.href = roles.hrd)
+                hrd: "/admin/csr",
+                director: "/admin/summary-report",
+              };
+
+              if (res.user.role === "hrd") {
+                return (window.location.href = roles.hrd);
               }
 
-              if (res.user.role === 'director') {
-                return (window.location.href = roles.director)
+              if (res.user.role === "director") {
+                return (window.location.href = roles.director);
               }
 
-              return (window.location.href = '/admin/dashboard')
+              return (window.location.href = "/admin/dashboard");
             } else {
-              alert(res.msg || res.error)
+              alert(res.msg || res.error);
             }
           },
-        }
-
+        };
         const handleWindowSizeChange = action(
           () => (meta.isMobile = window.innerWidth <= 768)
-        )
-        window.addEventListener('resize', handleWindowSizeChange)
+        );
+        window.addEventListener("resize", handleWindowSizeChange);
         return () => {
-          window.removeEventListener('resize', handleWindowSizeChange)
-        }
-      })
+          window.removeEventListener("resize", handleWindowSizeChange);
+        };
+      });
     },
   },
   ({ meta }) => (
@@ -59,7 +62,7 @@ base(
         <div
           className="flex flex-1 h-screen items-center"
           style={css`
-            background: url('/fimgs/472_4252.x1.png');
+            background: url("/fimgs/472_4252.x1.png");
           `}
         >
           <div
@@ -78,17 +81,19 @@ base(
             <form
               class={`flex flex-col items-center justify-center`}
               onSubmit={(e) => {
-                e.preventDefault()
-                meta.action.login()
+                e.preventDefault();
+                meta.action.login();
               }}
             >
-              <div class={`flex flex-col gap-4 self-stretch items-end justify-start mt-5 p-2.5`}>
+              <div
+                class={`flex flex-col gap-4 self-stretch items-end justify-start mt-5 p-2.5`}
+              >
                 <input
-                  type={'text'}
+                  type={"text"}
                   class={`bg-white`}
                   placeholder="Username"
                   value={meta.username}
-                  onChange={(e) => meta.action.onChange(e, 'username')}
+                  onChange={(e) => meta.action.onChange(e, "username")}
                   style={css`
                     width: 100%;
                     border: 1px solid #cececb !important;
@@ -104,7 +109,7 @@ base(
                   placeholder="Password"
                   type="password"
                   value={meta.password}
-                  onChange={(e) => meta.action.onChange(e, 'password')}
+                  onChange={(e) => meta.action.onChange(e, "password")}
                   style={css`
                     width: 100%;
                     border: 1px solid #cececb !important;
@@ -120,7 +125,7 @@ base(
               >
                 <btn
                   class={`flex items-center justify-center px-4 py-2 bg-green-600 rounded w-full text-white rounded-full`}
-                  type={'submit'}
+                  type={"submit"}
                 >
                   Masuk
                 </btn>
@@ -157,8 +162,8 @@ base(
                   height: 261px;
                 `}
                 onSubmit={(e) => {
-                  e.preventDefault()
-                  meta.action.login()
+                  e.preventDefault();
+                  meta.action.login();
                 }}
               >
                 <div class={`flex self-stretch items-end justify-start p-2.5`}>
@@ -167,7 +172,7 @@ base(
                     label="Username"
                     placeholder="Username"
                     value={meta.username}
-                    onChange={(e) => meta.action.onChange(e, 'username')}
+                    onChange={(e) => meta.action.onChange(e, "username")}
                   />
                 </div>
                 <div class={`flex self-stretch items-end justify-start p-2.5`}>
@@ -177,7 +182,7 @@ base(
                     placeholder="Password"
                     type="password"
                     value={meta.password}
-                    onChange={(e) => meta.action.onChange(e, 'password')}
+                    onChange={(e) => meta.action.onChange(e, "password")}
                   />
                 </div>
                 <div
@@ -185,7 +190,7 @@ base(
                 >
                   <btn
                     class={`flex items-center justify-center px-4 py-2 bg-green-600 rounded w-full text-white`}
-                    type={'submit'}
+                    type={"submit"}
                   >
                     Masuk
                   </btn>
@@ -197,4 +202,4 @@ base(
       )}
     </>
   )
-)
+);

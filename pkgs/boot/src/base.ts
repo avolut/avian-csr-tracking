@@ -1,11 +1,14 @@
 import arg from 'arg'
-import { pathExists, write, writeFile } from 'fs-extra'
 import { join } from 'path'
 import { installDeps } from './dev/install-deps'
 import { removeDeps } from './dev/remove-deps'
 import { dirs } from './main'
+import { basePush } from './utils/base-push'
+import { cleanBuild } from './utils/clean-build'
+import { dbIndex } from './utils/db-index'
 import { startBase } from './utils/start-base'
 ;(async () => {
+  const { pathExists } = await import('libs/fs')
   try {
     // parse args
     const args = arg({
@@ -21,12 +24,23 @@ import { startBase } from './utils/start-base'
 
     // start the engine!
     switch (mode) {
-      case 'dev':
-        await startBase()
+      case 'clean':
+        await cleanBuild()
         break
+
+      case 'push':
+        await basePush(_)
+        break
+
+      case 'db':
+        await dbIndex(_.slice(1))
+        break
+
+      case 'dev':
       case 'prod':
         await startBase()
         break
+
       case 'i':
       case 'install':
       case 'add':
@@ -34,6 +48,7 @@ import { startBase } from './utils/start-base'
           await installDeps(_.slice(1))
         } catch (e) {}
         break
+
       case 'r':
       case 'rm':
       case 'remove':
@@ -44,7 +59,7 @@ import { startBase } from './utils/start-base'
         } catch (e) {}
         break
     }
-  } catch (e) {
+  } catch (e: any) {
     console.log(e.message)
   }
 })()

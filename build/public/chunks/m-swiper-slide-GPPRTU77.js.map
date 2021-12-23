@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/mobile/src/m-swiper-slide.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { SwiperSlide } from 'framework7-react'\n\nexport default (props) => {\n  return <SwiperSlide {...props} />\n}\n"],
+  "mappings": "wLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAiB,IADX",
+  "names": []
+}

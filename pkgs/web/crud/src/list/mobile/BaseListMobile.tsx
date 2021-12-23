@@ -1,8 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import {
-  Button, Progressbar
-} from 'framework7-react'
+import { Button, Progressbar } from 'framework7-react'
 import get from 'lodash.get'
 import { Context, isValidElement, useContext, useEffect, useRef } from 'react'
 import { BaseWindow } from 'web-init/src/window'
@@ -11,7 +9,7 @@ import { useRender } from 'web-utils/src/useRender'
 import { ICRUDContext } from '../../../../ext/types/__crud'
 import {
   IBaseListContext,
-  IColumnSingleDef
+  IColumnSingleDef,
 } from '../../../../ext/types/__list'
 import { lang } from '../../lang/lang'
 import { Loading } from '../../view/loading'
@@ -79,7 +77,6 @@ export const BaseListMobile = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
 
   return (
     <>
-      {state.db.loading && <Progressbar infinite />}
       <div
         className="base-list-mobile relative flex-1"
         css={css`
@@ -94,6 +91,12 @@ export const BaseListMobile = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
           }
         `}
       >
+        {state.db.loading && (
+          <Progressbar
+            className="absolute top-0 left-0 right-0 rounded-none"
+            infinite
+          />
+        )}
         {items.length === 0 ? (
           <>
             {state.db.loading ? (

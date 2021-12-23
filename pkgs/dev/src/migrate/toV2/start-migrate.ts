@@ -1,5 +1,4 @@
 import { log } from 'boot'
-import { waitUntil } from 'libs'
 import { upgradeLayoutV2 } from './upgrade-layout'
 import { upgradePageV2 } from './upgrade-page'
 

@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@emotion/react": "^11.7.0",
+    "@fluentui/react": "^8.41.0",
+    "prisma": "^3.6.0",
+    "react": "beta",
+    "react-dom": "beta",
+    "web-init": "workspace:^"
+  },
+  "license": "MIT",
+  "name": "docs",
+  "version": "0.0.1",
+  "private": true
+}

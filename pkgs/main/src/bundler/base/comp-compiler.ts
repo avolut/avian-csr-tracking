@@ -1,4 +1,4 @@
-import { transformAsync, TransformOptions } from '@babel/core'
+import { transformAsync, TransformOptions } from 'libs/babel'
 import trim from 'lodash.trim'
 export const compileSingleComponent = async (
   name: string,
@@ -61,34 +61,50 @@ base) => {
   __render__.__extract = __extract
   const [_, setRender] = useState({})
 
-  let result = {
-    page: jsx('fragment', null, null),
-    effects: new Set(),
+  let win = null;
+  if (typeof window === 'undefined') {
+    if (global && global.requestContext) {
+      win = global.requestContext.get('window')
+    }
+  } else{
+    win = window
   }
-  try {
-    result = window.renderCMS(
-      __render__, 
-      typeof meta === 'undefined' ? {} : meta,
-      { 
-        defer: false, 
-        type: 'component',
-        params
-      }
-    )
-
-  } catch (e) {
-    console.error(__render__, e)
-    result = {
-      page: jsx('pre', {className:"p-4 text-red-500"},e + ''),
+  if (win) {
+    let result = {
+      page: jsx('fragment', null, null),
       effects: new Set(),
     }
-  }
+    try {
+      result = win.renderCMS(
+        __render__, 
+        typeof meta === 'undefined' ? {} : meta,
+        { 
+          defer: false, 
+          type: 'component',
+          params
+        }
+      )
 
-  if (result) { 
-    if (result.loading) {
-      result.loading().then(() => setRender({}))
+    } catch (e) {
+      console.error(__render__, e)
+      result = {
+        page: jsx('pre', {className:"p-4 text-red-500"},e + ''),
+        effects: new Set(),
+      }
     }
-    return result.page;
+
+    if (result) { 
+      if (result.loading) {
+        result.loading().then(() => {
+          setRender({})
+          if (!win.isSSR) {
+            // win.showClientRoot('first component loaded')
+          }
+        })
+      } 
+      
+      return result.page;
+    }
   }
   return () => jsx('pre', {className:"p-4 text-red-500"},'Render Failed')
 }`

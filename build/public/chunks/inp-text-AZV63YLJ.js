@@ -1,0 +1,2 @@
+import{a as o}from"./chunk-VEHFODSI.js";import{j as n}from"./chunk-LO6GVN5M.js";import"./chunk-Y5EMNB45.js";import"./chunk-NXH6K27G.js";import"./chunk-HP25GDQW.js";import"./chunk-IRKXFVRU.js";import{a as t}from"./chunk-SDY2POXP.js";var l=t(r=>{let e=o("inp-text","/app/web/src/components/inp-text",{TextField:n,props:r});return new Function(e.render).bind(e)()},"default");export{l as default};
+//# sourceMappingURL=inp-text-AZV63YLJ.js.map

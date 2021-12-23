@@ -1,42 +1,45 @@
 base(
   {
-    meta: {
-      error: '',
-      success: false,
-      userLoggedIn: (window as any).user,
-      form: {
-        password: '',
-        passwordConfirm: '',
-      },
-      onChange: function (e) {
-        const { name, value } = e.target
+    meta: () => {
+      const meta = {
+        error: "",
+        success: false,
+        userLoggedIn: (window as any).user,
+        form: {
+          password: "",
+          passwordConfirm: "",
+        },
+        onChange: function (e) {
+          const { name, value } = e.target;
+          this.form = { ...this.form, [name]: value };
+          this.error = "";
 
-        this.form = { ...this.form, [name]: value }
-        this.error = ''
-        if (
-          this.form.passwordConfirm.length >= this.form.password.length &&
-          this.form.password !== this.form.passwordConfirm
-        ) {
-          this.error = 'Password Tidak Sama.'
-        }
-      },
-      handleSubmit: function () {
-        if (this.error || !this.form.password) return
-        if (
-          this.form.password !== this.form.passwordConfirm
-        ) {
-          this.error = 'Password Tidak Sama.'
-          return;
-        }
-        api('/api/update-password', {
-          id: this.userLoggedIn.id,
-          password: this.form.password,
-        }).then((res) => {
-          if (res.status === 'success') {
-            this.success = true
+          if (
+            this.form.passwordConfirm.length >= this.form.password.length &&
+            this.form.password !== this.form.passwordConfirm
+          ) {
+            this.error = "Password Tidak Sama.";
           }
-        })
-      },
+        },
+        handleSubmit: function () {
+          if (this.error || !this.form.password) return;
+
+          if (this.form.password !== this.form.passwordConfirm) {
+            this.error = "Password Tidak Sama.";
+            return;
+          }
+
+          api("/api/update-password", {
+            id: this.userLoggedIn.id,
+            password: this.form.password,
+          }).then((res) => {
+            if (res.status === "success") {
+              this.success = true;
+            }
+          });
+        },
+      };
+      return meta;
     },
     init: ({ meta }) => {},
   },
@@ -81,4 +84,4 @@ base(
       </button>
     </div>
   )
-)
+);

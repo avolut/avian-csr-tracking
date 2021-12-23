@@ -11,7 +11,7 @@ export const registerMonacoType = async (monaco) => {
     types: await api('__data/types', undefined),
     global: await api('__data/global', undefined),
   }
-  
+
   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
     ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
     // isolatedModules: true,
@@ -44,7 +44,6 @@ export const registerMonacoType = async (monaco) => {
   //     raw: true,
   //   }
   // )
-
 
   const types = Object.keys(ts.types)
   ts.react =
@@ -102,7 +101,6 @@ declare global {
 }
 `
 
-
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     ts.react,
     `file:///node_modules/@react/types/index.d.ts`
@@ -121,8 +119,6 @@ declare global {
       }[keyof T];
       type NonFunctionProperties<T> = Pick<T, NonFunctionPropertyNames<T>>;
       const db:NonFunctionProperties<prisma.PrismaClient> & {query: ((sql:any) => Promise<any[]>)};
-      const dbAll = { main: db }
-   
 
       const action: (func:() => void) =>void
       const runInAction: (func:() => void) =>void

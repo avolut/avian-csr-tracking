@@ -1,4 +1,4 @@
-import { ensureDir, pathExists, writeFile, copy } from 'fs-extra'
+import { ensureDir, pathExists, writeFile, copy } from 'libs/fs'
 import { join } from 'path'
 export const ensureProject = async (
   name: string,

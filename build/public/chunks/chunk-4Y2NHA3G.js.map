@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/mobile/src/m-button.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { jsx } from '@emotion/react'\nimport { Button } from 'framework7-react'\n\nexport default (rawprops: Parameters<typeof Button>[0]) => {\n  return <Button {...rawprops} />\n}\n"],
+  "mappings": "0HACA,MAAoB,OAGpB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAY,IADN",
+  "names": []
+}

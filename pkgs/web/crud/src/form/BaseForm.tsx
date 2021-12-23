@@ -1,6 +1,6 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
-import { db, waitUntil } from 'libs'
+import { jsx } from '@emotion/react'
+import { db } from 'libs'
 import { default as cloneDeep, default as deepClone } from 'lodash.clonedeep'
 import get from 'lodash.get'
 import set from 'lodash.set'
@@ -10,7 +10,7 @@ import {
   isValidElement,
   useContext,
   useEffect,
-  useRef,
+  useRef
 } from 'react'
 import { BaseWindow } from 'web-init/src/window'
 import { niceCase } from 'web-utils/src/niceCase'
@@ -19,7 +19,7 @@ import { useRender } from 'web-utils/src/useRender'
 import {
   ITableColumn,
   ITableDefinitions,
-  ITableRelation,
+  ITableRelation
 } from '../../../ext/types/qlist'
 import { ICRUDContext } from '../../../ext/types/__crud'
 import {
@@ -27,7 +27,7 @@ import {
   IBaseFormContext,
   IBaseFormProps,
   IFormAlterField,
-  IFormLayout,
+  IFormLayout
 } from '../../../ext/types/__form'
 import { initializeState } from '../context-state'
 import { generateStateID } from '../CRUD'
@@ -100,6 +100,7 @@ export const BaseForm = (props: IBaseFormProps) => {
       render()
     })()
   }, [])
+
 
   if (!meta.init) {
     if (meta.state.db && meta.state.db.loading) {
@@ -759,7 +760,7 @@ export const createFormContext = (
                   value === null ||
                   value === '' ||
                   (typeof value !== 'boolean' && !value))) ||
-              (typeof value === 'object' && Object.keys(value).length === 0 && Object.prototype.toString.call(value) !== '[object Date]')
+              (typeof value === 'object' && Object.keys(value).length === 0)
             ) {
               if (!errors[name]) {
                 errors[name] = []

@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "noEmit": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "web-init": ["web/init"],
+      "web-dev": ["web/dev"],
+      "web-ext": ["web/ext"],
+      "web-mobile": ["web/mobile"],
+      "web-utils": ["web/utils"],
+      "web-view": ["web/view"],
+      "web-crud": ["web/crud"]
+    },
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["react/next", "react-dom/next"]
+  }
+}

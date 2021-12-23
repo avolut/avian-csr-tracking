@@ -9,4 +9,4 @@ export const argsLoadFilter = (e: any, filter: any) => {
                 }
             }
     }
-}
+} 

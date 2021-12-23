@@ -2,19 +2,14 @@
 import { css, jsx } from '@emotion/react'
 import throttle from 'lodash.throttle'
 import { forwardRef, useRef } from 'react'
-import { BaseWindow } from 'web-init/src/window'
-
-declare const window: BaseWindow
-
-if (!(window as any).linkCache) {
-  ;(window as any).linkCache = {}
-}
+import { useWindow } from 'libs'
 
 // Do not prefetch link that is already
 // fetched after this timeout. is seconds.
 const PREFETCH_TIMEOUT = 5
 
 export const Link = forwardRef((props: any, ref: any) => {
+  const { window } = useWindow()
   const aref = useRef(null as any)
 
   const inprops = { ...props }
@@ -75,10 +70,10 @@ export const Link = forwardRef((props: any, ref: any) => {
 
         if (props.onClick) {
           await props.onClick(e, (ahref: string) =>
-            window.navigate(ahref || href, { props })
+            window.navigate(ahref || href)
           )
         } else {
-          if (href) window.navigate(href, { props })
+          if (href) window.navigate(href)
         }
       }}
     />

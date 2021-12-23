@@ -3,18 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "types": "./src/index.ts",
+  "type": "module",
+  "module": "./build/index.js",
   "dependencies": {
-    "@types/fs-extra": "^9.0.13",
+    "libs": "workspace:^",
     "boot": "workspace:^",
-    "chalk": "^4.1.2",
     "chokidar": "^3.5.2",
-    "esbuild": "0.13.13",
+    "esbuild": "0.14.2",
     "fs-extra": "^10.0.0",
     "lodash.pad": "^4.5.1",
-    "main": "1.0.0",
     "shinobi-worker": "^0.0.16",
     "tiny-worker": "^2.3.0",
-    "uniqid": "^5.4.0"
+    "cuid": "^2.1.8"
   },
   "devDependencies": {
     "@types/uniqid": "^5.3.0"

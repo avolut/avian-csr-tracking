@@ -1,1 +1,1 @@
-require("./pkgs/platform.js")
+await import("./pkgs/platform.js")

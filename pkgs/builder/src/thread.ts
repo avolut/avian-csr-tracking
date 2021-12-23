@@ -1,7 +1,7 @@
 import { Worker, parentPort } from 'worker_threads'
 import { Runner } from './runner'
 
-import uniqid from 'uniqid'
+import uniqid from 'cuid'
 
 export type ParentThread = {
   notify: (msg: any) => Promise<any>

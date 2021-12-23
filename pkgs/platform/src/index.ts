@@ -1,4 +1,4 @@
-import { expose } from 'builder'
+import { expose } from '../../builder/src/thread'
 import { parentPort } from 'worker_threads'
 import { initEnv } from './env/env-init'
 import { startServer } from './server'

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/mobile/src/m-tab.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { Tab } from 'framework7-react'\n\nexport default (props) => {\n  return <Tab {...props} />\n}\n"],
+  "mappings": "mLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAS,IADH",
+  "names": []
+}

@@ -6,7 +6,7 @@ export const injectCSS = (href: string) => {
     const ex = document.querySelector(`link[href^="${href}"]`)
     if (ex) ex.remove()
 
-    var head_node = document.getElementsByTagName('head')[0]
+    var title_node = document.querySelector('head > title')
     var link_tag = document.createElement('link')
     link_tag.setAttribute('rel', 'stylesheet')
     link_tag.setAttribute('type', 'text/css')
@@ -14,7 +14,9 @@ export const injectCSS = (href: string) => {
       'href',
       `${href}${window.is_dev ? '?' + new Date().getTime() : ''}`
     )
-    head_node.appendChild(link_tag)
+    if (title_node && title_node.parentNode)
+      title_node.parentNode.insertBefore(link_tag, title_node.nextSibling)
+      
     link_tag.onload = resolve
   })
 }

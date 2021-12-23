@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/mobile/src/m-cardheader.tsx"],
+  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { CardHeader } from 'framework7-react'\n\nexport default (props) => {\n  return <CardHeader {...props} />\n}\n"],
+  "mappings": "wLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAgB,IADV",
+  "names": []
+}

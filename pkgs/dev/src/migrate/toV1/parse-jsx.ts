@@ -1,7 +1,5 @@
-import { traverse } from '@babel/core'
-import generate from '@babel/generator'
-import { parse } from '@babel/parser'
 import { dirs } from 'boot'
+import { generate, parse, traverse } from 'libs/babel'
 import trim from 'lodash.trim'
 import { join } from 'path/posix'
 

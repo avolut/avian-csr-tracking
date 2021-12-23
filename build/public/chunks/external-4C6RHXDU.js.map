@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../app/web/src/external.tsx"],
+  "sourcesContent": ["// make sure to export default component not export const\nexport default {\n  'render-html': () => [import('web-utils/components/RenderHTML')],\n  'html-head': () => [import('web-utils/components/HtmlHead')],\n  'hello-world': () => [import('web-utils/components/HelloWorld')],\n  loading: () => [import('web-crud/src/legacy/Loading')],\n  admin: () => [import('web-crud/src/CRUD')],\n  qform: () => [import('web-crud/src/form/BaseForm')],\n  qlist: () => [import('web-crud/src/list/QBaseList')],\n  'w-sidebar': () => [import('./components/w-sidebar')],\n  'w-topbar': () => [import('./components/w-topbar')],\n  'inp-text': () => [import('./components/inp-text')],\n  btn: () => [import('./components/btn')],\n  'pure-tab': () => [import('web-crud/src/form/web/WFormTab')],\n  'pdf-reader': () => [import('./components/pdf-reader')],\n}\n"],
+  "mappings": "4BACA,GAAO,GAAQ,CACb,cAAe,IAAM,CAAC,OAAO,6BAC7B,YAAa,IAAM,CAAC,OAAO,2BAC3B,cAAe,IAAM,CAAC,OAAO,6BAC7B,QAAS,IAAM,CAAC,OAAO,0BACvB,MAAO,IAAM,CAAC,OAAO,uBACrB,MAAO,IAAM,CAAC,OAAO,2BACrB,MAAO,IAAM,CAAC,OAAO,4BACrB,YAAa,IAAM,CAAC,OAAO,4BAC3B,WAAY,IAAM,CAAC,OAAO,2BAC1B,WAAY,IAAM,CAAC,OAAO,2BAC1B,IAAK,IAAM,CAAC,OAAO,sBACnB,WAAY,IAAM,CAAC,OAAO,2BAC1B,aAAc,IAAM,CAAC,OAAO",
+  "names": []
+}

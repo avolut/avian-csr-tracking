@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:andromedia123oke@db.plansys.co:5432/avian_csr?schema=public"
+  url      = "postgresql://avian:@v1@n123oke@165.22.251.237:5432/avian_csr?schema=public"
 }
 
 model m_area_tirta {
@@ -108,7 +108,7 @@ model m_role {
 
 model m_setting_target {
   id                   Int                 @id @default(autoincrement())
-  target               Int
+  target               Decimal             @db.Decimal
   bantuan              String              @db.VarChar(255)
   periode              Int
   id_instansi_penerima Int
@@ -127,7 +127,7 @@ model m_user {
   username    String        @db.VarChar(50)
   password    String        @db.VarChar
   last_login  DateTime      @db.Timestamp(6)
-  role        String?       @db.VarChar(10)
+  role        String        @db.VarChar(10)
   m_user_role m_user_role[]
 }
 
@@ -140,48 +140,12 @@ model m_user_role {
   other_m_user_role m_user_role[] @relation("m_user_roleTom_user_role_role_id")
 }
 
-model p_migration {
-  version    String @id @db.VarChar(180)
-  apply_time Int?
-}
-
-model p_role {
-  id               Int           @id @default(autoincrement())
-  role_name        String        @db.VarChar(255)
-  role_description String        @db.VarChar(255)
-  menu_path        String?       @db.VarChar(255)
-  home_url         String?       @db.VarChar(255)
-  repo_path        String?       @db.VarChar(255)
-  p_user_role      p_user_role[]
-}
-
-model p_user {
-  id          Int           @id @default(autoincrement())
-  email       String        @db.VarChar(255)
-  username    String        @db.VarChar(255)
-  password    String        @db.VarChar(255)
-  last_login  DateTime?     @db.Timestamp(6)
-  is_deleted  Boolean?
-  user_token  String?       @db.VarChar(255)
-  p_user_role p_user_role[]
-}
-
-model p_user_role {
-  id              Int     @id @default(autoincrement())
-  user_id         Int
-  role_id         Int
-  is_default_role String? @default("No") @db.VarChar(255)
-  p_role          p_role  @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "p_role_has_p_user")
-  p_user          p_user  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "p_user_has_p_role")
-}
-
 model t_csr {
   id                      Int                       @id @default(autoincrement())
-  no_kegiatan             String                    @db.VarChar(8)
+  no_kegiatan             String                    @db.VarChar(11)
   id_division             Int
   id_pillar               Int
   id_kegiatan             Int
-  is_training             String                    @default("N") @db.VarChar(1)
   tgl_kegiatan            DateTime                  @db.Date
   nama_project_csr        String                    @db.VarChar(100)
   id_supplier             Int
@@ -203,6 +167,8 @@ model t_csr {
   id_jenis_instansi       Int
   keterangan              String?
   jumlah_orang            Int
+  status                  String                    @default("Draft") @db.VarChar(10)
+  is_training             Int                       @default(0) @db.SmallInt
   m_area_tirta            m_area_tirta?             @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
   m_cabang                m_cabang                  @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
   m_covered_area          m_covered_area            @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)
@@ -230,6 +196,7 @@ model t_csr_detail_bantuan {
   id_csr           Int
   id_jenis_bantuan Int?
   id_product_csr   Int?
+  diskon           Int              @default(0)
   t_csr            t_csr            @relation(fields: [id_csr], references: [id], onDelete: Cascade)
   m_jenis_bantuan  m_jenis_bantuan? @relation(fields: [id_jenis_bantuan], references: [id], onDelete: Cascade)
   m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Restrict, onUpdate: Restrict)

@@ -1,0 +1,17 @@
+{
+  "appId": "com.andromedia.base",
+  "appName": "Andro Base",
+  "bundledWebRuntime": true,
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "ios": {
+    "contentInset": "never"
+  },
+  "server": {
+    "url": "http://192.168.18.38:3200"
+  }
+}

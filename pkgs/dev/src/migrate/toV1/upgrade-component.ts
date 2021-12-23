@@ -1,12 +1,7 @@
-import { traverse } from '@babel/core'
-import generate from '@babel/generator'
-import { parse } from '@babel/parser'
-import template from '@babel/template'
-import { NodePath } from '@babel/traverse'
-import { Program } from '@babel/types'
 import { log } from 'boot'
-import { pathExists, readdir, readFile, rename, writeFile } from 'fs-extra'
 import klaw from 'klaw'
+import { generate, NodePath, parse, template, traverse } from 'libs/babel'
+import { pathExists, readdir, readFile, rename, writeFile } from 'libs/fs'
 import { join } from 'path'
 
 export const upgradeComponentsToV1 = async (arg: {
@@ -85,7 +80,7 @@ export const upgradeComponentsToV1 = async (arg: {
         global: '',
         usage: {},
       }
-      let root: NodePath<Program> | null = null
+      let root: NodePath<any> | null = null
       traverse(parsed, {
         Program(path) {
           root = path
@@ -171,7 +166,7 @@ export const upgradeComponentsToV1 = async (arg: {
       })
 
       if (lodash.global) {
-        let root: NodePath<Program> | null = null
+        let root: NodePath<any> | null = null
         traverse(parsed, {
           enter: (path) => {
             const c = path.node

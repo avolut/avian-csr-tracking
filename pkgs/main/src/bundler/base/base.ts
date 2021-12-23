@@ -1,9 +1,7 @@
 import { dirs } from 'boot'
-import { join } from 'path'
 import { Database, open, RootDatabase } from 'lmdb'
+import { join } from 'path'
 
-import { Page, API, Layout, Component } from 'platform/src/types'
-import { pathExists, remove } from 'fs-extra'
 
 export const baseDir = {
   layout: join(dirs.app.web, 'src', 'base', 'layout'),

@@ -1,8 +1,8 @@
 import { join } from 'path'
 import { dirs, log } from 'boot'
 import { PlatformGlobal } from '../types'
-import execa from 'execa'
-import { pathExists } from 'fs-extra'
+import { execaNode } from 'execa'
+import { pathExists } from 'libs/fs'
 declare const global: PlatformGlobal
 
 export const setupDbEnv = async () => {
@@ -34,7 +34,7 @@ export const setupDbEnv = async () => {
       ))
     ) {
       log('boot', 'Generating prisma client', false)
-      const gen = execa.node(prismaCli, ['generate'], {
+      const gen = execaNode(prismaCli, ['generate'], {
         cwd: global.buildPath.pkgs,
       })
       await gen

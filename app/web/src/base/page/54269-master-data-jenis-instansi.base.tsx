@@ -1,7 +1,10 @@
 base(
   {
-    meta: {},
-    init: ({ meta }) => { },
+    meta: () => {
+      const meta = {};
+      return meta;
+    },
+    init: ({ meta }) => {},
   },
   ({ meta }) => (
     <>
@@ -15,7 +18,7 @@ base(
               label: "Jenis instansi",
               list: {
                 action: {
-                  create: "Tambah"
+                  create: "Tambah",
                 },
                 table: {
                   columns: [

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/crud/src/list/QBaseList.tsx"],
+  "sourcesContent": ["import { BaseList } from './BaseList'\n\nexport default BaseList\n"],
+  "mappings": "weAEA,GAAO,GAAQ",
+  "names": []
+}

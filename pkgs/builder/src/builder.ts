@@ -1,6 +1,6 @@
 import { dirs, log, modules } from 'boot'
 import { build, BuildOptions, BuildResult, Platform, Plugin } from 'esbuild'
-import { pathExists, readJSON } from 'fs-extra'
+import { pathExists, readJSON, writeFile } from 'libs/fs'
 import { dirname, join } from 'path'
 import { BuilderGlobal } from '.'
 import { Watcher } from './watcher'
@@ -9,7 +9,7 @@ declare const global: BuilderGlobal
 
 export interface IBuilderArgs {
   name?: string
-  root: string
+  root?: string
   in: string | string[]
   out?: string
   platform?: Platform
@@ -55,7 +55,7 @@ export class Builder {
           global.mode === 'dev' ? '"development"' : '"production"',
       },
       external: opt.external,
-      format: opt.platform === 'node' ? 'cjs' : 'esm',
+      format: 'esm',
       ...opt.buildOptions,
     })
   }
@@ -99,6 +99,7 @@ export class Builder {
 
     try {
       this.process = build(buildOpt)
+
       const result = await this.process
       if (this.onBuilt) {
         await this.onBuilt(result, buildInfo)
@@ -109,7 +110,6 @@ export class Builder {
       return result
     } catch (e: any) {
       this.status = 'done'
-      console.log('')
       log('error', `Failed to build pool.${this.name}:\n${e.message}`)
       return null
     }

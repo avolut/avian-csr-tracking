@@ -5,6 +5,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@emotion/cache": "^11.6.0",
     "@emotion/react": "^11.5.0",
     "@fluentui/react": "^8.41.0",
     "@monaco-editor/react": "^4.3.1",
@@ -19,16 +20,20 @@
     "mobx-react-lite": "^3.2.1",
     "msgpackr": "^1.4.4",
     "pako": "^2.0.4",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "beta",
+    "react-dom": "beta",
     "react-refresh": "^0.10.0",
     "react-transition-group": "^4.4.2",
     "regenerator-runtime": "^0.13.9",
+    "serialize-javascript": "^6.0.0",
     "tslib": "^2.3.1",
-    "web-app": "workspace:^",
     "web-mobile": "workspace:^",
     "web-utils": "workspace:^",
-    "web-view": "workspace:^"
+    "web-view": "workspace:^",
+    "workbox-core": "^6.4.1",
+    "workbox-routing": "^6.4.1",
+    "workbox-strategies": "^6.4.1",
+    "zlib": "^1.0.5"
   },
   "main": "./build/index.js",
   "devDependencies": {

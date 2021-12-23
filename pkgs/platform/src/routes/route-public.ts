@@ -1,8 +1,9 @@
 import { dirs } from 'boot'
 import { FastifyReply, FastifyRequest } from 'fastify'
-import { lstat } from 'fs-extra'
+import { lstat, readFile } from 'libs/fs'
+import { transformFileAsync } from 'libs/babel'
 import mime from 'mime-types'
-import { extname, join } from 'path'
+import { join } from 'path'
 import { PlatformGlobal } from 'src/types'
 
 declare const global: PlatformGlobal
@@ -35,47 +36,76 @@ export const serveCached = async (
   url: string
 ) => {
   let file = url
-  if (!global.cache.public.raw.doesExist(file)) {
-    file = `app/web/build/web${url}`
+  const cache = global.cache.public
+
+  if (url === '/index.html') return false
+
+  if (!cache.raw[url]) {
+    const baseDir = global.buildPath.public
+    file = `${baseDir}${url}`
 
     if (url.startsWith('/fimgs')) {
-      file = `app/web/figma/imgs/${url.substr('/fimgs/'.length)}`
+      file = join(
+        dirs.app.web,
+        'figma',
+        'imgs',
+        url.substring('/fimgs/'.length)
+      )
     }
 
     if (url.startsWith('/__ext')) {
-      file = `pkgs/web/ext/${url.substr('/__ext/'.length)}`
+      file = join(dirs.pkgs.web, 'ext', url.substring('/__ext/'.length))
     }
 
     if (url.startsWith('/min-maps')) {
-      file = `pkgs/web/ext/monaco/${url.substr('/__ext/'.length)}`
+      file = join(
+        dirs.pkgs.web,
+        'ext',
+        'monaco',
+        url.substring('/__ext/'.length)
+      )
+    }
+
+    if (!(await isFile(file))) {
+      file = join(dirs.app.web, 'public', url)
+    }
+
+    if (await isFile(file)) {
+      if (req.headers['x-ext-transpile-es5'] === 'y') {
+        if (file.endsWith('buffer.js')) {
+          cache.raw[url] = await readFile(file)
+        } else {
+          const res = await transformFileAsync(file, {
+            presets: [
+              [
+                '@babel/env',
+                {
+                  targets: {
+                    browsers: 'Chrome <= 45',
+                  },
+                  useBuiltIns: 'entry',
+                  corejs: { version: '3.8', proposals: true },
+                },
+              ],
+            ],
+          })
+          cache.raw[url] = res?.code
+        }
+      } else {
+        cache.raw[url] = await readFile(file)
+      }
     }
   }
 
-  if (global.cache.public.raw.doesExist(file)) {
-    const gz = global.cache.public.gz.doesExist(file)
-    const br = global.cache.public.br.doesExist(file)
-
-    const type = mime.types[extname(file).substr(1)]
-    if (type) {
-      reply.type(type)
+  if (cache.raw[url]) {
+    if (!cache.br[url]) {
+    } else {
     }
-
-    const acceptEncoding = req.headers['accept-encoding']
-    if (acceptEncoding) {
-      if (!!br && acceptEncoding.indexOf('br') >= 0) {
-        reply.header('content-encoding', 'br')
-        reply.send(global.cache.public.br.getEntry(file)?.value)
-        return true
-      }
-
-      if (!!gz && acceptEncoding.indexOf('gz') >= 0) {
-        reply.header('content-encoding', 'gzip')
-        reply.send(global.cache.public.gz.getEntry(file)?.value)
-        return true
-      }
+    if (!cache.gz[url]) {
+    } else {
     }
-
-    reply.send(global.cache.public.raw.getEntry(file)?.value)
+    reply.type(mime.lookup(url))
+    reply.send(cache.raw[url])
     return true
   }
 }

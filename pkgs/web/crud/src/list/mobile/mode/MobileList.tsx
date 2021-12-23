@@ -29,19 +29,23 @@ export const MobileList = ({
 }) => {
   const listRef = useRef(null as any)
   useEffect(() => {
-    const el = listRef.current
-    if (el && !el.onscroll) {
-      el.onscroll = async (e: Event) => {
-        const div = e.target as HTMLDivElement
-        const scrollPercent = (div.scrollTop / div.scrollHeight) * 100
-        if (scrollPercent > 60 && state.db.loading === false) {
-          let sc = div.scrollTop
-          await state.db.paging.loadNext()
-          div.scrollTop = sc
+    waitUntil(() => listRef.current).then(() => {
+      const el = listRef.current
+      if (el && !el.onscroll) {
+        el.onscroll = async (e: Event) => {
+          const div = e.target as HTMLDivElement
+          const scrollPercent = (div.scrollTop / div.scrollHeight) * 100
+          if (scrollPercent > 60 && state.db.loading === false) {
+            let sc = div.scrollTop
+            await state.db.paging.loadNext()
+            div.scrollTop = sc
+          }
         }
+        render()
       }
-    }
+    })
   }, [listRef.current])
+
   return (
     <div
       ref={listRef}
@@ -174,7 +178,6 @@ export const MobileList = ({
             const checked = state.table.mobile.checked
             const pk = state.db.definition ? row[state.db.definition.pk] : ''
 
-            console.log(pk, checked)
             return (
               <ListItem
                 link={true}

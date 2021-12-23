@@ -1,35 +1,49 @@
 import { dirs, log } from 'boot'
 import fastify from 'fastify'
 import fastifyCookie from 'fastify-cookie'
+import fastifyCors from 'fastify-cors'
 import fastifyEtag from 'fastify-etag'
 import fastifyForm from 'fastify-formbody'
 import fastifyMultipart from 'fastify-multipart'
+import { fastifyRequestContextPlugin } from 'fastify-request-context'
 import fastifyStatic from 'fastify-static'
 import fastifyWS from 'fastify-websocket'
-import chromePaths from 'chrome-paths'
-import { ellapsedTime, waitUntil } from 'libs'
+import { ellapsedTime } from 'libs'
+import { pathExists } from 'libs/fs'
 import { join } from 'path'
-import { reloadSingleBaseCache, reloadSingleComponentCache } from './env/env-cache'
+import {
+  reloadAsset,
+  reloadSingleBaseCache,
+  reloadSingleComponentCache
+} from './env/env-cache'
 import { handleError } from './error'
 import { jsonPlugin } from './middleware'
 import { routeInit } from './routes/route-init'
 import { authPlugin } from './session/session-register'
 import { PlatformGlobal } from './types'
-import { pathExists } from 'fs-extra'
+
 declare const global: PlatformGlobal
 
 export type ServerInstance = ReturnType<typeof fastify>
 export const startServer = async () => {
   const server = fastify()
 
-  server.register(fastifyMultipart)
-  server.register(fastifyCookie)
-  server.register(fastifyForm)
-  server.register(fastifyWS)
-  server.register(fastifyEtag)
-  server.register(jsonPlugin)
-  server.register(authPlugin)
-  server.register(fastifyStatic, {
+  server.register(fastifyMultipart as any)
+  server.register(fastifyCookie as any)
+  server.register(fastifyForm as any)
+  server.register(fastifyWS as any)
+  server.register(fastifyCors as any, {
+    origin: '*',
+    exposedHeaders: 'x-nonce',
+    optionsSuccessStatus: 200,
+    allowedHeaders:
+      'accept, origin, User-Agent, Sec-Fetch-Mode, Referer, host, connection, Accept-Encoding, Accept-Language, Content-Length, content-type, x-nonce, cookie, authorization, get-server-props',
+  })
+  server.register(fastifyEtag as any)
+  server.register(jsonPlugin as any)
+  server.register(authPlugin as any)
+  server.register(fastifyRequestContextPlugin)
+  server.register(fastifyStatic as any, {
     root: global.buildPath.public,
     serve: false,
   })
@@ -38,8 +52,8 @@ export const startServer = async () => {
   routeInit(server)
 
   if (global.mode === 'dev') {
-    delete require.cache[join(dirs.pkgs.dev, 'build', 'index.js')]
-    const dev = require(join(dirs.pkgs.dev, 'build', 'index.js'))
+    // delete require.cache[join(dirs.pkgs.dev, 'build', 'index.js')]
+    const dev = await import(join(dirs.pkgs.dev, 'build', 'index.js'))
     if (dev && dev.startDev) {
       await dev.startDev(server, global.pool?.parent)
     }
@@ -68,41 +82,20 @@ export const startServer = async () => {
             port === 80 || port === 443 ? `` : `:${port}`
           }`
         )
+
+        if (!(await pathExists(join(global.buildPath.public, 'index.css')))) {
+          log(
+            'boot',
+            'TailwindCSS building, Please wait (web may show blank white) '
+          )
+        }
         resolve()
       })
-
-      const hasFullPptr = await pathExists(
-        join(dirs.root, 'node_modules', 'puppeteer', 'cjs-entry.js')
-      )
-
-      if (hasFullPptr) {
-        global.bin.pptr
-          .launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            ignoreHTTPSErrors: true,
-          })
-          .then((pptr) => {
-            global.pptr = pptr
-          })
-      } else {
-        if (chromePaths.chrome) {
-          global.bin.pptr
-            .launch({
-              headless: true,
-              executablePath: chromePaths.chrome,
-              ignoreHTTPSErrors: true,
-            })
-            .then((pptr) => {
-              global.pptr = pptr
-            })
-        } else {
-          log('pptr', `Chrome Not Found, PDF disabled.`)
-        }
-      }
     })
   }
-
+  process.on('uncaughtException', (err) => {
+    console.dir(err)
+  })
   if (global.pool) {
     global.pool.onMessage = async (msg: any) => {
       if (msg === 'exit') {
@@ -110,7 +103,6 @@ export const startServer = async () => {
         if (global.pptr) {
           await global.pptr.close()
         }
-        process.exit(0)
         return
       }
       if (msg.startsWith('reload')) {
@@ -122,6 +114,7 @@ export const startServer = async () => {
             reloadSingleBaseCache(type, file)
           }
         }
+        await reloadAsset()
         global.dev?.broadcast({ type: 'hmr-reload-all' })
       }
       if (msg.startsWith('start')) {

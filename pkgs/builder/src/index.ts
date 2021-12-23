@@ -1,11 +1,11 @@
-import { pathExists, readJSON } from 'fs-extra'
+import { pathExists, readJSON } from 'libs/fs'
 
-export { Builder } from './builder'
-export { BuilderPool } from './builderpool'
-export { expose } from './thread'
-export { Watcher } from './watcher'
+export * from './builder'
+export * from './builderpool'
+export * from './thread'
+export * from './watcher'
 
-export interface BuilderGlobal extends NodeJS.Global {
+export interface BuilderGlobal {
   mode: 'dev' | 'prod'
 }
 

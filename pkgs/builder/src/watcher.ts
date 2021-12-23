@@ -28,6 +28,7 @@ export class Watcher {
          * https://stackoverflow.com/questions/12978924/fs-watch-fired-twice-when-i-change-the-watched-file
          * https://github.com/paulmillr/chokidar/issues/610
          */
+
         if (filepath === this._lastChangedFile.filename) {
           const now = Date.now()
           if (

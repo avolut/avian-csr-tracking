@@ -1,8 +1,8 @@
-import { parse } from '@babel/core'
 import { dirs } from 'boot'
-import { readFile } from 'fs-extra'
-import { join } from 'path'
+import { parse } from 'libs/babel'
+import { readFile } from 'libs/fs'
 import get from 'lodash.get'
+import { join } from 'path'
 
 export const getExternalImportMap = async () => {
   const externalSource = await readFile(

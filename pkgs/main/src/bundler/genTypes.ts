@@ -1,5 +1,5 @@
 import { dirs } from 'boot'
-import { pathExists, remove } from 'fs-extra'
+import { pathExists, remove } from 'libs/fs'
 import { join } from 'path'
 
 export const genTypes = async () => {
@@ -7,8 +7,6 @@ export const genTypes = async () => {
   if (await pathExists(typePath)) {
     await remove(typePath)
   }
-
-  
 
   const source = `\
 export {}

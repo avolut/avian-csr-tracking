@@ -4,31 +4,19 @@
   "author": "rizky",
   "private": true,
   "license": "MIT",
-  "scripts": {},
-  "workspaces": [
-    "pkgs/*",
-    "app/*",
-    "pkgs/web/*"
-  ],
-  "packageManager": "yarn@3.1.0",
+  "type": "module",
   "dependencies": {
-    "@babel/preset-env": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
     "@babel/preset-react": "^7.16.0",
+    "@types/node": "^16.11.10",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
     "arg": "^5.0.1",
-    "boot": "workspace:^",
-    "builder": "workspace:^",
-    "libs": "workspace:^",
-    "main": "workspace:^",
-    "platform": "workspace:^",
-    "puppeteer": "^11.0.0",
-    "tailwindcss": "^2.2.19",
+    "autoprefixer": "^10.4.0",
+    "fs-extra": "^10.0.0",
+    "postcss": "^8.4.4",
     "regenerator-runtime": "^0.13.9",
-    "web-app": "workspace:^",
-    "web-crud": "workspace:^",
-    "web-dev": "workspace:^",
-    "web-init": "workspace:^",
-    "web-mobile": "workspace:^",
-    "web-utils": "workspace:^",
-    "web-view": "workspace:^"
+    "tailwindcss": "^3.0.0"
   }
 }

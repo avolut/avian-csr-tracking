@@ -1,5 +1,5 @@
 import { dirs, log } from 'boot'
-import { ensureDir, pathExists, readdir, readJson, remove } from 'fs-extra'
+import { ensureDir, pathExists, readdir, readJson, remove } from 'libs/fs'
 import { join } from 'path'
 import { baseDir } from './parse-jsx'
 import { upgradeAPI } from './upgrade-api'

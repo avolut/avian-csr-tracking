@@ -72,6 +72,7 @@ export const WFormWrapper = ({
 
   if (!meta.init || !state.db.definition) return null
 
+
   const title = state.config.header.title
   const mainContent = (
     <div

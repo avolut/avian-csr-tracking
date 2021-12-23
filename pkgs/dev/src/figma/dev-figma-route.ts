@@ -1,9 +1,9 @@
 import { dirs, log } from 'boot'
 import { createHash } from 'crypto'
 import { SocketStream } from 'fastify-websocket'
-import { readFile, writeFile } from 'fs-extra'
-import { PlatformGlobal } from 'platform/src/types'
-import { removeCircular } from 'web-utils/src/removeCircular'
+import { readFile, writeFile } from 'libs/fs'
+import type { PlatformGlobal } from '../../../platform/src/types'
+// import { removeCircular } from 'web-utils/src/removeCircular'
 
 declare const global: PlatformGlobal
 
@@ -157,14 +157,14 @@ export const figmaOnMessage = async (
             const result = call()
             const finalResult =
               result instanceof Promise ? await result : result
-            let data = JSON.stringify(finalResult, removeCircular())
-            connection.socket.send(
-              JSON.stringify({
-                type: 'platform-answer',
-                id: msg.id,
-                data,
-              })
-            )
+            // let data = JSON.stringify(finalResult, removeCircular())
+            // connection.socket.send(
+            //   JSON.stringify({
+            //     type: 'platform-answer',
+            //     id: msg.id,
+            //     data,
+            //   })
+            // )
           } catch (e: any) {
             console.error(`\
 [platform] askPlatform() failed:

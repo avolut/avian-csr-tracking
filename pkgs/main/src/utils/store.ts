@@ -1,6 +1,6 @@
 import bsql from 'better-sqlite3'
 import { EventEmitter } from 'events'
-import { ensureDirSync, pathExistsSync } from 'fs-extra'
+import { ensureDirSync, pathExistsSync } from 'libs/fs'
 import { dirname } from 'path'
 
 class Store extends EventEmitter {

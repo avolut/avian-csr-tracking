@@ -1,23 +1,22 @@
-import { BaseWindow } from '../window'
-import { unpackBase } from './unpack'
-
-declare const window: BaseWindow
-
-export const defineCMS = async () => {
-  await unpackBase()
-}
+import { useWindow, waitUntil } from 'libs'
+import { renderCMS } from './internal/render'
 
 export const reloadAllComponents = async () => {
-  window.cms_components = {}
+  const { window } = useWindow()
+  if (!window.isSSR) {
+    window.cms_components = {}
+  }
 
-  let final = (await import('web-app/src/external')).default
+  let final = (await import('../../../../../app/web/src/external')).default
   if (window.platform === 'mobile') {
     const { extendExternals } = await import('../mobile/mobile-ext')
     final = { ...final, ...extendExternals() }
   }
 
-  for (let [k, v] of Object.entries(final)) {
-    window.cms_components[k] = {
+  for (let [tag, v] of Object.entries(final)) {
+    if (window.cms_components[tag]) continue
+
+    window.cms_components[tag] = {
       component: () => <></>,
       template: {
         loading: false,
@@ -31,6 +30,7 @@ export const reloadAllComponents = async () => {
 }
 
 export const detectPlatform = async () => {
+  const { window } = useWindow()
   if (!window.platform) {
     window.platform = 'web'
     if (

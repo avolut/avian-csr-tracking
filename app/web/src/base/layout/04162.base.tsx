@@ -1,12 +1,14 @@
 base(
   {
-    meta: {
-      userLoggedIn: (window as any).user as any,
-      titleHeader: '-',
-      open: false,
-      render: null
-    } as any,
-    init: ({ meta }) => {
+    meta: () =>
+      ({
+        userLoggedIn: (window as any).user as any,
+        titleHeader: '-',
+        open: false,
+        render: null,
+      } as any),
+    init: async ({ meta }) => {
+      console.log(meta.userLoggedIn.role)
       if (
         meta.userLoggedIn.role === 'guest' &&
         window.location.pathname !== '/login'
@@ -20,7 +22,11 @@ base(
       } else if (meta.userLoggedIn.role !== 'guest') {
         const roles = {
           hrd: ['/admin/csr', '/admin/change-password', '/admin/pdf'],
-          director: ['/admin/summary-report', '/admin/lacak-csr', '/admin/change-password'],
+          director: [
+            '/admin/summary-report',
+            '/admin/lacak-csr',
+            '/admin/change-password',
+          ],
         }
         if (meta.userLoggedIn.role === 'hrd') {
           if (roles.hrd.findIndex((x) => window.location.pathname.match(x)) < 0)
@@ -57,9 +63,9 @@ base(
       }
 
       runInAction(() => {
-        meta.open = false;
-        const f = Object.keys(titleHeader).find(
-          (x) => window.location.pathname.match(x)
+        meta.open = false
+        const f = Object.keys(titleHeader).find((x) =>
+          window.location.pathname.match(x)
         ) as any
         meta.titleHeader = titleHeader[f] || '-'
         meta.render = Date.now()
@@ -79,11 +85,11 @@ base(
       <div
         class="h-screen z-40 flex flex-1 self-stretch flex-col items-start justify-start bg-white"
         style={css`
-        @media only screen and (min-width: 1024px) {
-          & {
-             padding-left: 250px
+          @media only screen and (min-width: 1024px) {
+            & {
+              padding-left: 250px;
+            }
           }
-        }
         `}
       >
         <div class={`flex self-stretch flex-col items-start justify-start`}>
@@ -99,7 +105,11 @@ base(
         </div>
         <div
           class="flex-1 flex items-stretch self-stretch relative"
-          style={css`> div { flex:1 }`}
+          style={css`
+            > div {
+              flex: 1;
+            }
+          `}
         >
           {children}
         </div>

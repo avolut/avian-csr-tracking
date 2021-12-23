@@ -12,7 +12,6 @@ import { ITableDefinitions } from '../../../ext/types/qlist'
 import { ICRUDContext } from '../../../ext/types/__crud'
 import { IBaseFormContext } from '../../../ext/types/__form'
 import { IBaseListContext, IBaseListProps } from '../../../ext/types/__list'
-import { dbAll } from '../../../init/node_modules/db/src'
 import { initializeState, saveState } from '../context-state'
 import { generateStateID } from '../CRUD'
 import { deepUpdate, weakUpdate } from '../form/BaseForm'
@@ -635,7 +634,7 @@ const createListContext = (
       lateQuery,
       queryTimeout: null as unknown as ReturnType<typeof setTimeout>,
       paging: {
-        // take: 150,
+        take: 150,
         skip: 0,
         fetching: false,
         allRowFetched: false,

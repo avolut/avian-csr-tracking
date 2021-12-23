@@ -1,12 +1,13 @@
 /** @jsx jsx */
-import { BaseWindow } from 'web-init/src/window'
+import { useWindow } from 'libs'
+import { useEffect } from 'react'
 
-declare const window: BaseWindow
 export const useComponent = (
   name: string,
   _fileName: string,
   passthrough: Record<string, any>
 ) => {
+  const { window } = useWindow()
   const def = window.cms_components[name]
 
   if (!def) {
@@ -29,14 +30,19 @@ export const useComponent = (
   const _component = this;
   ${extract.join('\n  ')}
   const params = _component.extract.params || {};
+
   ${def.template.code}
   const finalResult = ccx_component(_component.extract);
+  window.cms_components['${name}'].cache = ccx_component
+
   return finalResult;
 `,
       extract: passthrough,
     }
   } else {
-    console.error(`[ERROR] Failed to load component <${name} />, code not found.`)
+    console.error(
+      `[ERROR] Failed to load component <${name} />, code not found.`
+    )
   }
 
   return {

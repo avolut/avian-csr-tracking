@@ -293,7 +293,13 @@ export const PureTab = ({
         }
       }}
       className={
-        `pure-tab ${pos} flex-1 flex relative ` 
+        `pure-tab ${pos} flex-1 flex relative ` +
+        {
+          left: 'flex-col items-end',
+          right: 'flex-col items-start',
+          top: 'flex-row items-end',
+          bottom: 'flex-row items-start',
+        }[pos]
       }
       css={css`
         .tab-item {
@@ -471,12 +477,7 @@ export const PureTab = ({
         }
       `}
     >
-      <div className={` flex tab-inner inset-0 ` +  {
-          left: 'flex-col items-end',
-          right: 'flex-col items-start',
-          top: 'flex-row items-end',
-          bottom: 'flex-row items-start',
-        }[pos]}>
+      <div className="tab-inner inset-0">
         {meta.tabs.map((e, idx) => {
           return (
             <Label

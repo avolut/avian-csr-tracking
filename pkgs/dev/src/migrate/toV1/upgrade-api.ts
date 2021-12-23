@@ -1,4 +1,4 @@
-import { writeFile } from 'fs-extra'
+import { writeFile } from 'libs/fs'
 import { join } from 'path'
 import { API } from 'platform/src/types'
 import { baseDir } from './parse-jsx'

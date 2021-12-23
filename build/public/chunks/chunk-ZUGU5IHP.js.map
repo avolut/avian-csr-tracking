@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../pkgs/web/utils/src/useRender.ts"],
+  "sourcesContent": ["import { useEffect, useRef, useState } from 'react'\n\nexport const useRender = () => {\n  const mounted = useRef(true)\n  useEffect(() => {\n    return () => {\n      mounted.current = false\n    }\n  }, [])\n  const [, _render] = useState(null as any)\n  return () => {\n    if (mounted.current) {\n      _render({})\n    }\n  }\n}\n"],
+  "mappings": "uFAAA,MAA4C,OAE/B,EAAY,MAAM,CAC7B,GAAM,GAAU,aAAO,IACvB,gBAAU,IACD,IAAM,CACX,EAAQ,QAAU,IAEnB,IACH,GAAM,CAAC,CAAE,GAAW,eAAS,MAC7B,MAAO,IAAM,CACX,AAAI,EAAQ,SACV,EAAQ,MAVW",
+  "names": []
+}
