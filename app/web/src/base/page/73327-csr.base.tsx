@@ -3,7 +3,7 @@ base(
     meta: () => {
       const meta = {
         form: {},
-        roleUser: (window as any).user.role,
+        roleUser: JSON.parse((window as any).user.get()).role,
         isDone: false,
         csr: {
           id: 0,
@@ -15,11 +15,11 @@ base(
         },
         isTraining: [
           {
-            value: 1,
+            value: "1",
             label: "Ya",
           },
           {
-            value: 0,
+            value: "0",
             label: "Tidak",
           },
         ],
@@ -38,6 +38,7 @@ base(
           // list header
           list: {
             filter: {
+              enable: true,
               web: {
                 mode: "topbar",
                 selector: true,
@@ -163,6 +164,9 @@ base(
                 m_instansi_penerima: true,
                 m_jenis_instansi: true,
               },
+              orderBy: {
+                id: "desc"
+              }
             },
           },
           // form header
@@ -177,52 +181,12 @@ base(
               meta.csr.longitude = data.longitude;
             },
             onSave: async ({ data, save }) => {
-              const random = (length) => {
-                let result = "";
-                let characters =
-                  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                let charactersLength = characters.length;
-
-                for (let i = 0; i < length; i++) {
-                  result += characters.charAt(
-                    Math.floor(Math.random() * charactersLength)
-                  );
-                }
-
-                return result;
-              }; // const documents = await db.t_csr_dokumentasi.findFirst({
-              //   where: { id_csr: data.id },
-              // })
-              // if (documents) {
-              //   if (data.is_training === 'N') {
-              //     data.is_training = 'Y'
-              //     // Connect API post CSR
-              //     const postData = {
-              //       judul: data.nama_project_csr,
-              //       lokasi: data.lokasi,
-              //       type: data.m_pillar.type_web,
-              //       latitude: data.latitude,
-              //       longitude: data.longitude,
-              //     }
-              //     try {
-              //       await api(
-              //         'https://cors-anywhere.herokuapp.com/http://dev.avianbrands.com/api/post-csr',
-              //         postData
-              //       )
-              //     } catch (error) {
-              //       console.log(error)
-              //     }
-              //   }
-              // } else {
-              //   data.is_training = 'N'
-              // }
-
               if (!data.id) {
-                data.no_kegiatan = random(8);
                 data.created_date = new Date();
-                data.created_by = (window as any).user.id;
+                data.created_by = JSON.parse((window as any).user.get()).id;
               }
 
+              if (typeof data.is_training === "string") data.is_training = Number(data.is_training)
               save();
             },
             params: {
@@ -265,9 +229,10 @@ base(
                 },
               },
               is_training: {
+                required: false,
                 title: "Training",
                 type: "select",
-                items: meta.isTraining,
+                items: meta.isTraining as any,
               },
               value_biaya: {
                 suffix: "IDR",

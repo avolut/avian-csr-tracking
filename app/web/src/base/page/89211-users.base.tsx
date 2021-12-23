@@ -2,7 +2,7 @@ base(
   {
     meta: () => {
       const meta = {
-        userLoggedIn: (window as any).user,
+        userLoggedIn: JSON.parse((window as any).user.get()),
         isAdmin: function () {
           if (this.userLoggedIn.role !== "admin") {
             window.location.href = "/";

@@ -69,3 +69,10 @@ export interface IFilterDate extends IFilterBase {
   type: 'date'
   operator: 'equals' | 'gt' | 'gte' | 'lt' | 'lte'
 }
+
+export interface IFilterSelect extends IFilterBase {
+  value: string
+  type: 'select'
+  operator: 'equals',
+  options: IDropdownOption[]
+}

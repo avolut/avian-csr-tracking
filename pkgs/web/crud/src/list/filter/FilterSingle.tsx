@@ -10,6 +10,7 @@ import { IBaseFilterDef, IBaseListContext } from '../../../../ext/types/__list'
 import { FilterBlank, queryFilterBlank } from './FilterBlank'
 import { FilterDate, queryFilterDate } from './FilterDate'
 import { FilterNumber, queryFilterNumber } from './FilterNumber'
+import { FilterSelect, queryFilterSelect } from './FilterSelect'
 import { FilterTab, queryFilterTab } from './FilterTab'
 import { FilterText, queryFilterText } from './FilterText'
 
@@ -98,6 +99,11 @@ export const initializeSingleFilter = (
       defaultOperator: '',
       component: FilterTab,
       query: queryFilterTab,
+    },
+    select: {
+      defaultOperator: 'equals',
+      component: FilterSelect,
+      query: queryFilterSelect,
     },
   }
 

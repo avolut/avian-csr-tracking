@@ -72,7 +72,7 @@ export interface IBaseFieldContext {
   fieldProps?: {
     readOnly?: boolean
     acceptFile?: any
-  }
+  } | IAdminSingle
 }
 
 type IFormTabs = (

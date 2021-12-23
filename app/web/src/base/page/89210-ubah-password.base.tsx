@@ -2,44 +2,44 @@ base(
   {
     meta: () => {
       const meta = {
-        error: "",
+        error: '',
         success: false,
-        userLoggedIn: (window as any).user,
+        userLoggedIn: JSON.parse((window as any).user.get()),
         form: {
-          password: "",
-          passwordConfirm: "",
+          password: '',
+          passwordConfirm: '',
         },
         onChange: function (e) {
-          const { name, value } = e.target;
-          this.form = { ...this.form, [name]: value };
-          this.error = "";
+          const { name, value } = e.target
+          this.form = { ...this.form, [name]: value }
+          this.error = ''
 
           if (
             this.form.passwordConfirm.length >= this.form.password.length &&
             this.form.password !== this.form.passwordConfirm
           ) {
-            this.error = "Password Tidak Sama.";
+            this.error = 'Password Tidak Sama.'
           }
         },
         handleSubmit: function () {
-          if (this.error || !this.form.password) return;
+          if (this.error || !this.form.password) return
 
           if (this.form.password !== this.form.passwordConfirm) {
-            this.error = "Password Tidak Sama.";
-            return;
+            this.error = 'Password Tidak Sama.'
+            return
           }
 
-          api("/api/update-password", {
+          api('/api/update-password', {
             id: this.userLoggedIn.id,
             password: this.form.password,
           }).then((res) => {
-            if (res.status === "success") {
-              this.success = true;
+            if (res.status === 'success') {
+              this.success = true
             }
-          });
+          })
         },
-      };
-      return meta;
+      }
+      return meta
     },
     init: ({ meta }) => {},
   },
@@ -56,6 +56,10 @@ base(
             id="password"
             name="password"
             onChange={meta.onChange}
+            style={`
+            padding: 10px 0 !important;
+            border-bottom: 1px solid rgb(229 231 235/var(--tw-border-opacity)) !important;
+        `}
           />
         </div>
         <div className="flex flex-col flex-1">
@@ -69,6 +73,10 @@ base(
             name="passwordConfirm"
             onChange={meta.onChange}
             disabled={!meta.form.password}
+            style={`
+            padding: 10px 0 !important;
+            border-bottom: 1px solid rgb(229 231 235/var(--tw-border-opacity)) !important;
+        `}
           />
         </div>
       </div>
@@ -84,4 +92,4 @@ base(
       </button>
     </div>
   )
-);
+)
