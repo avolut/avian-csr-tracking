@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../app/web/src/components/btn.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { jsx } from '@emotion/react'\nimport { useComponent } from 'web-utils/component'\n\ninterface IProps {\n  children: any\n  onClick?: (e) => void\n  onBlur?: (e) => void\n  className?: string\n  style?: string\n  disabled?: boolean\n}\n\nexport default ({\n  children,\n  onClick,\n  onBlur,\n  className,\n  style,\n  disabled,\n}: IProps) => {\n  const _component = useComponent('btn', '/app/web/src/components/btn', {\n    children,\n    onClick,\n    onBlur,\n    className,\n    style,\n    disabled,\n  })\n  return new Function(_component.render).bind(_component)()\n}\n"],
-  "mappings": "wIAaA,GAAO,GAAQ,GAAC,CACd,WACA,UACA,SACA,YACA,QACA,cACY,CACZ,GAAM,GAAa,EAAa,MAAO,8BAA+B,CACpE,WACA,UACA,SACA,YACA,QACA,aAEF,MAAO,IAAI,UAAS,EAAW,QAAQ,KAAK,MAhB/B",
-  "names": []
-}

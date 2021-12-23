@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/utils/components/HelloWorld.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { jsx } from '@emotion/react'\n\nconst HelloWorld = (props: any) => {\n  return (\n    <div>\n      <div>Hello asd World</div>\n    </div>\n  )\n}\n\nexport default HelloWorld\n"],
-  "mappings": "mHACA,MAAoB,OAEd,EAAa,EAAC,GAEhB,UAAC,MAAD,KACE,UAAC,MAAD,KAAK,oBAHQ,cAQZ,EAAQ",
-  "names": []
-}

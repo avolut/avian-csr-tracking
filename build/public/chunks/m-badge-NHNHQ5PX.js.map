@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-badge.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { Badge } from 'framework7-react'\n\nexport default (props) => {\n  return <Badge {...props} />\n}\n  "],
-  "mappings": "kLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAW,IADL",
-  "names": []
-}

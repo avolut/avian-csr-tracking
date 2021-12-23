@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-list-input.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { jsx, css } from '@emotion/react'\nimport { ListInput } from 'framework7-react'\n\nexport default (props) => {\n  return (\n    <ListInput\n      {...props}\n      css={css`\n        input[type='file'] {\n          padding: 13px 0 0;\n        }\n      `}\n    />\n  )\n}\n"],
-  "mappings": "wLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GAEZ,UAAC,EAAD,IACM,EACJ,IAAK;AAAA;AAAA;AAAA;AAAA,UAJI",
-  "names": []
-}

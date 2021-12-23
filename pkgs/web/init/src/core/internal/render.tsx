@@ -110,7 +110,8 @@ export const renderCMS = (
           return ''
         }
       }
-      component = (props) => {
+
+      if (!def.componentFinal) def.componentFinal = (props) => {
         const Component = def.component
         return (
           <ComponentError name={tag}>
@@ -118,6 +119,8 @@ export const renderCMS = (
           </ComponentError>
         )
       }
+
+      component = def.componentFinal
     }
 
     if (props) {

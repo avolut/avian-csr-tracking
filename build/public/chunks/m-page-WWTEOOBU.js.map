@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-page.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { Page } from 'framework7-react'\n\nexport default (props) => {\n  return (\n    <Page\n      {...props}\n      css={css`\n        &.page {\n          > div {\n            display: flex;\n            flex: 1;\n            width: 100%;\n            flex-direction: column;\n            height: 100%;\n          }\n        }\n      `}\n    />\n  )\n}\n"],
-  "mappings": "kLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GAEZ,UAAC,EAAD,IACM,EACJ,IAAK;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,UAJI",
-  "names": []
-}

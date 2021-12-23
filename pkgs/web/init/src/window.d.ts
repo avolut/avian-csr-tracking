@@ -135,6 +135,7 @@ export interface BaseWindow extends glb {
       template: { code: string; loading: boolean }
       instance?: React.FC<any>
       component: React.FC<any>
+      componentFinal: React.FC<any>
     }
   >
   cms_layouts: Record<

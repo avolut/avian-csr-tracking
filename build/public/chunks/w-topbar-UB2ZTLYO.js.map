@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../app/web/src/components/w-topbar.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { jsx } from '@emotion/react'\nimport { useComponent } from 'web-utils/component'\n\nexport default ({ title, open, onClickOpen }) => {\n  const date = new Date()\n\n  const formatDate = (dateString) => {\n    let date = new Date(dateString),\n      day = date.getDate(),\n      month = date.getMonth(),\n      year = date.getFullYear(),\n      months = [\n        'January',\n        'February',\n        'March',\n        'April',\n        'May',\n        'June',\n        'July',\n        'August',\n        'September',\n        'October',\n        'November',\n        'December',\n      ]\n    return String(day).padStart(2, '0') + ' ' + months[month] + ' ' + year\n  }\n\n  const _component = useComponent(\n    'w-topbar',\n    '/app/web/src/components/w-topbar',\n    { date, formatDate, title, open, onClickOpen }\n  )\n  return new Function(_component.render).bind(_component)()\n}\n"],
-  "mappings": "wIAIA,GAAO,GAAQ,GAAC,CAAE,QAAO,OAAM,iBAAkB,CAC/C,GAAM,GAAO,GAAI,MAwBX,EAAa,EACjB,WACA,mCACA,CAAE,OAAM,WAzBS,EAAC,GAAe,CACjC,GAAI,GAAO,GAAI,MAAK,GAClB,EAAM,EAAK,UACX,EAAQ,EAAK,WACb,EAAO,EAAK,cACZ,EAAS,CACP,UACA,WACA,QACA,QACA,MACA,OACA,OACA,SACA,YACA,UACA,WACA,YAEJ,MAAO,QAAO,GAAK,SAAS,EAAG,KAAO,IAAM,EAAO,GAAS,IAAM,GAnBjD,cAyBG,QAAO,OAAM,gBAEnC,MAAO,IAAI,UAAS,EAAW,QAAQ,KAAK,MA9B/B",
-  "names": []
-}

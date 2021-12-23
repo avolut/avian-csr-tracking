@@ -28,7 +28,7 @@ export const initHmr = () => {
       ws.send(pako.deflate(JSON.stringify(msg)))
     }
     ws.onConnected = () => {
-      console.clear()
+      // console.clear()
       console.log('[HMR] Welcome to Base')
     }
 
@@ -107,11 +107,11 @@ export const initHmr = () => {
         case 'hmr-reload-page':
           if (msg.id === window.cms_id) {
             if (window.cms_pages[msg.url]) {
-              console.clear()
+              // console.clear()
               // window.liveReloadPage()
             }
-          } else if (msg.id === window.cms_layout_id) {
-            console.clear()
+          } else if (msg.id === (window as any).cms_layout_id) {
+            // console.clear()
             // window.liveReloadLayout()
           }
           break

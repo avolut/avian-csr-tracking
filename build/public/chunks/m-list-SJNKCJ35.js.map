@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-list.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { List } from 'framework7-react'\n\nexport default (props) => {\n  return <List className=\"list-none\" {...props} />\n}\n"],
-  "mappings": "mLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,CAAM,UAAU,eAAgB,IAD1B",
-  "names": []
-}

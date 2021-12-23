@@ -1,2 +1,0 @@
-import{a as e}from"./chunk-VEHFODSI.js";import"./chunk-NXH6K27G.js";import"./chunk-HP25GDQW.js";import{a as o}from"./chunk-SDY2POXP.js";var a=o(({children:t,onClick:r,onBlur:i,className:s,style:c,disabled:p})=>{let n=e("btn","/app/web/src/components/btn",{children:t,onClick:r,onBlur:i,className:s,style:c,disabled:p});return new Function(n.render).bind(n)()},"default");export{a as default};
-//# sourceMappingURL=btn-YF2TO7DK.js.map

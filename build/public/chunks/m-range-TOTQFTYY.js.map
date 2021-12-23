@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-range.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { Range } from 'framework7-react'\n\nexport default (props) => {\n  return <Range {...props} />\n}\n"],
-  "mappings": "mLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAW,IADL",
-  "names": []
-}

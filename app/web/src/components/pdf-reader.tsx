@@ -15,6 +15,7 @@ const PDFReader = ({ csrId }) => {
   useEffect(() => {
     loadCsr()
   }, [])
+
   const loadCsr = async () => {
     const res = await db.t_csr.findFirst({
       select: {

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/utils/components/HtmlHead.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\n\nexport default ({ children }) => {\n  return <></>\n}\n"],
-  "mappings": "mHACA,MAAyB,OAElB,EAAQ,GAAC,CAAE,cACT,+BADM",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-progress.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { jsx } from '@emotion/react'\nimport { Progressbar } from 'framework7-react'\n\nexport default (rawprops: Parameters<typeof Progressbar>[0]) => {\n  return <Progressbar {...rawprops} />\n}\n"],
-  "mappings": "wLACA,MAAoB,OAGpB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAiB,IADX",
-  "names": []
-}

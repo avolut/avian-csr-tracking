@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-searchbar.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { Searchbar } from 'framework7-react'\n\nexport default (props) => {\n  return <Searchbar {...props} />\n}\n"],
-  "mappings": "wLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAe,IADT",
-  "names": []
-}

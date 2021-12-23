@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../app/web/src/components/w-sidebar.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { useLocalObservable } from 'mobx-react-lite'\nimport { useComponent } from 'web-utils/component'\n\nexport default ({ role }) => {\n  const meta = useLocalObservable(() => ({\n    expandMaster: false,\n  }))\n  const toggleMaster = (e) => {\n    e.stopPropagation()\n    e.preventDefault()\n    const node = e.target.parentElement\n    if (node.nodeName === 'BUTTON') {\n      const content = node.nextElementSibling\n      content.classList.toggle('h-0')\n    }\n    console.log(e)\n  }\n\n  const _component = useComponent(\n    'w-sidebar',\n    '/app/web/src/components/w-sidebar',\n    {\n      role,\n      useLocalObservable,\n      meta,\n      toggleMaster,\n    }\n  )\n  return new Function(_component.render).bind(_component)()\n}\n"],
-  "mappings": "wOAIA,GAAO,GAAQ,GAAC,CAAE,UAAW,CAC3B,GAAM,GAAO,EAAmB,IAAO,EACrC,aAAc,MAaV,EAAa,EACjB,YACA,oCACA,CACE,OACA,qBACA,OACA,aAlBiB,EAAC,GAAM,CAC1B,EAAE,kBACF,EAAE,iBACF,GAAM,GAAO,EAAE,OAAO,cACtB,AAAI,EAAK,WAAa,UAEpB,AADgB,EAAK,mBACb,UAAU,OAAO,OAE3B,QAAQ,IAAI,IARO,kBAqBrB,MAAO,IAAI,UAAS,EAAW,QAAQ,KAAK,MAzB/B",
-  "names": []
-}

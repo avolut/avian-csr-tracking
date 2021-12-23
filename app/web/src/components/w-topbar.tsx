@@ -1,36 +1,49 @@
 /** @jsx jsx */
-import { jsx } from '@emotion/react'
-import { useComponent } from 'web-utils/component'
+import { jsx, css } from '@emotion/react'
 
 export default ({ title, open, onClickOpen }) => {
   const date = new Date()
 
-  const formatDate = (dateString) => {
-    let date = new Date(dateString),
-      day = date.getDate(),
-      month = date.getMonth(),
-      year = date.getFullYear(),
-      months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-      ]
-    return String(day).padStart(2, '0') + ' ' + months[month] + ' ' + year
-  }
-
-  const _component = useComponent(
-    'w-topbar',
-    '/app/web/src/components/w-topbar',
-    { date, formatDate, title, open, onClickOpen }
+  return (
+    <div className="flex self-stretch items-center justify-start pl-5 border-indigo-50">
+      <div
+        className="flex flex-1 self-stretch items-center justify-between"
+        css={css`
+          height: 50px;
+        `}
+      >
+        <div className="text-xl font-bold leading-none text-gray-600">
+          {title}
+        </div>
+        {open ? (
+          <div className="px-3 cursor-pointer" onClick={onClickOpen}>
+            <svg
+              className="h-6 w-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </div>
+        ) : (
+          <div
+            className="lg:hidden flex flex-col px-3 cursor-pointer"
+            onClick={onClickOpen}
+          >
+            <div className="w-5 h-1 bg-gray-500 mb-1"></div>
+            <div className="w-5 h-1 bg-gray-500 mb-1"></div>
+            <div className="w-5 h-1 bg-gray-500 mb-1"></div>
+          </div>
+        )}
+      </div>
+    </div>
   )
-  return new Function(_component.render).bind(_component)()
 }

@@ -108,7 +108,7 @@ base(
                           ? "bg-green-600 text-white font-semibold rounded-full px-2"
                           : "bg-yellow-500 text-white font-semibold rounded-full px-2";
                       return (
-                        <span class={color}>
+                        <span className={color}>
                           {item.status === "Completed" ? "Selesai" : "Draft"}
                         </span>
                       );
@@ -125,7 +125,7 @@ base(
                   "_",
                   {
                     title: "",
-                    width: 200,
+                    width: 50,
                     value: (item) => {
                       return (
                         <>
@@ -135,7 +135,10 @@ base(
                                 e.stopPropagation();
                                 window.open(`/admin/pdf/${item.id}`, "_blank");
                               }}
-                              class="bg-green-600 text-white font-semibold rounded-full px-2"
+                              className="bg-green-600 text-white font-semibold rounded-full px-2"
+                              style={{
+                                width: 50
+                              }}
                             >
                               Lihat PDF
                             </button>

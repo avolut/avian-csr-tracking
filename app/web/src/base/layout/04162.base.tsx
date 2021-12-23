@@ -2,24 +2,21 @@ base(
   {
     meta: () =>
       ({
-        userLoggedIn: (window as any).user as any,
         titleHeader: '-',
         open: false,
         render: null,
+        user: {}
       } as any),
     init: async ({ meta }) => {
-      console.log(meta.userLoggedIn.role)
-      if (
-        meta.userLoggedIn.role === 'guest' &&
-        window.location.pathname !== '/login'
-      ) {
+      const user = JSON.parse((window as any).user.get())
+      const role = user.role
+      const pathname = window.location.pathname
+
+      if (role === 'guest' && pathname !== '/login') {
         return (window.location.href = '/login')
-      } else if (
-        meta.userLoggedIn.role !== 'guest' &&
-        window.location.pathname === '/login'
-      ) {
+      } else if (role !== 'guest' && pathname === '/login') {
         return (window.location.href = '/')
-      } else if (meta.userLoggedIn.role !== 'guest') {
+      } else if (role !== 'guest') {
         const roles = {
           hrd: ['/admin/csr', '/admin/change-password', '/admin/pdf'],
           director: [
@@ -28,16 +25,13 @@ base(
             '/admin/change-password',
           ],
         }
-        if (meta.userLoggedIn.role === 'hrd') {
-          if (roles.hrd.findIndex((x) => window.location.pathname.match(x)) < 0)
+        if (role === 'hrd') {
+          if (roles.hrd.findIndex((x) => pathname.match(x)) < 0)
             return (window.location.href = roles.hrd[0])
         }
 
-        if (meta.userLoggedIn.role === 'director') {
-          if (
-            roles.director.findIndex((x) => window.location.pathname.match(x)) <
-            0
-          )
+        if (role === 'director') {
+          if (roles.director.findIndex((x) => pathname.match(x)) < 0)
             return (window.location.href = roles.director[0])
         }
       }
@@ -69,21 +63,22 @@ base(
         ) as any
         meta.titleHeader = titleHeader[f] || '-'
         meta.render = Date.now()
+        meta.user = user;
       })
     },
   },
   ({ meta, children }) => (
-    <div class={`bg-white flex flex-1`}>
+    <div className={`bg-white flex flex-1`}>
       <div
         className={`${
           meta.open ? 'flex' : 'hidden'
         } lg:flex fixed h-screen z-50 show-me`}
         style="width: 250px"
       >
-        <w-sidebar role={meta.userLoggedIn.role} />
+        <w-sidebar user={meta.user} />
       </div>
       <div
-        class="h-screen z-40 flex flex-1 self-stretch flex-col items-start justify-start bg-white"
+        className="h-screen z-40 flex flex-1 self-stretch flex-col items-start justify-start bg-white"
         style={css`
           @media only screen and (min-width: 1024px) {
             & {
@@ -92,7 +87,7 @@ base(
           }
         `}
       >
-        <div class={`flex self-stretch flex-col items-start justify-start`}>
+        <div className={`flex self-stretch flex-col items-start justify-start`}>
           <w-topbar
             title={meta.titleHeader}
             open={meta.open}
@@ -104,7 +99,7 @@ base(
           />
         </div>
         <div
-          class="flex-1 flex items-stretch self-stretch relative"
+          className="flex-1 flex self-stretch relative"
           style={css`
             > div {
               flex: 1;
@@ -117,5 +112,3 @@ base(
     </div>
   )
 )
-
-// ga geeremet2 wkwkw

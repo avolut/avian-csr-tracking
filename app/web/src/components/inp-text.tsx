@@ -1,25 +1,50 @@
 /** @jsx jsx */
-import { jsx } from "@emotion/react";
-import { useComponent } from "web-utils/component";
-import { TextField } from "@fluentui/react";
+import { jsx, css } from '@emotion/react'
+import { TextField } from '@fluentui/react'
 
 interface IProps {
-  value: string;
-  onChange: (e) => void;
-  type?: string;
-  multiline?: Boolean;
-  defaultValue?: string;
-  styles?: Object;
-  label?: string;
-  isRequired?: Boolean;
-  className?: string;
-  style?: string;
-  errors?: any[];
-  rows?: number;
+  value: string
+  onChange: (e) => void
+  type?: string
+  defaultValue?: string
+  styles?: Object
+  isRequired?: Boolean
+  className?: string
+  style?: string
+  errors?: any[]
+  rows?: number
+  placeholder?: string
 }
 
 export default (props: IProps) => {
-  // errors={props.errors}
-  const _component = useComponent("inp-text","/app/web/src/components/inp-text",{ TextField, props });
-  return new Function(_component.render).bind(_component)()
+  return (
+    <div
+      className={`flex self-stretch flex-col space-y-2.5 items-start justify-start w-full ${props.className}`}
+      css={css`
+        ${props.style}
+      `}
+    >
+      <TextField
+        className={`flex self-stretch flex-col items-start justify-center bg-gray-100 w-full ${props.className}`}
+        css={css`
+          ${props.style}
+        `}
+        placeholder={props.placeholder}
+        value={props.value}
+        onChange={props.onChange}
+        borderless={true}
+        type={props.type}
+        defaultValue={props.defaultValue}
+        rows={props.rows}
+        styles={Object.assign(
+          {
+            wrapper: {
+              width: '100%',
+            },
+          },
+          props.styles
+        )}
+      />
+    </div>
+  )
 }

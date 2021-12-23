@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-fab.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { Fab } from 'framework7-react'\n\nexport default (props) => {\n  return <Fab {...props} />\n}\n"],
-  "mappings": "mLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAS,IADH",
-  "names": []
-}

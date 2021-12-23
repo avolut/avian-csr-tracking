@@ -32,8 +32,8 @@ importers:
 
   app/db:
     specifiers:
-      '@prisma/client': ^3.6.0
-      prisma: ^3.6.0
+      '@prisma/client': ^3.7.0
+      prisma: ^3.7.0
     dependencies:
       '@prisma/client': 3.7.0_prisma@3.7.0
     devDependencies:
@@ -112,7 +112,7 @@ importers:
       lmdb: ^2.0.1
       msgpackr: ^1.5.1
       prisma: ^3.6.0
-      puppeteer: ^12.0.1
+      puppeteer-core: ^12.0.1
       sodium-universal: ^3.0.4
     dependencies:
       '@prisma/client': 3.7.0_prisma@3.7.0
@@ -121,7 +121,7 @@ importers:
       lmdb: 2.0.2
       msgpackr: 1.5.1
       prisma: 3.7.0
-      puppeteer: 12.0.1
+      puppeteer-core: 12.0.1
       sodium-universal: 3.0.4
 
   pkgs/boot:
@@ -6805,29 +6805,6 @@ packages:
   /puppeteer-core/12.0.1:
     resolution: {integrity: sha512-lty/1LQkl9zkMuQGwipHEBU8VD1m+SEWXG7zpdwzKet8P6L3taBNOt6Y1LpptakVejKz8TqMSjaWcEjqEKPfjw==}
     engines: {node: '>=10.18.1'}
-    dependencies:
-      debug: 4.3.2
-      devtools-protocol: 0.0.937139
-      extract-zip: 2.0.1
-      https-proxy-agent: 5.0.0
-      node-fetch: 2.6.5
-      pkg-dir: 4.2.0
-      progress: 2.0.3
-      proxy-from-env: 1.1.0
-      rimraf: 3.0.2
-      tar-fs: 2.1.1
-      unbzip2-stream: 1.4.3
-      ws: 8.2.3
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-    dev: false
-
-  /puppeteer/12.0.1:
-    resolution: {integrity: sha512-YQ3GRiyZW0ddxTW+iiQcv2/8TT5c3+FcRUCg7F8q2gHqxd5akZN400VRXr9cHQKLWGukmJLDiE72MrcLK9tFHQ==}
-    engines: {node: '>=10.18.1'}
-    requiresBuild: true
     dependencies:
       debug: 4.3.2
       devtools-protocol: 0.0.937139

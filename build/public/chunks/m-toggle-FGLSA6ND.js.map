@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/mobile/src/m-toggle.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\nimport { Toggle } from 'framework7-react'\n\nexport default (props) => {\n  return <Toggle {...props} />\n}\n"],
-  "mappings": "mLACA,MAAyB,OAGzB,GAAO,GAAQ,EAAC,GACP,UAAC,EAAD,IAAY,IADN",
-  "names": []
-}

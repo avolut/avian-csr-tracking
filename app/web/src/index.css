@@ -12,3 +12,17 @@ body,
   display: flex;
   flex-direction: column;
 }
+
+.list.admin-cms.flex.flex-1.absolute.inset-0 {
+  margin-top: 0 !important;
+}
+
+/* .ms-Button.ms-Button--primary {
+  background-color: rgb(16, 110, 190);
+  border: 1px solid rgb(16, 110, 190);
+  color: rgb(255, 255, 255);
+}
+
+.ms-Button.ms-Button--default.delete {
+  min-width: auto !important;
+} */

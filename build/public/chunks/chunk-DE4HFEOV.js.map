@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../pkgs/web/utils/components/RenderHTML.tsx"],
-  "sourcesContent": ["/** @jsx jsx */\nimport { css, jsx } from '@emotion/react'\n\nexport default ({ children }) => {\n  return (\n    <div\n      css={css`\n        p {\n          margin: 15px 0px;\n        }\n        ul,\n        ol {\n          margin: 0px;\n          padding-left: 15px !important;\n          li {\n            margin: 5px 0px;\n            list-style-type: disc;\n          }\n        }\n\n        ol li {\n          list-style-type: decimal;\n        }\n\n        a {\n          color: #135db1;\n          text-decoration: underline;\n        }\n      `}\n      dangerouslySetInnerHTML={{ __html: children }}\n    ></div>\n  )\n}\n"],
-  "mappings": "uFACA,MAAyB,OAElB,EAAQ,GAAC,CAAE,cAEd,UAAC,MAAD,CACE,IAAK;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,QAuBL,wBAAyB,CAAE,OAAQ,KA1B1B",
-  "names": []
-}
