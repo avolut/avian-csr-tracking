@@ -2,6 +2,7 @@ base(
   {
     meta: () => {
       const meta = {
+        saving: false,
         error: '',
         success: false,
         userLoggedIn: JSON.parse((window as any).user.get()),
@@ -10,6 +11,7 @@ base(
           passwordConfirm: '',
         },
         onChange: function (e) {
+          this.success = false;
           const { name, value } = e.target
           this.form = { ...this.form, [name]: value }
           this.error = ''
@@ -22,6 +24,8 @@ base(
           }
         },
         handleSubmit: function () {
+          if (this.saving) return;
+          
           if (this.error || !this.form.password) return
 
           if (this.form.password !== this.form.passwordConfirm) {
@@ -29,14 +33,20 @@ base(
             return
           }
 
+          this.saving = true
+
           api('/api/update-password', {
             id: this.userLoggedIn.id,
             password: this.form.password,
-          }).then((res) => {
-            if (res.status === 'success') {
-              this.success = true
-            }
           })
+            .then((res) => {
+              if (res.status === 'success') {
+                this.success = true
+              }
+            })
+            .finally(() => {
+              this.saving = false
+            })
         },
       }
       return meta
@@ -85,10 +95,12 @@ base(
         <div className="text-green-700 mt-4">Password berhasil di ubah</div>
       )}
       <button
-        className="mt-6 text-sm bg-green-700 text-white p-2 rounded"
+        className={`mt-6 text-sm bg-green-700 text-white p-2 rounded ${
+          meta.saving ? 'opacity-50' : ''
+        }`}
         onClick={meta.handleSubmit}
       >
-        Ubah Password
+        {meta.saving ? 'Meyimpan...' : 'Ubah Password'}
       </button>
     </div>
   )

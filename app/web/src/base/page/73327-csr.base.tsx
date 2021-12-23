@@ -187,6 +187,7 @@ base(
               }
 
               if (typeof data.is_training === "string") data.is_training = Number(data.is_training)
+              if (typeof data.value_biaya === "string") data.value_biaya = Number(data.value_biaya)
               save();
             },
             params: {
@@ -276,6 +277,13 @@ base(
               budget_by: {
                 type: "select",
                 items: ["Marketing", "Operasional", "Penerima CSR"],
+                onChange: (value, {state}) => {
+                  console.log(value)
+                  if (value === "Penerima CSR") {
+                    state.db.data.value_biaya = "0";
+                    state.config.fields.value_biaya.state.render();
+                  }
+                }
               },
               t_csr_fasilitas_lainnya: {
                 title: "Penerima Bantuan",

@@ -145,7 +145,7 @@ model t_csr {
   no_kegiatan             String                    @db.VarChar(11)
   id_division             Int
   id_pillar               Int
-  id_kegiatan             Int
+  id_kegiatan             Int                       @default(0)
   tgl_kegiatan            DateTime                  @db.Date
   nama_project_csr        String                    @db.VarChar(100)
   id_supplier             Int
@@ -158,7 +158,7 @@ model t_csr {
   latitude                Decimal                   @db.Decimal
   deskripsi_singkat       String
   budget_by               String                    @db.VarChar(50)
-  value_biaya             Float
+  value_biaya             Float                     @default(0)
   created_by              Int
   created_date            DateTime                  @db.Timestamp(6)
   updated_by              Int?
