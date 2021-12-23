@@ -3,8 +3,7 @@ import { BaseHtml, platform, ssr, start, hostname } from 'web-init/src/start'
 platform('web')
 hostname(({ mode, port }) => {
   if (mode === 'dev') return `http://localhost:${port}`
-  else return `http://192.168.18.38:3020`
-  // else return `http://e.plansys.co:3020`
+  else return `http://e.plansys.co:3023`
 })
 export default ssr
 export const html: BaseHtml = ({
