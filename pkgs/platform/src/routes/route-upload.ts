@@ -1,10 +1,12 @@
 import { dirs } from 'boot'
 import { FastifyReply, FastifyRequest } from 'fastify'
-import { pathExists, readdir, stat, ensureDir } from 'fs-extra'
 import { basename, dirname, join } from 'path'
 import { createWriteStream } from 'fs'
 import { pipeline } from 'stream'
 import util from 'util'
+
+import fsextra from 'fs-extra';
+const { pathExists, readdir, stat, ensureDir } = fsextra;
 
 const pump = util.promisify(pipeline)
 
