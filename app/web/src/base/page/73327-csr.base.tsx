@@ -498,7 +498,7 @@ base(
                         if (!row.m_jenis_bantuan.jenis_bantuan)
                           return layout([]);
                         if (row.m_jenis_bantuan.jenis_bantuan === "Lainnya")
-                          return layout([["merek", "value"]]);
+                          return layout([["merek", "value"], ["diskon", "harga_nett"]]);
                         return layout([
                           ["value", []],
                         ]);
