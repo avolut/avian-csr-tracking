@@ -347,12 +347,14 @@ base(
                       columns: [
                         "bantuan",
                         [
-                          "m_product_csr.name",
+                          "m_product_csr",
                           {
                             title: "Merek",
                             value: (row) => {
-                              if (row.bantuan === "Cat")
+                              if (row.bantuan === "Cat") {
+                                if (!row.m_product_csr) return ""
                                 return row.m_product_csr.name;
+                              }
                               return row.merek;
                             },
                           },
@@ -388,13 +390,26 @@ base(
                         (state.db.data.harga_nett * 100) / state.db.data.value;
                     },
                     onSave: ({ data, save }) => {
-                      if (!data.diskon) data.diskon = 0;
-                      if (!data.harga_nett) data.harga_nett = data.value;
-                      else data.harga_nett =
+                      if (data.bantuan === "Cat") {
+                        data.m_jenis_bantuan = {}
+
+                        data.harga_nett =
                         typeof data.harga_nett === "string"
                           ? parseInt(data.harga_nett.replace(/\D/g, ""))
                           : data.harga_nett;
-                      save();
+                      } else {
+                        data.m_product_csr = {}
+                        data.jenis = ""
+                        data.warna = ""
+                        data.jumlah = 0
+                        data.diskon = 0;
+                        data.harga_nett = data.value
+                        if (data.m_jenis_bantuan.jenis_bantuan !== "Lainnya") {
+                          data.merek = ""
+                        }
+                      }
+                      
+                      save(data);
                     },
                     action: () => ({
                       save: () => {
@@ -413,6 +428,12 @@ base(
                       bantuan: {
                         type: "select",
                         items: ["Cat", "Lainnya"],
+                        onChange: (value, {state}) => {
+                          if (value === "Cat" && !!state.config.fields.m_jenis_bantuan) {
+                            state.db.data.m_jenis_bantuan = {}
+                            state.config.fields.m_jenis_bantuan.state.render();
+                          }
+                        }
                       },
                       warna: {
                         type: "select",
@@ -476,18 +497,18 @@ base(
                     },
                     layout: [
                       "bantuan",
-                      ({ row, watch, layout }) => {
+                      ({ row, watch, layout, state }) => {
                         // jika bantuan adalah Lainnya maka tampilkan jenis bantuan
                         // jika bantuan adalah Cat maka tampilkan produck csr
                         watch(["bantuan"]);
-                        if (row.bantuan === "Cat")
+                        if (row.bantuan === "Cat") {
                           return layout([
                             ["m_product_csr"],
                             ["jenis", "warna"],
                             ["jumlah", "value"],
                             ["diskon", "harga_nett"],
                           ]);
-                        else if (row.bantuan === "Lainnya") {
+                        } else if (row.bantuan === "Lainnya") {
                           return layout([[], ["m_jenis_bantuan"]]);
                         }
                         return layout([]);
@@ -498,7 +519,7 @@ base(
                         if (!row.m_jenis_bantuan.jenis_bantuan)
                           return layout([]);
                         if (row.m_jenis_bantuan.jenis_bantuan === "Lainnya")
-                          return layout([["merek", "value"], ["diskon", "harga_nett"]]);
+                          return layout([["merek", "value"]]);
                         return layout([
                           ["value", []],
                         ]);

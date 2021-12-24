@@ -73,7 +73,7 @@ base(
                 title: el.title,
                 component: () => (
                   <div key={idx} className="flex flex-col">
-                    <button
+                    {/* <button
                       className="bg-gray-600 border shadow rounded text-white font-semibold flex-end mr-5 my-2"
                       onClick={() => meta.download(el.title)}
                       style={`
@@ -83,7 +83,7 @@ base(
                       `}
                     >
                       Download
-                    </button>
+                    </button> */}
                     <iframe id={el.title} className="w-full h-full" src={el.iframeUrl} sandbox="allow-scripts allow-same-origin"/>
                     <canvas id="canvas" className="absolute"></canvas>
                   </div>

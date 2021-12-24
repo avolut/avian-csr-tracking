@@ -18,27 +18,35 @@ const PDFReader = ({ csrId }) => {
 
   const loadCsr = async () => {
     const res = await db.t_csr.findFirst({
-      select: {
-        no_kegiatan: true,
-        tgl_kegiatan: true,
-        nama_project_csr: true,
-        lokasi: true,
-        jumlah_orang: true,
-        deskripsi_singkat: true,
-        m_pillar: { select: { name: true } },
-        m_supplier: { select: { nama_supplier: true } },
-        m_instansi_penerima: { select: { instansi_penerima: true } },
+      // select: {
+      //   no_kegiatan: true,
+      //   tgl_kegiatan: true,
+      //   nama_project_csr: true,
+      //   lokasi: true,
+      //   jumlah_orang: true,
+      //   deskripsi_singkat: true,
+      //   m_pillar: { select: { name: true } },
+      //   m_supplier: { select: { nama_supplier: true } },
+      //   m_instansi_penerima: { select: { instansi_penerima: true } },
+      //   t_csr_detail_bantuan: {
+      //     select: {
+      //       harga_nett: true,
+      //       bantuan: true,
+      //       merek: true,
+      //       jenis: true,
+      //       jumlah: true,
+      //       m_product_csr: true,
+      //     },
+      //   },
+      // },
+      where: { id: csrId },
+      include: {
         t_csr_detail_bantuan: {
-          select: {
-          harga_nett: true,
-            bantuan: true,
-            merek: true,
-            jenis: true,
-            jumlah: true,
+          include: {
+            m_product_csr: true,
           },
         },
       },
-      where: { id: csrId },
     })
 
     runInAction(() => {
@@ -49,7 +57,10 @@ const PDFReader = ({ csrId }) => {
 
   const pdfContent = [
     { label: 'Nomor Kegiatan CSR', value: ': ' + state.csr?.no_kegiatan },
-    { label: 'Tanggal-Bulan-Tahun', value: ': ' + globalVar.formatDate(state.csr?.tgl_kegiatan) },
+    {
+      label: 'Tanggal-Bulan-Tahun',
+      value: ': ' + globalVar.formatDate(state.csr?.tgl_kegiatan),
+    },
     { label: 'Pilar CSR', value: ': ' + state.csr?.m_pillar?.name },
     { label: 'Nama Project CSR', value: ': ' + state.csr?.nama_project_csr },
     { label: 'Lokasi', value: ': ' + state.csr?.lokasi },
@@ -104,7 +115,7 @@ const PDFReader = ({ csrId }) => {
               {state.csr?.t_csr_detail_bantuan?.map((item, idx) => (
                 <tr key={idx} className="border-t">
                   <td className="p-3">{item.bantuan}</td>
-                  <td>{item.merek}</td>
+                  <td>{item.bantuan === "Cat" ? (!!item.m_product_csr ? item.m_product_csr.name : "") : item.merek}</td>
                   <td>{item.jenis}</td>
                   <td>Rp {globalVar.currencyFormat(item.harga_nett)}</td>
                   <td>{item.jumlah}</td>

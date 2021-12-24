@@ -57,13 +57,13 @@ base(
   },
   ({ meta }) => (
     <div className="flex flex-1 flex-col">
-      <button
+      {/* <button
         className="bg-gray-600 border shadow rounded text-white font-semibold flex-end mr-5 mb-2"
         onClick={() => meta.download()}
         style={`width: 90px;padding: 5px;align-self: self-end;`}
       >
         Download
-      </button>
+      </button> */}
       <iframe
         id="download-iframe"
         className="w-full h-full"
