@@ -1,5 +1,14 @@
-const supportsCSSText = getComputedStyle(document.body).cssText !== ''
+import { useWindow } from 'libs'
+
+const { window } = useWindow()
+
+
+const supportsCSSText = window.isSSR
+  ? false
+  : getComputedStyle(document.body).cssText !== ''
+
 const copyCSS = (elem, origElem, log) => {
+  if (window.isSSR) return true
   var computedStyle = getComputedStyle(origElem)
 
   if (supportsCSSText) {
@@ -19,6 +28,7 @@ const copyCSS = (elem, origElem, log) => {
 }
 
 const inlineStyles = (elem, origElem) => {
+  if (window.isSSR) return true
   var children = elem.querySelectorAll('*')
   var origChildren = origElem.querySelectorAll('*')
 
@@ -41,6 +51,7 @@ const inlineStyles = (elem, origElem) => {
 
 const domvas = {
   toImage: function (origElem, callback, width, height, left?, top?) {
+    if (window.isSSR) return true
     left = left || 0
     top = top || 0
 
@@ -86,6 +97,8 @@ const domvas = {
 }
 
 export const iframe2image = (params, cb) => {
+  if (window.isSSR) return true
+
   // Attempt to access our window
   var iframe = params.iframe || params
   if (!iframe.contentWindow) {
@@ -105,6 +118,7 @@ export const iframe2image = (params, cb) => {
       iframe.removeEventListener('load', handleLoad)
       next()
     }
+
     iframe.addEventListener('load', handleLoad)
   }
 

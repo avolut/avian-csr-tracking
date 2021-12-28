@@ -111,9 +111,9 @@ export const buildWeb = async (pool: BuilderPool, mode: 'dev' | 'prod') => {
             return
           }
           log('refresh', `🏗️  ${path} `, false)
+          reloading = true
           try {
             await pool.rebuild('web')
-            reloading = true
           } catch (e) {
             process.stdout.write(` [FAILED]\n${e}\n\n`)
           }
@@ -171,6 +171,10 @@ export const buildWeb = async (pool: BuilderPool, mode: 'dev' | 'prod') => {
             )
           }
 
+          if (reloading) {
+            console.log(' [DONE]')
+            return
+          }
           resolve()
         },
       })

@@ -94,10 +94,10 @@ export const buildDocs = async (pool: BuilderPool, mode: 'dev' | 'prod') => {
           if (baseTypeFiles.indexOf(join(dirs.root, path)) >= 0) {
             return
           }
+          reloading = true
           log('refresh', `🏗️  ${path} `, false)
           try {
             await pool.rebuild('docs')
-            reloading = true
           } catch (e) {
             process.stdout.write(` [FAILED]\n${e}\n\n`)
           }
@@ -108,7 +108,7 @@ export const buildDocs = async (pool: BuilderPool, mode: 'dev' | 'prod') => {
             join(dirs.pkgs.docs, 'public', 'index.html')
           )
           if (reloading) {
-            console.log(' [DONE]\n')
+            console.log(' [DONE]')
             return
           }
           resolve()

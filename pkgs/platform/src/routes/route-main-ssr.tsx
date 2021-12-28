@@ -28,7 +28,7 @@ declare const global: PlatformGlobal
 export const streamMain = async (
   req: FastifyRequest,
   reply: FastifyReply,
-  url: string
+  url: string,
 ) => {
   const baseDir = global.buildPath.public
   const indexPath = join(baseDir, 'index.js')
@@ -83,7 +83,7 @@ export const streamMain = async (
 
       html = html.replace(
         '<div id="server-root"></div>',
-        `<div id="server-root" data-ssr>${layout.html}</div>`
+        `<div id='server-root' data-ssr>${layout.html}</div>`,
       )
 
       reply.send(html)
@@ -107,11 +107,11 @@ export const initWindow = async (url: string) => {
 }
 
 export const renderLayoutHtml = async ({
-  layout,
-  init,
-  page,
-  window,
-}: {
+                                         layout,
+                                         init,
+                                         page,
+                                         window,
+                                       }: {
   layout: Layout
   init: Awaited<ReturnType<typeof initPage>>
   page: ReturnType<typeof findPage>
@@ -146,7 +146,7 @@ export const renderLayoutHtml = async ({
           'src',
           'base',
           'layout',
-          `${layout.id}.ssr.ts`
+          `${layout.id}.ssr.ts`,
         )
 
         let ssrLayout = ''
@@ -184,7 +184,7 @@ export const renderLayoutHtml = async ({
 
         new Function(
           `const ssr = this.ssr;
-        ${transformed}`
+        ${transformed}`,
         ).bind({ ssr: runSSRLayout })()
       }
     }
@@ -192,12 +192,17 @@ export const renderLayoutHtml = async ({
 }
 
 export const renderRootHtml = async ({ starter, init, url, window }) => {
+
   // react is defined after starter.default called
   const { App, jsx, CacheProvider } = await starter.default(
     window,
-    starter.html
+    starter.html,
   )
-  await import('../../../web/init/src/core/window')
+
+  const initWindow = (await import('../../../web/init/src/core/window')).default
+  await initWindow
+
+  window.isSSR = true
 
   if (global.generateIndexHTML) {
     window.is_dev = false
@@ -281,14 +286,14 @@ export const renderRootHtml = async ({ starter, init, url, window }) => {
                     layoutSSR: layout,
                   })
                 },
-              })
+              }),
             )
           },
           onError(x: any) {
             didError = true
             log(
               `error`,
-              `ERROR at app/web/page/${init.cms_id}.base.tsx [URL ${url}]`
+              `ERROR at app/web/page/${init.cms_id}.base.tsx [URL ${url}]`,
             )
             console.log('   ' + x.stack.replaceAll(`#${global.assetStamp}`, ''))
           },
@@ -312,14 +317,14 @@ export const renderRootHtml = async ({ starter, init, url, window }) => {
 // also get emotion css from server
 export const saveSSRLayout = async (
   id: string,
-  opt: { clientHTML: string; cssLinks: string[]; cssStyles: string }
+  opt: { clientHTML: string; cssLinks: string[]; cssStyles: string },
 ) => {
   let ssrLayoutPath = join(
     dirs.app.web,
     'src',
     'base',
     'layout',
-    `${id}.ssr.ts`
+    `${id}.ssr.ts`,
   )
 
   let ssrLayout = ''
@@ -355,8 +360,8 @@ export const saveSSRLayout = async (
             c.arguments[0].properties.push(
               types.objectProperty(
                 types.identifier('css'),
-                types.arrayExpression()
-              )
+                types.arrayExpression(),
+              ),
             )
           }
         }
@@ -387,7 +392,7 @@ export const saveSSRLayout = async (
         ) {
           const val = JSON.stringify([
             ...opt.cssLinks.map(
-              (e) => `<link rel="stylesheet" data-ssr href="${e}"/>`
+              (e) => `<link rel='stylesheet' data-ssr href='${e}'/>`,
             ),
             opt.cssStyles,
           ])
@@ -404,13 +409,11 @@ export const saveSSRLayout = async (
   await writeFile(ssrLayoutPath, ssrLayout)
 }
 
-const layoutSSRCache = {} as Record<
-  string,
-  { mode: 'manual' | 'auto'; interval: number; lastUpdate: number }
->
+const layoutSSRCache = {} as Record<string,
+  { mode: 'manual' | 'auto'; interval: number; lastUpdate: number }>
 
 export const tryUpdateLayoutSSR = async (
-  page: Exclude<ReturnType<typeof findPage>, false>
+  page: Exclude<ReturnType<typeof findPage>, false>,
 ) => {
   const layout = layoutSSRCache[page.lid]
   if (!layout || ellapsedTime(layout.lastUpdate) > layout.interval) {
@@ -426,27 +429,27 @@ const updateLayoutSSR = (page: Exclude<ReturnType<typeof findPage>, false>) => {
 
     let ssrLayout = await readFile(
       join(dirs.app.web, 'src', 'base', 'layout', `${page.lid}.ssr.ts`),
-      'utf-8'
+      'utf-8',
     )
 
     if (!ssrLayout) {
       ssrLayout = defaultSSRLayout
       await writeFile(
         join(dirs.app.web, 'src', 'base', 'layout', `${page.lid}.ssr.ts`),
-        ssrLayout
+        ssrLayout,
       )
     }
 
     new Function(
       `const ssr = this.ssr;
 ${
-  (
-    await global.bin.esbuild.transform(ssrLayout, {
-      target: 'node' + process.versions.node,
-      format: 'esm',
-    })
-  ).code
-}`
+        (
+          await global.bin.esbuild.transform(ssrLayout, {
+            target: 'node' + process.versions.node,
+            format: 'esm',
+          })
+        ).code
+      }`,
     ).bind({
       ssr: async ({ update }) => {
         layoutSSRCache[page.lid] = {
@@ -461,7 +464,7 @@ ${
             headers: {
               accept: 'text/html',
             },
-          }
+          },
         )
         resolve()
       },

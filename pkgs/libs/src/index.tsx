@@ -1,4 +1,4 @@
-import type { db as dbImpl } from '../../../app/db/index'
+import type { db as dbImpl } from '../../../app/db/src/index'
 import { prepareAllDBClient, prepareDBClient } from './db-client'
 export * from './ellapsed-time'
 export * from './match-route'
