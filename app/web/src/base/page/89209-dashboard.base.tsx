@@ -68,7 +68,7 @@ base(
         id="download-iframe"
         className="w-full h-full"
         src={meta.iframeUrl}
-        sandbox="allow-scripts allow-same-origin"
+        sandbox="allow-forms allow-downloads allow-scripts allow-same-origin"
       />
       <canvas id="canvas" className="absolute"></canvas>
     </div>

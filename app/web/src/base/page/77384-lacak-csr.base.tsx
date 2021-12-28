@@ -52,7 +52,7 @@ base(
               return {
                 title: el.title,
                 component: () => (
-                  <iframe className="w-full" key={idx} src={el.iframeUrl} />
+                  <iframe className="w-full" key={idx} src={el.iframeUrl} sandbox="allow-forms allow-downloads allow-scripts allow-same-origin"/>
                 ),
               };
             })
