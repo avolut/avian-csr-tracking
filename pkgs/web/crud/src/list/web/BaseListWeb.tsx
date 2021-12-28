@@ -41,6 +41,11 @@ export const BaseListWeb = ({ ctx }: { ctx: Context<IBaseListContext> }) => {
         if (state.table.onScroll) {
           state.table.onScroll(ev)
         }
+        const div = ev
+        const scrollPercent = (div.scrollTop / div.scrollHeight) * 100
+        if (scrollPercent > 60 && state.db.loading === false) {
+          state.db.paging.loadNext()
+        }
 
         state.filter.render()
       }
