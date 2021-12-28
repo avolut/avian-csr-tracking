@@ -12,6 +12,6 @@
     "contentInset": "never"
   },
   "server": {
-    "url": "http://11.5.243.152:3200"
+    "url": "http://192.168.18.248:3200"
   }
 }
