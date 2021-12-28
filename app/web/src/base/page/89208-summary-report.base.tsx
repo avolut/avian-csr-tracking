@@ -84,7 +84,7 @@ base(
                     >
                       Download
                     </button> */}
-                    <iframe id={el.title} className="w-full h-full" src={el.iframeUrl} sandbox="allow-forms allow-downloads allow-scripts allow-same-origin"/>
+                    <iframe id={el.title} className="w-full h-full" src={el.iframeUrl} sandbox="allow-forms allow-downloads allow-scripts allow-same-origin allow-popups"/>
                     <canvas id="canvas" className="absolute"></canvas>
                   </div>
                 ),
