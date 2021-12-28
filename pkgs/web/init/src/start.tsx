@@ -104,7 +104,8 @@ export const ssr = async (window: BaseWindow & Window, Html: BaseHtml) => {
     global.React = React
     return { App, jsx, css, CacheProvider }
   }
-  import('./core/window').then(async () => {
+  import('./core/window').then(async (res) => {
+    await res.default
     const el = document.getElementById('client-root')
 
     if (el && !isSSRLayout && !window.isSSR) {

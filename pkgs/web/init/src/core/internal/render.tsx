@@ -111,14 +111,15 @@ export const renderCMS = (
         }
       }
 
-      if (!def.componentFinal) def.componentFinal = (props) => {
-        const Component = def.component
-        return (
-          <ComponentError name={tag}>
-            <Component {...props} />
-          </ComponentError>
-        )
-      }
+      if (!def.componentFinal)
+        def.componentFinal = (props) => {
+          const Component = def.component
+          return (
+            <ComponentError name={tag}>
+              <Component {...props} />
+            </ComponentError>
+          )
+        }
 
       component = def.componentFinal
     }
@@ -170,6 +171,11 @@ export const renderCMS = (
     //     }
     //   }
     // }
+
+    if (!component && !tag) {
+      component = Fragment
+    }
+
     const result = jsx(
       component ? component : tag,
       finalProps,

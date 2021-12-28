@@ -1,5 +1,7 @@
+/** @jsx jsx */
+import { jsx } from '@emotion/react'
 import { useWindow } from 'libs'
-import { FC, Suspense } from 'react'
+import { FC, Fragment } from 'react'
 import MobileWrapper from './wrapper-mobile'
 export const Wrapper: FC = ({ children }) => {
   const { window } = useWindow()
@@ -13,5 +15,5 @@ const MobileLayout: FC = ({ children }) => {
 }
 
 const WebLayout: FC = ({ children }) => {
-  return <>{children}</>
+  return <Fragment>{children}</Fragment>
 }

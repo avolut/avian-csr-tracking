@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { jsx } from '@emotion/react'
 import { Fragment, isValidElement } from 'react'
 
 export const renderLog = (system: string, reason: string) => {
