@@ -41,6 +41,9 @@ const PDFReader = ({ csrId }) => {
       // },
       where: { id: csrId },
       include: {
+        m_pillar: true,
+        m_supplier: true,
+        m_instansi_penerima: true,
         t_csr_detail_bantuan: {
           include: {
             m_product_csr: true,
