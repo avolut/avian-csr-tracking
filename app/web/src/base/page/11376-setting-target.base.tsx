@@ -20,35 +20,37 @@ base(
             table: {
               columns: [
                 [
-                  "_",
+                  "periode",
                   {
-                    title: "Instansi Penerima",
+                    title: "Periode",
+                  },
+                ],
+                [
+                  "bantuan",
+                  {
+                    title: "Jenis Target",
                     width: 200,
                     value: (item) => {
-                      return (
-                        <span>
-                          {item.m_instansi_penerima.instansi_penerima}
-                        </span>
-                      );
+                      if (item.bantuan === "Target Lembaga") {
+                        if (!item.m_instansi_penerima) return ""
+                        return item.m_instansi_penerima.instansi_penerima;
+                      }
+                      return item.bantuan;
                     },
                   },
                 ],
                 [
                   "target",
                   {
-                    title: "Target",
-                  },
-                ],
-                [
-                  "bantuan",
-                  {
-                    title: "Bantuan",
-                  },
-                ],
-                [
-                  "periode",
-                  {
-                    title: "Periode",
+                    title: "Jumlah Target",
+                    value: (item) => {
+                      if (item.bantuan === "Target Cat") {
+                        return item.target + " kg";
+                      } else if (item.bantuan === "Target Lembaga") {
+                        return item.target + " lembaga";
+                      }
+                      return item.target;
+                    },
                   },
                 ],
               ],
@@ -71,18 +73,38 @@ base(
             }),
             alter: {
               target: {
-                title: "Target",
+                title: "Jumlah Target",
                 type: "number",
                 required: true,
               },
               bantuan: {
-                title: "Bantuan",
                 type: "select",
+                title: "Jenis Target",
+                items: ["Target Cat", "Target Lembaga"],
                 required: true,
-                items: ["Bantuan Cat", "Bantuan Lainnya"],
+                onChange: (value, {state}) => {
+                  if (value === "Target Lembaga" && !!state.config.fields.m_instansi_penerima) {
+                    state.db.data.m_instansi_penerima = {}
+                    state.config.fields.m_instansi_penerima.state.render();
+                  }
+                }
               },
             },
-            layout: ["m_instansi_penerima", "target", "bantuan", "periode"],
+            layout: [
+              "periode", 
+              "bantuan", 
+              ({ row, watch, layout, state }) => {
+                // jika bantuan adalah Lainnya maka tampilkan instansi penerima
+                watch(["bantuan"]);
+                if (row.bantuan === "Target Lembaga") {
+                  return layout([
+                    ["m_instansi_penerima"]
+                  ]);
+                }
+                return layout([]);
+              },
+              "target", 
+            ],
           },
         },
       }}

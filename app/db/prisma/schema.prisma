@@ -8,10 +8,11 @@ datasource db {
 }
 
 model m_area_tirta {
-  id              Int        @id @default(autoincrement())
-  nama_area_tirta String     @db.VarChar(50)
-  m_cabang        m_cabang[]
-  t_csr           t_csr[]
+  id                   Int                    @id @default(autoincrement())
+  nama_area_tirta      String                 @db.VarChar(50)
+  m_cabang             m_cabang[]
+  t_csr                t_csr[]
+  t_csr_detail_bantuan t_csr_detail_bantuan[]
 }
 
 model m_budget_by {
@@ -20,11 +21,12 @@ model m_budget_by {
 }
 
 model m_cabang {
-  id            Int          @id @default(autoincrement())
-  nama_cabang   String       @db.VarChar(50)
-  id_area_tirta Int
-  m_area_tirta  m_area_tirta @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
-  t_csr         t_csr[]
+  id                   Int                    @id @default(autoincrement())
+  nama_cabang          String                 @db.VarChar(50)
+  id_area_tirta        Int
+  m_area_tirta         m_area_tirta           @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
+  t_csr                t_csr[]
+  t_csr_detail_bantuan t_csr_detail_bantuan[]
 }
 
 model m_covered_area {
@@ -107,18 +109,20 @@ model m_role {
 }
 
 model m_setting_target {
-  id                   Int                 @id @default(autoincrement())
-  target               Decimal             @db.Decimal
-  bantuan              String              @db.VarChar(255)
+  id                   Int                  @id @default(autoincrement())
+  target               Decimal              @db.Decimal
+  bantuan              String               @db.VarChar(255)
   periode              Int
-  id_instansi_penerima Int
-  m_instansi_penerima  m_instansi_penerima @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
+  id_instansi_penerima Int?
+  m_instansi_penerima  m_instansi_penerima? @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
 }
 
 model m_supplier {
-  id            Int     @id @default(autoincrement())
-  nama_supplier String  @db.VarChar(50)
-  t_csr         t_csr[]
+  id                   Int                    @id @default(autoincrement())
+  nama_supplier        String                 @db.VarChar(50)
+  t_csr                t_csr[]
+  t_csr_biaya_support  t_csr_biaya_support[]
+  t_csr_detail_bantuan t_csr_detail_bantuan[]
 }
 
 model m_user {
@@ -148,17 +152,17 @@ model t_csr {
   id_kegiatan             Int                       @default(0)
   tgl_kegiatan            DateTime                  @db.Date
   nama_project_csr        String                    @db.VarChar(100)
-  id_supplier             Int
+  id_supplier             Int?
   id_area_tirta           Int?
-  id_cabang               Int
-  id_covered_area         Int
+  id_cabang               Int?
+  id_covered_area         Int?
   id_pulau                Int
   lokasi                  String
   longitude               Decimal                   @db.Decimal
   latitude                Decimal                   @db.Decimal
   deskripsi_singkat       String
-  budget_by               String                    @db.VarChar(50)
-  value_biaya             Float                     @default(0)
+  budget_by               String?                   @db.VarChar(50)
+  value_biaya             Float?                    @default(0)
   created_by              Int
   created_date            DateTime                  @db.Timestamp(6)
   updated_by              Int?
@@ -170,15 +174,16 @@ model t_csr {
   status                  String                    @default("Draft") @db.VarChar(10)
   is_training             Int                       @default(0) @db.SmallInt
   m_area_tirta            m_area_tirta?             @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
-  m_cabang                m_cabang                  @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
-  m_covered_area          m_covered_area            @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)
+  m_cabang                m_cabang?                 @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
+  m_covered_area          m_covered_area?           @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)
   m_divisi                m_divisi                  @relation(fields: [id_division], references: [id], onDelete: Cascade)
   m_instansi_penerima     m_instansi_penerima       @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
   m_jenis_instansi        m_jenis_instansi          @relation(fields: [id_jenis_instansi], references: [id], onDelete: Cascade)
   m_kegiatan              m_kegiatan                @relation(fields: [id_kegiatan], references: [id], onDelete: Cascade)
   m_pillar                m_pillar                  @relation(fields: [id_pillar], references: [id], onDelete: Cascade)
   m_pulau                 m_pulau                   @relation(fields: [id_pulau], references: [id], onDelete: Cascade)
-  m_supplier              m_supplier                @relation(fields: [id_supplier], references: [id], onDelete: Cascade)
+  m_supplier              m_supplier?               @relation(fields: [id_supplier], references: [id], onDelete: Cascade)
+  t_csr_biaya_support     t_csr_biaya_support[]
   t_csr_detail_bantuan    t_csr_detail_bantuan[]
   t_csr_dokumentasi       t_csr_dokumentasi[]
   t_csr_fasilitas_lainnya t_csr_fasilitas_lainnya[]
@@ -197,9 +202,15 @@ model t_csr_detail_bantuan {
   id_jenis_bantuan Int?
   id_product_csr   Int?
   diskon           Int              @default(0)
+  id_supplier      Int?
+  id_area_tirta    Int?
+  id_cabang        Int?
+  m_area_tirta     m_area_tirta?    @relation(fields: [id_area_tirta], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  m_cabang         m_cabang?        @relation(fields: [id_cabang], references: [id], onDelete: Restrict, onUpdate: Restrict)
   t_csr            t_csr            @relation(fields: [id_csr], references: [id], onDelete: Cascade)
   m_jenis_bantuan  m_jenis_bantuan? @relation(fields: [id_jenis_bantuan], references: [id], onDelete: Cascade)
   m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  m_supplier       m_supplier?      @relation(fields: [id_supplier], references: [id], onDelete: Restrict, onUpdate: Restrict)
 }
 
 model t_csr_dokumentasi {
@@ -233,4 +244,15 @@ model m_metabase {
   type     String @db.VarChar
   title    String @db.VarChar
   resource Json
+}
+
+model t_csr_biaya_support {
+  id          Int         @id @default(autoincrement())
+  jenis_biaya String      @db.VarChar(30)
+  total_harga Float
+  id_supplier Int?
+  note        String?     @db.VarChar(255)
+  id_csr      Int
+  t_csr       t_csr       @relation(fields: [id_csr], references: [id], onDelete: Cascade)
+  m_supplier  m_supplier? @relation(fields: [id_supplier], references: [id], onDelete: Cascade)
 }

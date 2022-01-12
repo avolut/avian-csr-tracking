@@ -89,16 +89,6 @@ base(
                   },
                 ],
                 [
-                  "id_supplier",
-                  {
-                    title: "Supply Dari",
-                    width: 200,
-                    value: (item) => {
-                      return <span>{item.m_supplier.nama_supplier}</span>;
-                    },
-                  },
-                ],
-                [
                   "_",
                   {
                     title: "Status",
@@ -151,12 +141,8 @@ base(
             params: {
               include: {
                 m_pillar: true,
-                m_supplier: true,
                 m_divisi: true,
                 m_kegiatan: true,
-                m_area_tirta: true,
-                m_cabang: true,
-                m_covered_area: true,
                 m_pulau: true,
                 m_instansi_penerima: true,
                 m_jenis_instansi: true,
@@ -178,6 +164,7 @@ base(
               meta.csr.longitude = data.longitude;
             },
             onSave: async ({ data, save }) => {
+              data.budget_by = "";
               if (!data.id) {
                 data.created_date = new Date();
                 data.created_by = JSON.parse((window as any).user.get()).id;
@@ -190,6 +177,7 @@ base(
             params: {
               include: {
                 t_csr_detail_bantuan: true,
+                t_csr_biaya_support:true,
                 t_csr_dokumentasi: true,
                 t_csr_fasilitas_lainnya: true,
               },
@@ -232,10 +220,6 @@ base(
                 type: "select",
                 items: meta.isTraining as any,
               },
-              value_biaya: {
-                suffix: "IDR",
-                type: "money",
-              },
               nama_project_csr: {
                 title: "Nama Project CSR",
               },
@@ -251,16 +235,6 @@ base(
                   state.db.data.latitude = value.replace(/[^0-9.-]/g, "");
                 },
               },
-              m_cabang: {
-                params: (row) => {
-                  if (!row.id_area_tirta) return {};
-                  return {
-                    where: {
-                      id_area_tirta: row.id_area_tirta,
-                    },
-                  };
-                },
-              },
               m_jenis_instansi: {
                 params: (row) => {
                   if (!row.id_instansi_penerima) return {};
@@ -270,17 +244,6 @@ base(
                     },
                   };
                 },
-              },
-              budget_by: {
-                type: "select",
-                items: ["Marketing", "Operasional", "Penerima CSR"],
-                onChange: (value, {state}) => {
-                  console.log(value)
-                  if (value === "Penerima CSR") {
-                    state.db.data.value_biaya = "0";
-                    state.config.fields.value_biaya.state.render();
-                  }
-                }
               },
               t_csr_fasilitas_lainnya: {
                 title: "Penerima Bantuan",
@@ -345,7 +308,19 @@ base(
                     },
                     table: {
                       columns: [
-                        "bantuan",
+                        [
+                          "bantuan", 
+                          {
+                            title: "Jenis Bantuan",
+                            value: (row) => {
+                              if (row.bantuan === "Lainnya") {
+                                if (!row.m_jenis_bantuan) return ""
+                                return row.m_jenis_bantuan.jenis_bantuan;
+                              }
+                              return row.bantuan;
+                            },
+                          }
+                        ],
                         [
                           "m_product_csr",
                           {
@@ -359,7 +334,6 @@ base(
                             },
                           },
                         ],
-                        "keterangan",
                         "jumlah",
                         [
                           "harga_nett",
@@ -374,12 +348,25 @@ base(
                             ),
                           },
                         ],
+                        [
+                          "id_supplier", 
+                          {
+                            title: "Supply Dari", 
+                            width:200, 
+                            value: (item)=>{
+                              return <span>{item.m_supplier?.nama_supplier}</span>
+                            }
+                          }
+                        ]
                       ],
                     },
                     params: {
                       include: {
                         m_jenis_bantuan: true,
                         m_product_csr: true,
+                        m_area_tirta: true, 
+                        m_cabang: true, 
+                        m_supplier:true
                       },
                     },
                   },
@@ -446,6 +433,43 @@ base(
                       m_product_csr: {
                         title: "Merek",
                       },
+                      merek:{
+                        title: "Merek/Jenis"
+                      },
+                      m_cabang:{
+                        title: "Cabang", 
+                        params:(row)=>{
+                          if(!row.id_area_tirta && row.id_supplier!="PT Tirtakencana Tatawarna") return {};
+                          return {
+                            where:{
+                              id_area_tirta: row.id_area_tirta
+                            }
+                          }
+                        }
+                      }, 
+                      m_area_tirta:{
+                        title: "Area Tirta"
+                      },
+                      m_supplier:{
+                        title: "Supplier",
+                        onChange: (value, {state}) => {
+                          if(!!state.db.data.id_area_tirta){
+                            state.db.data.id_area_tirta = {}
+                            if(!!state.config.fields.m_area_tirta){
+                              state.db.data.m_area_tirta = {}
+                              state.config.fields.m_area_tirta.state.render();
+                            }
+                          }
+
+                          if(!!state.db.data.id_cabang){
+                            state.db.data.id_cabang = {}
+                            if(!!state.config.fields.m_cabang){
+                              state.db.data.m_cabang = {}
+                              state.config.fields.m_cabang.state.render();
+                            }
+                          }
+                        }
+                      },
                       harga_nett: {
                         type: "money",
                         readonly: true,
@@ -503,13 +527,22 @@ base(
                         watch(["bantuan"]);
                         if (row.bantuan === "Cat") {
                           return layout([
+                            ["m_supplier"],
+                            ({row, watch, layout})=>{
+                              watch(['m_supplier']);
+                              if(row?.m_supplier?.nama_supplier === "PT Tirtakencana Tatawarna")
+                                return layout([
+                                  ["m_area_tirta", "m_cabang"]
+                                ])
+                              return layout(["m_cabang"])
+                            },
                             ["m_product_csr"],
                             ["jenis", "warna"],
                             ["jumlah", "value"],
                             ["diskon", "harga_nett"],
                           ]);
                         } else if (row.bantuan === "Lainnya") {
-                          return layout([[], ["m_jenis_bantuan"]]);
+                          return layout([["m_jenis_bantuan"], ["m_supplier"]]);
                         }
                         return layout([]);
                       },
@@ -524,6 +557,118 @@ base(
                           ["value", []],
                         ]);
                       },
+                    ],
+                  },
+                },
+              },
+              t_csr_biaya_support: {
+                title: "Detail Biaya Support",
+                fieldProps: {
+                  list: {
+                    action: {
+                      create: () => {
+                        if (meta.roleUser === "hrd" && meta.isDone)
+                          return false;
+                        return "Tambah";
+                      },
+                    },
+                    table: {
+                      columns: [
+                        "jenis_biaya",
+                        [
+                          "total_harga",
+                          {
+                            title:"Total Biaya",
+                            value: (row) => (
+                              <div>
+                                Rp.
+                                {row.total_harga
+                                  .toString()
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+                              </div>
+                            ),
+                          },
+                        ],
+                        [
+                          "m_supplier", 
+                          {
+                            title: "Supply Dari", 
+                            width:200, 
+                            value: (row)=>{
+                              if (row.id_supplier === null) {
+                                return row.note;
+                              }
+                              return row.m_supplier?.nama_supplier;
+                            }
+                          }
+                        ]
+                      ],
+                    },
+                    params: {
+                      include: {
+                        m_supplier:true
+                      },
+                    },
+                  },
+                  form: {
+                    onSave: ({ data, save }) => {
+                      if (data.jenis_biaya === "Lainnya") {
+                        data.m_supplier = {}
+                        data.id_supplier = null
+                      } else {
+                        data.note = ""
+                      }
+                      save(data);
+                    },
+                    action: () => ({
+                      save: () => {
+                        if (meta.roleUser === "hrd" && meta.isDone)
+                          return false;
+                        return "Simpan";
+                      },
+                      delete: () => {
+                        if (meta.roleUser === "hrd" && meta.isDone)
+                          return false;
+                        return true;
+                      },
+                      jsonEdit: false,
+                    }),
+                    alter: {
+                      jenis_biaya: {
+                        type: "select",
+                        items: ["Dokumentasi", "Branding", "Lainnya"],
+                        onChange: (value, {state}) => {
+                          if (value !== "Lainnya" && !!state.config.fields.m_supplier) {
+                            state.db.data.m_supplier = {}
+                            state.config.fields.m_supplier.state.render();
+                          }
+                        }
+                      },
+                      total_harga: {
+                        title: "Total Biaya",
+                        type: "money",
+                      },
+                      note:{
+                        title: "Supplier"
+                      }, 
+                      m_supplier:{
+                        title: "Supplier"
+                      }
+                    },
+                    layout: [
+                      "jenis_biaya",
+                      "total_harga",
+                      ({ row, watch, layout, state }) => {
+                        // jika biaya adalah Lainnya maka tampilkan note untuk supplier free text
+                        // jika bantuan adalah selain Lainnya, maka tampilkan dropdown supplier
+                        watch(["jenis_biaya"]);
+                        if (row.jenis_biaya === "Lainnya") {
+                          return layout([
+                            "note"
+                          ]);
+                        }
+                        return layout(["m_supplier"]);
+                      }
                     ],
                   },
                 },
@@ -665,38 +810,15 @@ base(
             layout: [
               ["m_divisi", "m_pillar"],
               ["m_kegiatan", "is_training", "tgl_kegiatan"],
-              ["nama_project_csr"],
-              ["m_supplier"],
-              ({ row, watch, layout }) => {
-                watch(["m_supplier"]);
-                if (row?.m_supplier?.nama_supplier === "PT Avia Avian")
-                  return layout([[], ["m_cabang", "m_covered_area"]]);
-                return layout([
-                  ["m_area_tirta"],
-                  ["m_cabang", "m_covered_area"],
-                ]);
-              },
+              ["nama_project_csr", "jumlah_orang"],
               ["m_pulau", "lokasi"],
               ["longitude", "latitude"],
               ["deskripsi_singkat"],
-              ["budget_by", "value_biaya"],
               ["m_instansi_penerima", "m_jenis_instansi"],
-              ({ row, watch, layout }) => {
-                watch(["m_jenis_instansi"]);
-                if (row?.m_jenis_instansi?.jenis_instansi === "Sebutkan")
-                  return layout([
-                    ["jumlah_orang", "keterangan"],
-                    [],
-                    [],
-                    [],
-                    [],
-                    [],
-                  ]);
-                return layout([["jumlah_orang", []], [], [], [], [], []]);
-              },
               [
                 "t_csr_fasilitas_lainnya",
                 "t_csr_detail_bantuan",
+                "t_csr_biaya_support",
                 "t_csr_dokumentasi",
               ],
             ],

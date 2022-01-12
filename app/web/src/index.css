@@ -17,12 +17,16 @@ body,
   margin-top: 0 !important;
 }
 
-/* .ms-Button.ms-Button--primary {
+.ms-Button.ms-Button--primary {
   background-color: rgb(16, 110, 190);
   border: 1px solid rgb(16, 110, 190);
   color: rgb(255, 255, 255);
 }
 
-.ms-Button.ms-Button--default.delete {
-  min-width: auto !important;
-} */
+.ms-Button.ms-Button--primary.save, .ms-Button.ms-Button--default.delete {
+  width: auto
+}
+
+.ms-TextField-fieldGroup {
+  padding: 0 8px;
+}

@@ -47,8 +47,14 @@ const PDFReader = ({ csrId }) => {
         t_csr_detail_bantuan: {
           include: {
             m_product_csr: true,
+            m_supplier:true
           },
         },
+        t_csr_biaya_support:{
+          include:{
+            m_supplier:true
+          }
+        }
       },
     })
 
@@ -67,10 +73,6 @@ const PDFReader = ({ csrId }) => {
     { label: 'Pilar CSR', value: ': ' + state.csr?.m_pillar?.name },
     { label: 'Nama Project CSR', value: ': ' + state.csr?.nama_project_csr },
     { label: 'Lokasi', value: ': ' + state.csr?.lokasi },
-    {
-      label: 'Supply Dari',
-      value: ': ' + state.csr?.m_supplier?.nama_supplier,
-    },
   ]
   return (
     <div
@@ -82,7 +84,7 @@ const PDFReader = ({ csrId }) => {
       `}
     >
       <Pdf loading={state.loading}>
-        <div className="mx-4">
+        <div className="mx-4 flex flex-1 flex-grow flex-col p-4">
           {pdfContent.map((item, idx) => (
             <div key={idx} className="flex justify-between mt-4 text-sm">
               <div className="font-semibold">{item.label}</div>
@@ -103,6 +105,7 @@ const PDFReader = ({ csrId }) => {
               </div>
             </div>
           </div>
+          
           <div className="font-semibold py-3">Bantuan CSR</div>
           <table className="w-full border text-sm">
             <thead>
@@ -111,7 +114,8 @@ const PDFReader = ({ csrId }) => {
                 <th>Merek</th>
                 <th>Keterangan</th>
                 <th>Biaya</th>
-                <th>Jumlah</th>
+                <th>Jumlah (Kg)</th>
+                <th>Supply Dari</th>
               </tr>
             </thead>
             <tbody>
@@ -122,12 +126,13 @@ const PDFReader = ({ csrId }) => {
                   <td>{item.jenis}</td>
                   <td>Rp {globalVar.currencyFormat(item.harga_nett)}</td>
                   <td>{item.jumlah}</td>
+                  <td>{item.m_supplier?.nama_supplier}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div className="font-semibold py-3">Total Bantuan</div>
+          <div className="font-semibold mt-4">Total Bantuan</div>
           <div className="border-t border-b my-2 pb-2 text-sm">
             <div className="flex justify-between mt-4">
               <div className="font-semibold">Biaya</div>
@@ -155,6 +160,26 @@ const PDFReader = ({ csrId }) => {
               </div>
             </div>
           </div>
+          
+          <div className="font-semibold py-3">Biaya Support</div>
+          <table className="w-full border text-sm">
+            <thead>
+              <tr className="text-left">
+                <th className="p-3">Jenis Biaya</th>
+                <th>Total Biaya</th>
+                <th>Supply Dari</th>
+              </tr>
+            </thead>
+            <tbody>
+              {state.csr?.t_csr_biaya_support?.map((item, idx) => (
+                <tr key={idx} className="border-t">
+                  <td className="p-3">{item.jenis_biaya}</td>
+                  <td>Rp {globalVar.currencyFormat(item.total_harga)}</td>
+                  <td>{item.jenis_biaya === "Lainnya" ? item.note : item.m_supplier?.nama_supplier}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
           <div className="font-semibold py-3">Deskripsi Singkat</div>
           <div className="text-sm">
