@@ -814,7 +814,11 @@ base(
               ["longitude", "latitude"],
               ["deskripsi_singkat"],
               ["m_instansi_penerima", "m_jenis_instansi"],
-              ["jumlah_orang", []],
+              ({ row, watch, update, layout, state }) => {
+                watch(["m_jenis_instansi"]);
+                if (!!row.m_jenis_instansi && row.m_jenis_instansi.jenis_instansi === "Sebutkan") return layout([["keterangan", "jumlah_orang"]]);
+                return layout([["jumlah_orang", []]]);
+              },
               [
                 "t_csr_fasilitas_lainnya",
                 "t_csr_detail_bantuan",
