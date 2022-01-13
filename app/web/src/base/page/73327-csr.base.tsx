@@ -79,20 +79,17 @@ base(
                   },
                 ],
                 [
-                  "id_pillar",
+                  "m_pillar.name",
                   {
                     title: "Pilar",
-                    width: 200,
-                    value: (item) => {
-                      return <span>{item.m_pillar.name}</span>;
-                    },
+                    width: 120,
                   },
                 ],
                 [
                   "_",
                   {
                     title: "Status",
-                    width: 200,
+                    width: 100,
                     value: (item) => {
                       const color =
                         item.status === "Completed"
@@ -110,12 +107,14 @@ base(
                   "nama_project_csr",
                   {
                     title: "Nama Project",
+                    width: 350,
                   },
                 ],
                 [
                   "_",
                   {
                     title: "",
+                    width: 100,
                     value: (item) => {
                       return (
                         <>
@@ -810,11 +809,12 @@ base(
             layout: [
               ["m_divisi", "m_pillar"],
               ["m_kegiatan", "is_training", "tgl_kegiatan"],
-              ["nama_project_csr", "jumlah_orang"],
+              ["nama_project_csr"],
               ["m_pulau", "lokasi"],
               ["longitude", "latitude"],
               ["deskripsi_singkat"],
               ["m_instansi_penerima", "m_jenis_instansi"],
+              ["jumlah_orang", []],
               [
                 "t_csr_fasilitas_lainnya",
                 "t_csr_detail_bantuan",

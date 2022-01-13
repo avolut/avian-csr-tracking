@@ -15,7 +15,6 @@ base(
           content={{
             "Jenis Instansi": {
               table: "m_jenis_instansi",
-              label: "Jenis instansi",
               list: {
                 action: {
                   create: "Tambah",
@@ -23,17 +22,10 @@ base(
                 table: {
                   columns: [
                     [
-                      "_",
+                      "m_instansi_penerima.instansi_penerima",
                       {
                         title: "Instansi Penerima",
                         width: 200,
-                        value: (item) => {
-                          return (
-                            <span>
-                              {item.m_instansi_penerima.instansi_penerima}
-                            </span>
-                          );
-                        },
                       },
                     ],
                     [

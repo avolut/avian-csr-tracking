@@ -15,7 +15,6 @@ base(
           content={{
             "Kegiatan CSR": {
               table: "m_kegiatan",
-              label: "Kegiatan CSR",
               list: {
                 action: {
                   create: "Tambah",
@@ -23,19 +22,17 @@ base(
                 table: {
                   columns: [
                     [
-                      "_",
+                      "m_pillar.name",
                       {
-                        width: 200,
+                        width: 150,
                         title: "Pilar",
-                        value: (item) => {
-                          return <span>{item.m_pillar.name}</span>;
-                        },
                       },
                     ],
                     [
                       "nama_kegiatan",
                       {
                         title: "Kegiatan CSR",
+                        width: 350,
                       },
                     ],
                   ],

@@ -15,7 +15,6 @@ base(
           content={{
             cabang: {
               table: "m_cabang",
-              label: "Cabang",
               list: {
                 action: {
                   create: "Tambah",
@@ -23,20 +22,17 @@ base(
                 table: {
                   columns: [
                     [
-                      "_",
+                      "m_area_tirta.nama_area_tirta",
                       {
                         title: "Area Tirta",
-                        value: (item) => {
-                          return (
-                            <span>{item.m_area_tirta.nama_area_tirta}</span>
-                          );
-                        },
+                        width: 100,
                       },
                     ],
                     [
                       "nama_cabang",
                       {
                         title: "Cabang",
+                        width: 350,
                       },
                     ],
                   ],
