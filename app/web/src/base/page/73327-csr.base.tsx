@@ -811,7 +811,7 @@ base(
               ["m_kegiatan", "is_training", "tgl_kegiatan"],
               ["nama_project_csr"],
               ["m_pulau", "lokasi"],
-              ["longitude", "latitude"],
+              ["latitude", "longitude"],
               ["deskripsi_singkat"],
               ["m_instansi_penerima", "m_jenis_instansi"],
               ({ row, watch, update, layout, state }) => {
