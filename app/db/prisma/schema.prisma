@@ -158,8 +158,8 @@ model t_csr {
   id_covered_area         Int?
   id_pulau                Int
   lokasi                  String
-  longitude               Decimal                   @db.Decimal
-  latitude                Decimal                   @db.Decimal
+  longitude               Decimal                   @db.Decimal(19, 15)
+  latitude                Decimal                   @db.Decimal(19, 15)
   deskripsi_singkat       String
   budget_by               String?                   @db.VarChar(50)
   value_biaya             Float?                    @default(0)
@@ -201,7 +201,7 @@ model t_csr_detail_bantuan {
   id_csr           Int
   id_jenis_bantuan Int?
   id_product_csr   Int?
-  diskon           Int              @default(0)
+  diskon           Int?             @default(0)
   id_supplier      Int?
   id_area_tirta    Int?
   id_cabang        Int?
