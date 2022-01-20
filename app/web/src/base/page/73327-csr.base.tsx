@@ -235,7 +235,7 @@ base(
               longitude: {
                 type: 'text',
                 onChange: (value, { state }) => {
-                  state.db.data.latitude = value.replace(/[^0-9.-]/g, '')
+                  state.db.data.longitude = value.replace(/[^0-9.-]/g, '')
                 },
               },
               m_jenis_instansi: {
