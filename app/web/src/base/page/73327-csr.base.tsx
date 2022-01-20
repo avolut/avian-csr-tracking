@@ -380,7 +380,6 @@ base(
                     onSave: ({ data, save }) => {
                       if (data.bantuan === 'Cat') {
                         data.m_jenis_bantuan = {}
-console.log(data)
                         data.harga_nett =
                           typeof data.harga_nett === 'string'
                             ? parseInt(data.harga_nett.replace(/\D/g, ''))
@@ -812,13 +811,13 @@ console.log(data)
             },
             // layout header
             layout: [
-              ['m_divisi', 'm_pillar'],
-              ['m_kegiatan', 'is_training', 'tgl_kegiatan'],
-              ['nama_project_csr'],
-              ['m_pulau', 'lokasi'],
-              ['longitude', 'latitude'],
-              ['deskripsi_singkat'],
-              ['m_instansi_penerima', 'm_jenis_instansi'],
+              ["m_divisi", "m_pillar"],
+              ["m_kegiatan", "is_training", "tgl_kegiatan"],
+              ["nama_project_csr"],
+              ["m_pulau", "lokasi"],
+              ["latitude", "longitude"],
+              ["deskripsi_singkat"],
+              ["m_instansi_penerima", "m_jenis_instansi"],
               ({ row, watch, update, layout, state }) => {
                 watch(['m_jenis_instansi'])
                 if (
