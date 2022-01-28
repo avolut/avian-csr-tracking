@@ -212,6 +212,18 @@ export default observer(({ user }: any) => {
                         </div>
                       </div>
                     </button>
+                    <button
+                      className="flex self-stretch flex-col items-center justify-start  "
+                      onClick={() =>
+                        (window as any).navigate('/admin/master-data-fasilitas')
+                      }
+                    >
+                      <div className="flex self-stretch items-center justify-start py-2.5">
+                        <div className="text-sm leading-tight text-white ml-10">
+                          Fasilitas Lainnya
+                        </div>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>

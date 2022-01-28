@@ -285,12 +285,7 @@ base(
                     }),
                     layout: [
                       'm_fasilitas_lainnya',
-                      ({ row, watch, layout }) => {
-                        watch(['m_fasilitas_lainnya'])
-                        if (row.m_fasilitas_lainnya.fasilitas === 'Sebutkan')
-                          return layout([['jumlah', 'keterangan']])
-                        return layout(['jumlah'])
-                      },
+                      ['jumlah', 'keterangan']
                     ],
                   },
                 },

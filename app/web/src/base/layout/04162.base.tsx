@@ -18,6 +18,7 @@ base(
             '/admin/master-data-cabang': 'Cabang',
             '/admin/master-data-covered-area': 'Covered Area',
             '/admin/master-data-jenis-instansi': 'Jenis Instansi',
+            '/admin/master-data-fasilitas': 'Fasilitas Penerima Bantuan',
             '/admin/master-data-jenis-bantuan': 'Jenis Bantuan',
             '/admin/master-data-instansi-penerima': 'Instansi Penerima',
             '/admin/master-data-jenis-instanis': 'Jenis Instansi',
