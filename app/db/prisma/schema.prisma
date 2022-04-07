@@ -196,12 +196,12 @@ model t_csr_detail_bantuan {
   merek            String?          @db.VarChar(255)
   jenis            String?          @db.VarChar(50)
   warna            String?          @db.VarChar(50)
-  value            Int
-  harga_nett       Int
+  value            Float
+  harga_nett       Float
   id_csr           Int
   id_jenis_bantuan Int?
   id_product_csr   Int?
-  diskon           Int?             @default(0)
+  diskon           Float?           @default(0)
   id_supplier      Int?
   id_area_tirta    Int?
   id_cabang        Int?
