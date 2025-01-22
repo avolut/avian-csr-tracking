@@ -35,6 +35,7 @@ base(
             type: 'METABASE_SITE_URL',
           },
         })
+        // get tab summary-report ["produk", "pilar csr", "penerima", "executive summary"]
         const metabases = await db.m_metabase.findMany({
           where: {
             type: 'summary-report',
