@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://magang:magang123$%^@db.plansys.co:5432/avian_csr?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 model m_area_tirta {

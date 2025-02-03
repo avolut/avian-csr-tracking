@@ -8,6 +8,7 @@ node_modules/
 dist/
 
 # Env
+app/**/**/.env
 .env_production
 .env_staging
 
