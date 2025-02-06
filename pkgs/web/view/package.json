@@ -11,8 +11,8 @@
     "@fluentui/react": "^8.41.0",
     "lodash.get": "^4.4.2",
     "lodash.throttle": "^4.1.1",
-    "react": "beta",
+    "react": "^18.2.0",
     "libs": "workspace:^",
-    "react-dom": "beta"
+    "react-dom": "^18.2.0"
   }
 }

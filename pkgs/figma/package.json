@@ -8,8 +8,8 @@
   "peerDependencies": {
     "mobx": "^6.3.3",
     "mobx-react-lite": "^3.2.1",
-    "react": "beta",
-    "react-dom": "beta"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "license": "MIT",
   "name": "figma",

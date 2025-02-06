@@ -3,8 +3,8 @@
     "@emotion/react": "^11.7.0",
     "@fluentui/react": "^8.41.0",
     "prisma": "^3.6.0",
-    "react": "beta",
-    "react-dom": "beta",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "web-init": "workspace:^"
   },
   "license": "MIT",
