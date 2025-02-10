@@ -45,7 +45,11 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(autoprefixer@10.4.0)(postcss@8.4.4)
 
-  app/db: {}
+  app/db:
+    dependencies:
+      '@prisma/client':
+        specifier: ^3.15.2
+        version: 3.15.2
 
   app/server:
     dependencies:
@@ -158,6 +162,9 @@ importers:
       prisma:
         specifier: ^3.6.0
         version: 3.7.0
+      puppeteer-core:
+        specifier: ^12.0.1
+        version: 12.0.1
       sodium-universal:
         specifier: ^3.0.4
         version: 3.0.4
@@ -2800,6 +2807,19 @@ packages:
       fastq: 1.13.0
     dev: false
 
+  /@prisma/client@3.15.2:
+    resolution: {integrity: sha512-ErqtwhX12ubPhU4d++30uFY/rPcyvjk+mdifaZO5SeM21zS3t4jQrscy8+6IyB0GIYshl5ldTq6JSBo1d63i8w==}
+    engines: {node: '>=12.6'}
+    requiresBuild: true
+    peerDependencies:
+      prisma: '*'
+    peerDependenciesMeta:
+      prisma:
+        optional: true
+    dependencies:
+      '@prisma/engines-version': 3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e
+    dev: false
+
   /@prisma/client@3.6.0:
     resolution: {integrity: sha512-ycSGY9EZGROtje0iCNsgC5Zqi/ttX2sO7BNMYaLsUMiTlf3F69ZPH+08pRo0hrDfkZzyimXYqeXJlaoYDH1w7A==}
     engines: {node: '>=12.6'}
@@ -2856,6 +2876,10 @@ packages:
       p-retry: 4.6.1
       terminal-link: 2.1.1
       undici: 3.3.6
+    dev: false
+
+  /@prisma/engines-version@3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e:
+    resolution: {integrity: sha512-e3k2Vd606efd1ZYy2NQKkT4C/pn31nehyLhVug6To/q8JT8FpiMrDy7zmm3KLF0L98NOQQcutaVtAPhzKhzn9w==}
     dev: false
 
   /@prisma/engines-version@3.6.0-24.dc520b92b1ebb2d28dc3161f9f82e875bd35d727:

@@ -4,8 +4,11 @@
   "private": true,
   "scripts": {},
   "dependencies": {
-    "@prisma/client": "^3.15.2"
+    "@prisma/client": "^3.7.0"
   },
   "types": "./src/index.ts",
-  "main": "./build/index.js"
+  "main": "./build/index.js",
+  "devDependencies": {
+    "prisma": "^3.7.0"
+  }
 }
