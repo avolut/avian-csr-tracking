@@ -48,8 +48,12 @@ importers:
   app/db:
     dependencies:
       '@prisma/client':
-        specifier: ^3.15.2
-        version: 3.15.2
+        specifier: ^3.7.0
+        version: 3.15.2(prisma@3.7.0)
+    devDependencies:
+      prisma:
+        specifier: ^3.7.0
+        version: 3.7.0
 
   app/server:
     dependencies:
@@ -2807,7 +2811,7 @@ packages:
       fastq: 1.13.0
     dev: false
 
-  /@prisma/client@3.15.2:
+  /@prisma/client@3.15.2(prisma@3.7.0):
     resolution: {integrity: sha512-ErqtwhX12ubPhU4d++30uFY/rPcyvjk+mdifaZO5SeM21zS3t4jQrscy8+6IyB0GIYshl5ldTq6JSBo1d63i8w==}
     engines: {node: '>=12.6'}
     requiresBuild: true
@@ -2818,6 +2822,7 @@ packages:
         optional: true
     dependencies:
       '@prisma/engines-version': 3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e
+      prisma: 3.7.0
     dev: false
 
   /@prisma/client@3.6.0:
@@ -2898,7 +2903,6 @@ packages:
   /@prisma/engines@3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f:
     resolution: {integrity: sha512-W549ub5NlgexNhR8EFstA/UwAWq3Zq0w9aNkraqsozVCt2CsX+lK4TK7IW5OZVSnxHwRjrgEAt3r9yPy8nZQRg==}
     requiresBuild: true
-    dev: false
 
   /@prisma/fetch-engine@3.6.0-24.dc520b92b1ebb2d28dc3161f9f82e875bd35d727:
     resolution: {integrity: sha512-aTtjXF3PNKe+UQXqOjamwqvMZtM7R4wMzUkwZq19zTbs8Bqe5IUOKjw6tdHMOpQD10TxS2/nlXIsWvwZeniyYg==}
@@ -7084,7 +7088,6 @@ packages:
     requiresBuild: true
     dependencies:
       '@prisma/engines': 3.7.0-31.8746e055198f517658c08a0c426c7eec87f5a85f
-    dev: false
 
   /process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
