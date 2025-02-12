@@ -1,10 +1,11 @@
 generator client {
   provider = "prisma-client-js"
+  output = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://avian:IeIzpYN*v8cBNxe&@52.230.105.146:5432/avian_csr?schema=public"
 }
 
 model m_area_tirta {

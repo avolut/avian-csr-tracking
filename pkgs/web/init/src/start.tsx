@@ -3,13 +3,14 @@ import createCache from '@emotion/cache'
 import { CacheProvider, css, jsx } from '@emotion/react'
 import { useWindow } from 'libs'
 import React, { FC, ReactElement } from 'react'
-import { createRoot } from 'react-dom'
+import reactdom from 'react-dom'
 import 'regenerator-runtime'
 import { Main } from './core/main'
 import { reloadAllComponents } from './core/platform'
 import type { BaseWindow } from './window'
 declare const window: BaseWindow
 
+const createRoot = reactdom.render
 export type BaseHtml = React.FC<{
   ssr: any
   timestamp: number | string
@@ -86,12 +87,15 @@ export const ssr = async (window: BaseWindow & Window, Html: BaseHtml) => {
         }
         injectJS={
           prop.ssr ? (
-            <script
-              id="base-pack"
-              dangerouslySetInnerHTML={{
-                __html: `window.basePack = ${prop.ssr};for (let [k,v] of Object.entries(window.basePack)) { window[k] = v }`,
-              }}
-            />
+            <>
+              <script
+                id="base-pack"
+                dangerouslySetInnerHTML={{
+                  __html: `window.basePack = ${prop.ssr};for (let [k,v] of Object.entries(window.basePack)) { window[k] = v }`,
+                }}
+              />
+              <script type="module" src={'/index.js'} />
+            </>
           ) : (
             <></>
           )
@@ -100,20 +104,22 @@ export const ssr = async (window: BaseWindow & Window, Html: BaseHtml) => {
       ></Html>
     )
   }
+
   if (window.isSSR) {
     global.React = React
     return { App, jsx, css, CacheProvider }
   }
+
   import('./core/window').then(async (res) => {
     await res.default
     const el = document.getElementById('client-root')
 
     if (el && !isSSRLayout && !window.isSSR) {
-      const root = createRoot(el)
-      root.render(
+      createRoot(
         <CacheProvider value={window.emotionCache}>
           <Main />
-        </CacheProvider>
+        </CacheProvider>,
+        el
       )
     }
   })
