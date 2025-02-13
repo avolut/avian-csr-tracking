@@ -92,18 +92,6 @@ base(
                   },
                 ],
                 [
-                  'm_cabang.nama_cabang',
-                  {
-                    title: 'Cabang',
-                  },
-                ],
-                [
-                  't_csr_detail_bantuan.bantuan',
-                  {
-                    title: 'Jenis Bantuan',
-                  },
-                ],
-                [
                   '_',
                   {
                     title: 'Status',
