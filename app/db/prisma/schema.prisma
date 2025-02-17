@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://avian:IeIzpYN*v8cBNxe&@52.230.105.146:5432/avian_csr?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 model m_area_tirta {
