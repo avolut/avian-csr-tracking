@@ -92,6 +92,12 @@ base(
                   },
                 ],
                 [
+                  'm_cabang.nama_cabang',
+                  {
+                    title: 'Cabang',
+                  },
+                ],
+                [
                   '_',
                   {
                     title: 'Status',
@@ -153,6 +159,7 @@ base(
                 m_pulau: true,
                 m_instansi_penerima: true,
                 m_jenis_instansi: true,
+                m_cabang: true,
               },
               orderBy: {
                 id: 'desc',
@@ -289,10 +296,7 @@ base(
                       },
                       jsonEdit: false,
                     }),
-                    layout: [
-                      'm_fasilitas_lainnya',
-                      ['jumlah', 'keterangan']
-                    ],
+                    layout: ['m_fasilitas_lainnya', ['jumlah', 'keterangan']],
                   },
                 },
               },
@@ -812,13 +816,13 @@ base(
             },
             // layout header
             layout: [
-              ["m_divisi", "m_pillar"],
-              ["m_kegiatan", "is_training", "tgl_kegiatan"],
-              ["nama_project_csr"],
-              ["m_pulau", "lokasi"],
-              ["latitude", "longitude"],
-              ["deskripsi_singkat"],
-              ["m_instansi_penerima", "m_jenis_instansi"],
+              ['m_divisi', 'm_pillar'],
+              ['m_kegiatan', 'is_training', 'tgl_kegiatan'],
+              ['nama_project_csr'],
+              ['m_pulau', 'lokasi'],
+              ['latitude', 'longitude'],
+              ['deskripsi_singkat'],
+              ['m_instansi_penerima', 'm_jenis_instansi'],
               ({ row, watch, update, layout, state }) => {
                 watch(['m_jenis_instansi'])
                 if (
