@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  output = "../node_modules/.prisma/client"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://avian:IeIzpYN*v8cBNxe&@52.230.105.146:5432/avian_csr?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 model m_area_tirta {
@@ -174,6 +174,7 @@ model t_csr {
   jumlah_orang            Int
   status                  String                    @default("Draft") @db.VarChar(10)
   is_training             Int                       @default(0) @db.SmallInt
+  detail_bantuan          String?
   m_area_tirta            m_area_tirta?             @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
   m_cabang                m_cabang?                 @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
   m_covered_area          m_covered_area?           @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)
@@ -256,4 +257,100 @@ model t_csr_biaya_support {
   id_csr      Int
   t_csr       t_csr       @relation(fields: [id_csr], references: [id], onDelete: Cascade)
   m_supplier  m_supplier? @relation(fields: [id_supplier], references: [id], onDelete: Cascade)
+}
+
+model c_value_to_string {
+  id         Int    @id(map: "c_value_to_string_pk") @default(autoincrement())
+  value      Int    @db.SmallInt
+  keterangan String @db.VarChar
+}
+
+model dtb_product {
+  id                     BigInt    @id @default(autoincrement())
+  id_category            Int?
+  pretty_url             String?   @db.VarChar(500)
+  code                   String?   @db.VarChar(50)
+  name                   String?   @db.VarChar(200)
+  description            String?
+  image_url              String?   @db.VarChar(500)
+  image_pretty_name      String?   @db.VarChar(200)
+  tds_url                String?   @db.VarChar(500)
+  filename_tds           String?   @db.VarChar(200)
+  msds_url               String?   @db.VarChar(500)
+  filename_msds          String?   @db.VarChar(200)
+  is_show                Int       @default(1) @db.SmallInt
+  status                 Int       @default(1) @db.SmallInt
+  show_in_filter         Int       @default(10) @db.SmallInt
+  ordering               BigInt?
+  created_date           DateTime? @default(now()) @db.Timestamp(6)
+  updated_date           DateTime? @default(now()) @db.Timestamp(6)
+  deleted_date           DateTime? @db.Timestamp(6)
+  version                BigInt?
+  meta_keys              String?
+  meta_desc              String?
+  deskripsi_singkat      String?
+  satuan                 String?   @db.VarChar(20)
+  max_spread             Decimal?  @db.Decimal
+  min_spread             Decimal?  @db.Decimal
+  bisa_tinting           Int       @default(0) @db.SmallInt
+  tags                   String?
+  dry_time               String?
+  video_url              String?
+  tv_ads_url             String?
+  is_calculator          Boolean   @default(false)
+  id_solution            Json?     @default("{\"id\": [\"\"]}")
+  is_888                 Boolean?  @default(false)
+  is_170                 Boolean?  @default(false)
+  ready_mix_url          Json?     @default("{\"url\": [\"\"]}")
+  position               Json?     @default("{\"position\": [\"\"]}")
+  pengencer              Json?     @default("{\"pengencer\": [\"\"]}")
+  surface                Json?     @default("{\"surface\": [\"\"]}")
+  application_area       Json?     @default("{\"application_area\": [\"\"]}")
+  spread_unit            String?
+  layers_min             Decimal?  @db.Decimal
+  layers_max             Decimal?  @db.Decimal
+  layers_unit            String?   @db.VarChar(20)
+  packaging_unit         String?   @db.VarChar(10)
+  packaging              Json?     @default("{\"packaging\": [\"\"]}")
+  tagline                String?   @db.VarChar(200)
+  end_result             Json?     @default("[{\"end_result\": [\"\"]}]")
+  categories             Json?     @default("{\"categories\": [\"\"]}")
+  solutions              Json?     @default("{\"solutions\": [[\"\"]]}")
+  usability_feature      String?
+  technical_data         String?
+  surface_prep           String?
+  how_to_use             String?
+  cleaning_tools         String?
+  how_to_store           String?
+  safety_info            String?
+  additional_information String?
+  is_hot_item            String?   @default("1") @db.VarChar(1)
+  image_url_hot          String?
+  kualitas_rating        Int?
+  harga_rating           Int?
+  kelebihan              String?
+  paling_cocok_untuk     String?
+  file_url               String?
+  file_url_msds          String?
+  spread_rate            Float?
+  min_spread_rate        Float?
+  hasil_akhir            String?
+  time_kering            String?
+  lapisan_cat            String?
+  is_beli                Boolean?
+  order                  Int?      @db.SmallInt
+  is_new                 Boolean?
+  is_promo               Boolean?
+  layout                 Int?      @db.SmallInt
+  is_admiral             Boolean   @default(false)
+  is_homecare            Boolean?  @default(false)
+  logo                   String?   @db.VarChar(255)
+}
+
+model m_product_csr_import {
+  id     Int     @id(map: "mst_product_csr_pkey")
+  name   String  @db.VarChar(255)
+  id_web Int?
+  jenis  String  @db.VarChar(20)
+  diskon Decimal @db.Decimal
 }

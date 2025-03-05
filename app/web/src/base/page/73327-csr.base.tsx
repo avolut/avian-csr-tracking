@@ -98,6 +98,12 @@ base(
                   },
                 ],
                 [
+                  'detail_bantuan',
+                  {
+                    title: 'Detail Bantuan',
+                  },
+                ],
+                [
                   '_',
                   {
                     title: 'Status',
