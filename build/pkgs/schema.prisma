@@ -175,6 +175,7 @@ model t_csr {
   status                  String                    @default("Draft") @db.VarChar(10)
   is_training             Int                       @default(0) @db.SmallInt
   detail_bantuan          String?
+  cabang_detail_bantuan   String?
   m_area_tirta            m_area_tirta?             @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
   m_cabang                m_cabang?                 @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
   m_covered_area          m_covered_area?           @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)

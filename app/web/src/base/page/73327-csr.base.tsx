@@ -92,7 +92,7 @@ base(
                   },
                 ],
                 [
-                  'm_cabang.nama_cabang',
+                  'cabang_detail_bantuan',
                   {
                     title: 'Cabang',
                   },
@@ -165,7 +165,6 @@ base(
                 m_pulau: true,
                 m_instansi_penerima: true,
                 m_jenis_instansi: true,
-                m_cabang: true,
               },
               orderBy: {
                 id: 'desc',
