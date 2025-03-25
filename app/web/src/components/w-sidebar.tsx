@@ -48,7 +48,9 @@ export default observer(({ user }: any) => {
                   className="flex flex-1 space-x-1 items-center justify-start p-2.5"
                   onClick={() => (window as any).navigate('/admin/dashboard')}
                 >
-                  <div className="text-sm leading-tight text-white">Dashboard</div>
+                  <div className="text-sm leading-tight text-white">
+                    Dashboard
+                  </div>
                 </button>
               </div>
             )}
@@ -64,17 +66,128 @@ export default observer(({ user }: any) => {
               </div>
             )}
             {['admin', 'director'].indexOf(user.role) >= 0 && (
-              <div className="flex self-stretch items-center justify-start px-2.5">
-                <img src="/fimgs/548_4307.x1.svg" />
-                <button
-                  className="flex flex-1 space-x-1 items-center justify-start p-2.5"
-                  onClick={() => (window as any).navigate('/admin/summary-report')}
-                >
-                  <div className="text-sm leading-tight text-white">
-                    Summary Report
+              <>
+                {/* <div className="flex self-stretch items-center justify-start px-2.5">
+                  <img src="/fimgs/548_4307.x1.svg" />
+                  <button
+                    className="flex flex-1 space-x-1 items-center justify-start p-2.5"
+                    onClick={() =>
+                      (window as any).navigate('/admin/summary-report')
+                    }
+                  >
+                    <div className="text-sm leading-tight text-white">
+                      Summary Report
+                    </div>
+                  </button>
+                </div> */}
+
+                <div className="summary-report-container flex flex-col">
+                  <div className="flex self-stretch items-center justify-start px-2.5 relative">
+                    <img
+                      src="/fimgs/548_4307.x1.svg"
+                      className="transform transition-transform duration-200 w-4"
+                      css={css`
+                        height: 16px;
+                        &.rotate {
+                          transform: rotate(180deg);
+                        }
+                      `}
+                    />
+                    <button
+                      className="flex flex-1 space-x-1 items-center justify-start p-2.5"
+                      onClick={(e) => {
+                        const img =
+                          e.currentTarget.parentElement?.querySelector(
+                            '#dropdown-arrow'
+                          )
+                        const content = e.currentTarget
+                          .closest('.summary-report-container')
+                          ?.querySelector('.dropdown-content')
+
+                        if (content) {
+                          content.classList.toggle('h-0')
+                          content.classList.toggle('opacity-0')
+                          content.classList.toggle('py-0')
+                          content.classList.toggle('my-0')
+                        }
+                        if (img) {
+                          img.classList.toggle('rotate')
+                        }
+                      }}
+                    >
+                      <div className="text-sm leading-tight text-white">
+                        Summary Report
+                      </div>
+                    </button>
+                    {/* <img
+                      id="dropdown-arrow"
+                      src="/fimgs/down-arrow.svg"
+                      className="transform transition-transform duration-200 w-4 text-2xl text-white stroke-white"
+                      css={css`
+                        height: 16px;
+                        &.rotate {
+                          transform: rotate(180deg);
+                        }
+                      `}
+                    /> */}
                   </div>
-                </button>
-              </div>
+
+                  <div className="dropdown-content transition-all duration-200 h-0 opacity-0 py-0 my-0 overflow-hidden">
+                    <button
+                      className="flex self-stretch items-center justify-start w-full py-2"
+                      onClick={() =>
+                        window.open(
+                          'https://csr-mb.avianbrands.com/embed/dashboard/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZSI6eyJkYXNoYm9hcmQiOjEzfSwicGFyYW1zIjp7fSwiZXhwIjoxNzQyODc4ODYyLCJpYXQiOjE3NDI4NzUyNjJ9.zZ0EdtKKCzcx4cZWvMq4-SRqt_-4NUs4f-oid7OXQKQ',
+                          '_blank'
+                        )
+                      }
+                    >
+                      <div className="text-sm leading-tight text-white ml-11">
+                        Produk
+                      </div>
+                    </button>
+                    <button
+                      className="flex self-stretch items-center justify-start w-full py-2"
+                      onClick={() =>
+                        window.open(
+                          'https://csr-mb.avianbrands.com/embed/dashboard/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZSI6eyJkYXNoYm9hcmQiOjJ9LCJwYXJhbXMiOnt9LCJleHAiOjE3NDI4Nzg4NjIsImlhdCI6MTc0Mjg3NTI2Mn0.2p_cMsCNpxRlSkgZYTXcuAL_CfZ5H6a7lu6QuTVFnrk',
+                          '_blank'
+                        )
+                      }
+                    >
+                      <div className="text-sm leading-tight text-white ml-11">
+                        Pilar CSR
+                      </div>
+                    </button>
+                    <button
+                      className="flex self-stretch items-center justify-start w-full py-2"
+                      onClick={() =>
+                        window.open(
+                          'https://csr-mb.avianbrands.com/embed/dashboard/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZSI6eyJkYXNoYm9hcmQiOjE2fSwicGFyYW1zIjp7fSwiZXhwIjoxNzQyODc4ODYyLCJpYXQiOjE3NDI4NzUyNjJ9.hMAyIQiCcPBqrXZy38VPnwDf9QaRf24iStkKifoRuMo',
+                          '_blank'
+                        )
+                      }
+                    >
+                      <div className="text-sm leading-tight text-white ml-11">
+                        Penerima
+                      </div>
+                    </button>
+                    <button
+                      className="flex self-stretch items-center justify-start w-full py-2"
+                      onClick={() =>
+                        window.open(
+                          'https://csr-mb.avianbrands.com/embed/dashboard/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZSI6eyJkYXNoYm9hcmQiOjE5fSwicGFyYW1zIjp7fSwiZXhwIjoxNzQyODc5MDYyLCJpYXQiOjE3NDI4NzU0NjJ9.o9chm1k52LHVBzgliBQaSRMQtgeKq7O9HxjtPqAedW0',
+                          '_blank'
+                        )
+                      }
+                    >
+                      <div className="text-sm leading-tight text-white ml-11">
+                        Executive Summary
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
 
             {['admin'].indexOf(user.role) >= 0 && (
@@ -82,7 +195,9 @@ export default observer(({ user }: any) => {
                 <img src="/fimgs/550_6380.x1.svg" />
                 <button
                   className="flex flex-1 space-x-1 items-center justify-start p-2.5"
-                  onClick={() => (window as any).navigate('/admin/setting-target')}
+                  onClick={() =>
+                    (window as any).navigate('/admin/setting-target')
+                  }
                 >
                   <div className="text-sm leading-tight text-white">
                     Setting Target
@@ -120,116 +235,133 @@ export default observer(({ user }: any) => {
               </div>
             )}
             {['admin'].indexOf(user.role) >= 0 ? (
-              <div
-                className="flex flex-1 flex-col" // style={css`
-                //   width: 16vw;
-                // `}
-              >
-                <div className="flex self-stretch flex-col items-start justify-start">
-                  <button
-                    className="flex self-stretch items-start justify-start " // onClick={toggleMaster}
-                  >
-                    <div className="flex flex-1 space-x-1 items-center justify-start p-2.5">
-                      <div className="text-base font-light leading-normal text-gray-300">
-                        MASTER DATA
+              <div className="flex flex-col">
+                <div className="flex flex-1 flex-col">
+                  <div className="flex self-stretch flex-col items-start justify-start">
+                    <button className="flex self-stretch items-start justify-start">
+                      <div className="flex flex-1 space-x-1 items-center justify-start p-2.5">
+                        <div className="text-base font-light leading-normal text-gray-300">
+                          MASTER DATA
+                        </div>
                       </div>
+                    </button>
+                    <div className="flex self-stretch flex-col items-start justify-start transition-height duration-500 ease-in-out overflow-hidden">
+                      <button
+                        className="flex self-stretch flex-col items-center justify-start "
+                        onClick={() =>
+                          (window as any).navigate(
+                            '/admin/master-data-kegiatan'
+                          )
+                        }
+                      >
+                        <div className="flex self-stretch items-center justify-start py-2.5">
+                          <div className="text-sm leading-tight text-white ml-10">
+                            Kegiatan CSR
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        className="flex self-stretch flex-col items-center justify-start  "
+                        onClick={() =>
+                          (window as any).navigate(
+                            '/admin/master-data-supplier'
+                          )
+                        }
+                      >
+                        <div className="flex self-stretch items-center justify-start py-2.5">
+                          <div className="text-sm leading-tight text-white ml-10">
+                            Supplier
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        className="flex self-stretch flex-col items-center justify-start  "
+                        onClick={() =>
+                          (window as any).navigate('/admin/master-data-area')
+                        }
+                      >
+                        <div className="flex self-stretch items-center justify-start py-2.5">
+                          <div className="text-sm leading-tight text-white ml-10">
+                            Area Tirta
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        className="flex self-stretch flex-col items-center justify-start  "
+                        onClick={() =>
+                          (window as any).navigate('/admin/master-data-cabang')
+                        }
+                      >
+                        <div className="flex self-stretch items-center justify-start py-2.5">
+                          <div className="text-sm leading-tight text-white ml-10">
+                            Cabang
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        className="flex self-stretch flex-col items-center justify-start  "
+                        onClick={() =>
+                          (window as any).navigate(
+                            '/admin/master-data-jenis-bantuan'
+                          )
+                        }
+                      >
+                        <div className="flex self-stretch items-center justify-start py-2.5">
+                          <div className="text-sm leading-tight text-white ml-10">
+                            Jenis Bantuan
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        className="flex self-stretch flex-col items-center justify-start  "
+                        onClick={() =>
+                          (window as any).navigate(
+                            '/admin/master-data-instansi-penerima'
+                          )
+                        }
+                      >
+                        <div className="flex self-stretch items-center justify-start py-2.5">
+                          <div className="text-sm leading-tight text-white ml-10">
+                            Instansi Penerima
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        className="flex self-stretch flex-col items-center justify-start  "
+                        onClick={() =>
+                          (window as any).navigate(
+                            '/admin/master-data-jenis-instansi'
+                          )
+                        }
+                      >
+                        <div className="flex self-stretch items-center justify-start py-2.5">
+                          <div className="text-sm leading-tight text-white ml-10">
+                            Jenis Instansi
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        className="flex self-stretch flex-col items-center justify-start  "
+                        onClick={() =>
+                          (window as any).navigate(
+                            '/admin/master-data-fasilitas'
+                          )
+                        }
+                      >
+                        <div className="flex self-stretch items-center justify-start py-2.5">
+                          <div className="text-sm leading-tight text-white ml-10">
+                            Fasilitas Lainnya
+                          </div>
+                        </div>
+                      </button>
                     </div>
-                  </button>
-                  <div className="flex self-stretch flex-col items-start justify-start transition-height duration-500 ease-in-out overflow-hidden">
-                    <button
-                      className="flex self-stretch flex-col items-center justify-start "
-                      onClick={() => (window as any).navigate('/admin/master-data-kegiatan')}
-                    >
-                      <div className="flex self-stretch items-center justify-start py-2.5">
-                        <div className="text-sm leading-tight text-white ml-10">
-                          Kegiatan CSR
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      className="flex self-stretch flex-col items-center justify-start  "
-                      onClick={() => (window as any).navigate('/admin/master-data-supplier')}
-                    >
-                      <div className="flex self-stretch items-center justify-start py-2.5">
-                        <div className="text-sm leading-tight text-white ml-10">
-                          Supplier
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      className="flex self-stretch flex-col items-center justify-start  "
-                      onClick={() => (window as any).navigate('/admin/master-data-area')}
-                    >
-                      <div className="flex self-stretch items-center justify-start py-2.5">
-                        <div className="text-sm leading-tight text-white ml-10">
-                          Area Tirta
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      className="flex self-stretch flex-col items-center justify-start  "
-                      onClick={() => (window as any).navigate('/admin/master-data-cabang')}
-                    >
-                      <div className="flex self-stretch items-center justify-start py-2.5">
-                        <div className="text-sm leading-tight text-white ml-10">
-                          Cabang
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      className="flex self-stretch flex-col items-center justify-start  "
-                      onClick={() =>
-                        (window as any).navigate('/admin/master-data-jenis-bantuan')
-                      }
-                    >
-                      <div className="flex self-stretch items-center justify-start py-2.5">
-                        <div className="text-sm leading-tight text-white ml-10">
-                          Jenis Bantuan
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      className="flex self-stretch flex-col items-center justify-start  "
-                      onClick={() =>
-                        (window as any).navigate('/admin/master-data-instansi-penerima')
-                      }
-                    >
-                      <div className="flex self-stretch items-center justify-start py-2.5">
-                        <div className="text-sm leading-tight text-white ml-10">
-                          Instansi Penerima
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      className="flex self-stretch flex-col items-center justify-start  "
-                      onClick={() =>
-                        (window as any).navigate('/admin/master-data-jenis-instansi')
-                      }
-                    >
-                      <div className="flex self-stretch items-center justify-start py-2.5">
-                        <div className="text-sm leading-tight text-white ml-10">
-                          Jenis Instansi
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      className="flex self-stretch flex-col items-center justify-start  "
-                      onClick={() =>
-                        (window as any).navigate('/admin/master-data-fasilitas')
-                      }
-                    >
-                      <div className="flex self-stretch items-center justify-start py-2.5">
-                        <div className="text-sm leading-tight text-white ml-10">
-                          Fasilitas Lainnya
-                        </div>
-                      </div>
-                    </button>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="flex flex-1"></div>
             )}
+
             <div className="flex self-stretch items-center justify-start px-2.5">
               <img
                 src="/fimgs/key.x1.svg"
@@ -239,7 +371,9 @@ export default observer(({ user }: any) => {
               />
               <button className="flex flex-1 space-x-1 items-center justify-start p-2.5">
                 <div
-                  onClick={() => (window as any).navigate('/admin/change-password')}
+                  onClick={() =>
+                    (window as any).navigate('/admin/change-password')
+                  }
                   className="text-sm leading-tight text-white"
                 >
                   Ubah Password
