@@ -137,7 +137,7 @@ export default observer(({ user }: any) => {
                       className="flex self-stretch items-center justify-start w-full py-2"
                       onClick={() =>
                         window.open(
-                          'https://csr-mb.avianbrands.com/embed/dashboard/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZSI6eyJkYXNoYm9hcmQiOjEzfSwicGFyYW1zIjp7fSwiZXhwIjoxNzQyODc4ODYyLCJpYXQiOjE3NDI4NzUyNjJ9.zZ0EdtKKCzcx4cZWvMq4-SRqt_-4NUs4f-oid7OXQKQ',
+                          'https://csr-mb.avianbrands.com/public/dashboard/91749948-25ae-4b33-81a4-b901fba000b1',
                           '_blank'
                         )
                       }
@@ -150,7 +150,7 @@ export default observer(({ user }: any) => {
                       className="flex self-stretch items-center justify-start w-full py-2"
                       onClick={() =>
                         window.open(
-                          'https://csr-mb.avianbrands.com/embed/dashboard/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZSI6eyJkYXNoYm9hcmQiOjJ9LCJwYXJhbXMiOnt9LCJleHAiOjE3NDI4Nzg4NjIsImlhdCI6MTc0Mjg3NTI2Mn0.2p_cMsCNpxRlSkgZYTXcuAL_CfZ5H6a7lu6QuTVFnrk',
+                          'https://csr-mb.avianbrands.com/public/dashboard/f2f0ae4a-12be-410d-8464-4b223c2ffdee',
                           '_blank'
                         )
                       }
@@ -163,7 +163,7 @@ export default observer(({ user }: any) => {
                       className="flex self-stretch items-center justify-start w-full py-2"
                       onClick={() =>
                         window.open(
-                          'https://csr-mb.avianbrands.com/embed/dashboard/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZSI6eyJkYXNoYm9hcmQiOjE2fSwicGFyYW1zIjp7fSwiZXhwIjoxNzQyODc4ODYyLCJpYXQiOjE3NDI4NzUyNjJ9.hMAyIQiCcPBqrXZy38VPnwDf9QaRf24iStkKifoRuMo',
+                          'https://csr-mb.avianbrands.com/public/dashboard/541ed1a6-849e-4510-bc30-3864abe733f7',
                           '_blank'
                         )
                       }
@@ -176,7 +176,7 @@ export default observer(({ user }: any) => {
                       className="flex self-stretch items-center justify-start w-full py-2"
                       onClick={() =>
                         window.open(
-                          'https://csr-mb.avianbrands.com/embed/dashboard/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZSI6eyJkYXNoYm9hcmQiOjE5fSwicGFyYW1zIjp7fSwiZXhwIjoxNzQyODc5MDYyLCJpYXQiOjE3NDI4NzU0NjJ9.o9chm1k52LHVBzgliBQaSRMQtgeKq7O9HxjtPqAedW0',
+                          'https://csr-mb.avianbrands.com/public/dashboard/59a7c2b1-d29a-47d6-85b2-58f91c45b2e7',
                           '_blank'
                         )
                       }
