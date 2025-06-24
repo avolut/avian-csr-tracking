@@ -8,350 +8,2535 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model m_area_tirta {
-  id                   Int                    @id @default(autoincrement())
-  nama_area_tirta      String                 @db.VarChar(50)
-  m_cabang             m_cabang[]
-  t_csr                t_csr[]
-  t_csr_detail_bantuan t_csr_detail_bantuan[]
-}
-
-model m_budget_by {
-  id        Int    @id @default(autoincrement())
-  budget_by String @db.VarChar(50)
-}
-
-model m_cabang {
-  id                   Int                    @id @default(autoincrement())
-  nama_cabang          String                 @db.VarChar(50)
-  id_area_tirta        Int
-  m_area_tirta         m_area_tirta           @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
-  t_csr                t_csr[]
-  t_csr_detail_bantuan t_csr_detail_bantuan[]
-}
-
-model m_covered_area {
-  id                Int     @id @default(autoincrement())
-  nama_covered_area String  @db.VarChar(50)
-  t_csr             t_csr[]
-}
-
-model m_divisi {
-  id    Int     @id(map: "m_division_pkey") @default(autoincrement())
-  name  String  @db.VarChar(20)
-  t_csr t_csr[]
-}
-
-model m_fasilitas_lainnya {
-  id                      Int                       @id @default(autoincrement())
-  fasilitas               String                    @db.VarChar(50)
-  t_csr_fasilitas_lainnya t_csr_fasilitas_lainnya[]
-}
-
-model m_instansi_penerima {
-  id                Int                @id @default(autoincrement())
-  instansi_penerima String             @db.VarChar(50)
-  m_jenis_instansi  m_jenis_instansi[]
-  m_setting_target  m_setting_target[]
-  t_csr             t_csr[]
-}
-
-model m_jenis_bantuan {
-  id                   Int                    @id @default(autoincrement())
-  jenis_bantuan        String                 @db.VarChar(50)
-  t_csr_detail_bantuan t_csr_detail_bantuan[]
-}
-
-model m_jenis_instansi {
-  id                   Int                 @id @default(autoincrement())
-  jenis_instansi       String              @db.VarChar(50)
-  id_instansi_penerima Int
-  m_instansi_penerima  m_instansi_penerima @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
-  t_csr                t_csr[]
-}
-
-model m_kegiatan {
-  id            Int      @id @default(autoincrement())
-  nama_kegiatan String   @db.VarChar(50)
-  id_pillar     Int
-  m_pillar      m_pillar @relation(fields: [id_pillar], references: [id], onDelete: Cascade)
-  t_csr         t_csr[]
-}
-
-model m_pillar {
-  id         Int          @id @default(autoincrement())
-  name       String       @db.VarChar(20)
-  type_web   Int          @default(1) @db.SmallInt
-  m_kegiatan m_kegiatan[]
-  t_csr      t_csr[]
-}
-
-model m_product_csr {
-  id                   Int                    @id @default(autoincrement())
-  name                 String                 @db.VarChar(255)
-  id_web               Int?
-  jenis                String                 @db.VarChar(20)
-  diskon               Decimal                @default(0) @db.Decimal
-  t_csr_detail_bantuan t_csr_detail_bantuan[]
-}
-
-model m_pulau {
-  id    Int     @id @default(autoincrement())
-  pulau String  @db.VarChar(255)
-  t_csr t_csr[]
-}
-
-model m_role {
-  id        Int    @id @default(autoincrement())
-  role_name String @db.VarChar(255)
-  menu_path String @db.VarChar(255)
-  home_url  String @db.VarChar(255)
-  repo_path String @db.VarChar(255)
-}
-
-model m_setting_target {
-  id                   Int                  @id @default(autoincrement())
-  target               Decimal              @db.Decimal
-  bantuan              String               @db.VarChar(255)
-  periode              Int
-  id_instansi_penerima Int?
-  m_instansi_penerima  m_instansi_penerima? @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
-}
-
-model m_supplier {
-  id                   Int                    @id @default(autoincrement())
-  nama_supplier        String                 @db.VarChar(50)
-  t_csr                t_csr[]
-  t_csr_biaya_support  t_csr_biaya_support[]
-  t_csr_detail_bantuan t_csr_detail_bantuan[]
-}
-
-model m_user {
-  id          Int           @id @default(autoincrement())
-  name        String        @db.VarChar(255)
-  username    String        @db.VarChar(50)
-  password    String        @db.VarChar
-  last_login  DateTime      @db.Timestamp(6)
-  role        String        @db.VarChar(10)
-  m_user_role m_user_role[]
-}
-
-model m_user_role {
-  id                Int           @id @default(autoincrement())
-  user_id           Int
-  role_id           Int
-  m_user_role       m_user_role   @relation("m_user_roleTom_user_role_role_id", fields: [role_id], references: [id], onDelete: Cascade)
-  m_user            m_user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  other_m_user_role m_user_role[] @relation("m_user_roleTom_user_role_role_id")
-}
-
-model t_csr {
-  id                      Int                       @id @default(autoincrement())
-  no_kegiatan             String?                   @db.VarChar(11)
-  id_division             Int
-  id_pillar               Int
-  id_kegiatan             Int                       @default(0)
-  tgl_kegiatan            DateTime                  @db.Date
-  nama_project_csr        String                    @db.VarChar(100)
-  id_supplier             Int?
-  id_area_tirta           Int?
-  id_cabang               Int?
-  id_covered_area         Int?
-  id_pulau                Int
-  lokasi                  String
-  longitude               Decimal                   @db.Decimal(19, 15)
-  latitude                Decimal                   @db.Decimal(19, 15)
-  deskripsi_singkat       String
-  budget_by               String?                   @db.VarChar(50)
-  value_biaya             Float?                    @default(0)
-  created_by              Int
-  created_date            DateTime                  @db.Timestamp(6)
-  updated_by              Int?
-  updated_date            DateTime?                 @db.Timestamp(6)
-  id_instansi_penerima    Int
-  id_jenis_instansi       Int
-  keterangan              String?
-  jumlah_orang            Int
-  status                  String                    @default("Draft") @db.VarChar(10)
-  is_training             Int                       @default(0) @db.SmallInt
-  detail_bantuan          String?
-  cabang_detail_bantuan   String?
-  m_area_tirta            m_area_tirta?             @relation(fields: [id_area_tirta], references: [id], onDelete: Cascade)
-  m_cabang                m_cabang?                 @relation(fields: [id_cabang], references: [id], onDelete: Cascade)
-  m_covered_area          m_covered_area?           @relation(fields: [id_covered_area], references: [id], onDelete: Cascade)
-  m_divisi                m_divisi                  @relation(fields: [id_division], references: [id], onDelete: Cascade)
-  m_instansi_penerima     m_instansi_penerima       @relation(fields: [id_instansi_penerima], references: [id], onDelete: Cascade)
-  m_jenis_instansi        m_jenis_instansi          @relation(fields: [id_jenis_instansi], references: [id], onDelete: Cascade)
-  m_kegiatan              m_kegiatan                @relation(fields: [id_kegiatan], references: [id], onDelete: Cascade)
-  m_pillar                m_pillar                  @relation(fields: [id_pillar], references: [id], onDelete: Cascade)
-  m_pulau                 m_pulau                   @relation(fields: [id_pulau], references: [id], onDelete: Cascade)
-  m_supplier              m_supplier?               @relation(fields: [id_supplier], references: [id], onDelete: Cascade)
-  t_csr_biaya_support     t_csr_biaya_support[]
-  t_csr_detail_bantuan    t_csr_detail_bantuan[]
-  t_csr_dokumentasi       t_csr_dokumentasi[]
-  t_csr_fasilitas_lainnya t_csr_fasilitas_lainnya[]
-}
-
-model t_csr_detail_bantuan {
-  id               Int              @id(map: "t_bantuan_pkey") @default(autoincrement())
-  bantuan          String           @db.VarChar(50)
-  jumlah           Int?
-  merek            String?          @db.VarChar(255)
-  jenis            String?          @db.VarChar(50)
-  warna            String?          @db.VarChar(50)
-  value            Float
-  harga_nett       Float
-  id_csr           Int
-  id_jenis_bantuan Int?
-  id_product_csr   Int?
-  diskon           Float?           @default(0)
-  id_supplier      Int?
-  id_area_tirta    Int?
-  id_cabang        Int?
-  m_area_tirta     m_area_tirta?    @relation(fields: [id_area_tirta], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  m_cabang         m_cabang?        @relation(fields: [id_cabang], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  t_csr            t_csr            @relation(fields: [id_csr], references: [id], onDelete: Cascade)
-  m_jenis_bantuan  m_jenis_bantuan? @relation(fields: [id_jenis_bantuan], references: [id], onDelete: Cascade)
-  m_product_csr    m_product_csr?   @relation(fields: [id_product_csr], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  m_supplier       m_supplier?      @relation(fields: [id_supplier], references: [id], onDelete: Restrict, onUpdate: Restrict)
-}
-
-model t_csr_dokumentasi {
-  id           Int      @id(map: "m_dokumentasi_pkey") @default(autoincrement())
-  url_file     String
-  tipe         String   @db.VarChar(50)
-  caption      String   @db.VarChar(255)
-  id_csr       Int
-  created_date DateTime @db.Timestamp(6)
-  t_csr        t_csr    @relation(fields: [id_csr], references: [id], onDelete: Cascade)
-}
-
-model t_csr_fasilitas_lainnya {
-  id                   Int                 @id @default(autoincrement())
-  jumlah               Int
-  id_fasilitas_lainnya Int
-  keterangan           String?             @db.VarChar(255)
-  id_csr               Int
-  t_csr                t_csr               @relation(fields: [id_csr], references: [id], onDelete: Cascade)
-  m_fasilitas_lainnya  m_fasilitas_lainnya @relation(fields: [id_fasilitas_lainnya], references: [id], onDelete: Cascade)
-}
-
-model m_config {
-  id    Int    @id @default(autoincrement())
-  type  String @db.VarChar
-  value String @db.VarChar
-}
-
-model m_metabase {
-  id       Int    @id @default(autoincrement())
-  type     String @db.VarChar
-  title    String @db.VarChar
-  resource Json
-}
-
-model t_csr_biaya_support {
-  id          Int         @id @default(autoincrement())
-  jenis_biaya String      @db.VarChar(30)
-  total_harga Float
-  id_supplier Int?
-  note        String?     @db.VarChar(255)
-  id_csr      Int
-  t_csr       t_csr       @relation(fields: [id_csr], references: [id], onDelete: Cascade)
-  m_supplier  m_supplier? @relation(fields: [id_supplier], references: [id], onDelete: Cascade)
-}
-
-model c_value_to_string {
-  id         Int    @id(map: "c_value_to_string_pk") @default(autoincrement())
-  value      Int    @db.SmallInt
-  keterangan String @db.VarChar
-}
-
 model dtb_product {
-  id                     BigInt    @id @default(autoincrement())
-  id_category            Int?
-  pretty_url             String?   @db.VarChar(500)
-  code                   String?   @db.VarChar(50)
-  name                   String?   @db.VarChar(200)
-  description            String?
-  image_url              String?   @db.VarChar(500)
-  image_pretty_name      String?   @db.VarChar(200)
-  tds_url                String?   @db.VarChar(500)
-  filename_tds           String?   @db.VarChar(200)
-  msds_url               String?   @db.VarChar(500)
-  filename_msds          String?   @db.VarChar(200)
-  is_show                Int       @default(1) @db.SmallInt
-  status                 Int       @default(1) @db.SmallInt
-  show_in_filter         Int       @default(10) @db.SmallInt
-  ordering               BigInt?
-  created_date           DateTime? @default(now()) @db.Timestamp(6)
-  updated_date           DateTime? @default(now()) @db.Timestamp(6)
-  deleted_date           DateTime? @db.Timestamp(6)
-  version                BigInt?
-  meta_keys              String?
-  meta_desc              String?
-  deskripsi_singkat      String?
-  satuan                 String?   @db.VarChar(20)
-  max_spread             Decimal?  @db.Decimal
-  min_spread             Decimal?  @db.Decimal
-  bisa_tinting           Int       @default(0) @db.SmallInt
-  tags                   String?
-  dry_time               String?
-  video_url              String?
-  tv_ads_url             String?
-  is_calculator          Boolean   @default(false)
-  id_solution            Json?     @default("{\"id\": [\"\"]}")
-  is_888                 Boolean?  @default(false)
-  is_170                 Boolean?  @default(false)
-  ready_mix_url          Json?     @default("{\"url\": [\"\"]}")
-  position               Json?     @default("{\"position\": [\"\"]}")
-  pengencer              Json?     @default("{\"pengencer\": [\"\"]}")
-  surface                Json?     @default("{\"surface\": [\"\"]}")
-  application_area       Json?     @default("{\"application_area\": [\"\"]}")
-  spread_unit            String?
-  layers_min             Decimal?  @db.Decimal
-  layers_max             Decimal?  @db.Decimal
-  layers_unit            String?   @db.VarChar(20)
-  packaging_unit         String?   @db.VarChar(10)
-  packaging              Json?     @default("{\"packaging\": [\"\"]}")
-  tagline                String?   @db.VarChar(200)
-  end_result             Json?     @default("[{\"end_result\": [\"\"]}]")
-  categories             Json?     @default("{\"categories\": [\"\"]}")
-  solutions              Json?     @default("{\"solutions\": [[\"\"]]}")
-  usability_feature      String?
-  technical_data         String?
-  surface_prep           String?
-  how_to_use             String?
-  cleaning_tools         String?
-  how_to_store           String?
-  safety_info            String?
-  additional_information String?
-  is_hot_item            String?   @default("1") @db.VarChar(1)
-  image_url_hot          String?
-  kualitas_rating        Int?
-  harga_rating           Int?
-  kelebihan              String?
-  paling_cocok_untuk     String?
-  file_url               String?
-  file_url_msds          String?
-  spread_rate            Float?
-  min_spread_rate        Float?
-  hasil_akhir            String?
-  time_kering            String?
-  lapisan_cat            String?
-  is_beli                Boolean?
-  order                  Int?      @db.SmallInt
-  is_new                 Boolean?
-  is_promo               Boolean?
-  layout                 Int?      @db.SmallInt
-  is_admiral             Boolean   @default(false)
-  is_homecare            Boolean?  @default(false)
-  logo                   String?   @db.VarChar(255)
+  id                        BigInt                      @id @default(autoincrement())
+  id_category               Int?
+  pretty_url                String?                     @db.VarChar(500)
+  code                      String?                     @db.VarChar(50)
+  name                      String?                     @db.VarChar(200)
+  description               String?
+  image_url                 String?                     @db.VarChar(500)
+  image_pretty_name         String?                     @db.VarChar(200)
+  tds_url                   String?                     @db.VarChar(500)
+  filename_tds              String?                     @db.VarChar(200)
+  msds_url                  String?                     @db.VarChar(500)
+  filename_msds             String?                     @db.VarChar(200)
+  is_show                   Int                         @default(1) @db.SmallInt
+  status                    Int                         @default(1) @db.SmallInt
+  show_in_filter            Int                         @default(10) @db.SmallInt
+  ordering                  BigInt?
+  created_date              DateTime?                   @default(now()) @db.Timestamp(6)
+  updated_date              DateTime?                   @default(now()) @db.Timestamp(6)
+  deleted_date              DateTime?                   @db.Timestamp(6)
+  version                   BigInt?
+  meta_keys                 String?
+  meta_desc                 String?
+  deskripsi_singkat         String?
+  satuan                    String?                     @db.VarChar(20)
+  max_spread                Decimal?                    @db.Decimal
+  min_spread                Decimal?                    @db.Decimal
+  bisa_tinting              Int                         @default(0) @db.SmallInt
+  tags                      String?
+  dry_time                  String?
+  video_url                 String?
+  tv_ads_url                String?
+  is_calculator             Boolean                     @default(false)
+  id_solution               Json?                       @default("{\"id\": [\"\"]}")
+  is_888                    Boolean?                    @default(false)
+  is_170                    Boolean?                    @default(false)
+  ready_mix_url             Json?                       @default("{\"url\": [\"\"]}")
+  position                  Json?                       @default("{\"position\": [\"\"]}")
+  pengencer                 Json?                       @default("{\"pengencer\": [\"\"]}")
+  surface                   Json?                       @default("{\"surface\": [\"\"]}")
+  application_area          Json?                       @default("{\"application_area\": [\"\"]}")
+  spread_unit               String?
+  layers_min                Decimal?                    @db.Decimal
+  layers_max                Decimal?                    @db.Decimal
+  layers_unit               String?                     @db.VarChar(20)
+  packaging_unit            String?                     @db.VarChar(10)
+  packaging                 Json?                       @default("{\"packaging\": [\"\"]}")
+  tagline                   String?                     @db.VarChar(200)
+  end_result                Json?                       @default("[{\"end_result\": [\"\"]}]")
+  categories                Json?                       @default("{\"categories\": [\"\"]}")
+  solutions                 Json?                       @default("{\"solutions\": [[\"\"]]}")
+  usability_feature         String?
+  technical_data            String?
+  surface_prep              String?
+  how_to_use                String?
+  cleaning_tools            String?
+  how_to_store              String?
+  safety_info               String?
+  additional_information    String?
+  is_hot_item               String?                     @default("1") @db.VarChar(1)
+  image_url_hot             String?
+  kualitas_rating           Int?
+  harga_rating              Int?
+  kelebihan                 String?
+  paling_cocok_untuk        String?
+  file_url                  String?
+  file_url_msds             String?
+  spread_rate               Float?
+  min_spread_rate           Float?
+  hasil_akhir               String?
+  time_kering               String?
+  lapisan_cat               String?
+  is_beli                   Boolean?
+  order                     Int?                        @db.SmallInt
+  is_new                    Boolean?
+  is_promo                  Boolean?
+  layout                    Int?                        @db.SmallInt
+  is_admiral                Boolean                     @default(false)
+  is_homecare               Boolean?                    @default(false)
+  logo                      String?                     @db.VarChar(255)
+  is_multiple_tds           Boolean                     @default(false)
+  multiple_tds              Json?                       @default("{\"tds\": [\"\"]}")
+  is_multiple_msds          Boolean
+  multiple_msds             Json?                       @default("{\"msds\": [\"\"]}")
+  mst_category              mst_category?               @relation(fields: [id_category], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  dtb_product_slider        dtb_product_slider[]
+  mst_product_selling_point mst_product_selling_point[]
+  mst_product_solution      mst_product_solution[]
+
+  @@index([name], map: "dtb_product_name")
 }
 
-model m_product_csr_import {
-  id     Int     @id(map: "mst_product_csr_pkey")
-  name   String  @db.VarChar(255)
-  id_web Int?
-  jenis  String  @db.VarChar(20)
-  diskon Decimal @db.Decimal
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Inject_Data_Cust {
+  store_id  String? @db.VarChar(255)
+  name      String? @db.VarChar(255)
+  address   String? @db.VarChar(255)
+  lattitude String? @db.VarChar(255)
+  longitude String? @db.VarChar(255)
+  phone     String? @db.VarChar(255)
+  fax       String? @db.VarChar(255)
+  hp        String? @db.VarChar(255)
+  hp_1      String? @db.VarChar(255)
+
+  @@map("Inject Data Cust")
+  @@ignore
+}
+
+model data_user_support_mental_health {
+  id      Int    @id @default(autoincrement())
+  ip_user String @db.VarChar(250)
+  count   Int
+}
+
+model directus_activity {
+  id                 Int                  @id @default(autoincrement())
+  action             String               @db.VarChar(45)
+  user               String?              @db.Uuid
+  timestamp          DateTime             @default(now()) @db.Timestamptz(6)
+  ip                 String?              @db.VarChar(50)
+  user_agent         String?              @db.VarChar(255)
+  collection         String               @db.VarChar(64)
+  item               String               @db.VarChar(255)
+  comment            String?
+  origin             String?              @db.VarChar(255)
+  directus_revisions directus_revisions[]
+}
+
+model directus_collections {
+  collection                 String                 @id @db.VarChar(64)
+  icon                       String?                @db.VarChar(30)
+  note                       String?
+  display_template           String?                @db.VarChar(255)
+  hidden                     Boolean                @default(false)
+  singleton                  Boolean                @default(false)
+  translations               Json?                  @db.Json
+  archive_field              String?                @db.VarChar(64)
+  archive_app_filter         Boolean                @default(true)
+  archive_value              String?                @db.VarChar(255)
+  unarchive_value            String?                @db.VarChar(255)
+  sort_field                 String?                @db.VarChar(64)
+  accountability             String?                @default("all") @db.VarChar(255)
+  color                      String?                @db.VarChar(255)
+  item_duplication_fields    Json?                  @db.Json
+  sort                       Int?
+  group                      String?                @db.VarChar(64)
+  collapse                   String                 @default("open") @db.VarChar(255)
+  directus_collections       directus_collections?  @relation("directus_collectionsTodirectus_collections_group", fields: [group], references: [collection], onDelete: NoAction, onUpdate: NoAction, map: "directus_collections_group_foreign")
+  other_directus_collections directus_collections[] @relation("directus_collectionsTodirectus_collections_group")
+  directus_shares            directus_shares[]
+}
+
+model directus_dashboards {
+  id              String            @id @db.Uuid
+  name            String            @db.VarChar(255)
+  icon            String            @default("dashboard") @db.VarChar(30)
+  note            String?
+  date_created    DateTime?         @default(now()) @db.Timestamptz(6)
+  user_created    String?           @db.Uuid
+  color           String?           @db.VarChar(255)
+  directus_users  directus_users?   @relation(fields: [user_created], references: [id], onUpdate: NoAction, map: "directus_dashboards_user_created_foreign")
+  directus_panels directus_panels[]
+}
+
+model directus_fields {
+  id                 Int      @id @default(autoincrement())
+  collection         String   @db.VarChar(64)
+  field              String   @db.VarChar(64)
+  special            String?  @db.VarChar(64)
+  interface          String?  @db.VarChar(64)
+  options            Json?    @db.Json
+  display            String?  @db.VarChar(64)
+  display_options    Json?    @db.Json
+  readonly           Boolean  @default(false)
+  hidden             Boolean  @default(false)
+  sort               Int?
+  width              String?  @default("full") @db.VarChar(30)
+  translations       Json?    @db.Json
+  note               String?
+  conditions         Json?    @db.Json
+  required           Boolean? @default(false)
+  group              String?  @db.VarChar(64)
+  validation         Json?    @db.Json
+  validation_message String?
+}
+
+model directus_files {
+  id                                                                    String              @id @db.Uuid
+  storage                                                               String              @db.VarChar(255)
+  filename_disk                                                         String?             @db.VarChar(255)
+  filename_download                                                     String              @db.VarChar(255)
+  title                                                                 String?             @db.VarChar(255)
+  type                                                                  String?             @db.VarChar(255)
+  folder                                                                String?             @db.Uuid
+  uploaded_by                                                           String?             @db.Uuid
+  uploaded_on                                                           DateTime            @default(now()) @db.Timestamptz(6)
+  modified_by                                                           String?             @db.Uuid
+  modified_on                                                           DateTime            @default(now()) @db.Timestamptz(6)
+  charset                                                               String?             @db.VarChar(50)
+  filesize                                                              BigInt?
+  width                                                                 Int?
+  height                                                                Int?
+  duration                                                              Int?
+  embed                                                                 String?             @db.VarChar(200)
+  description                                                           String?
+  location                                                              String?
+  tags                                                                  String?
+  metadata                                                              Json?               @db.Json
+  directus_folders                                                      directus_folders?   @relation(fields: [folder], references: [id], onUpdate: NoAction, map: "directus_files_folder_foreign")
+  directus_users_directus_files_modified_byTodirectus_users             directus_users?     @relation("directus_files_modified_byTodirectus_users", fields: [modified_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_files_modified_by_foreign")
+  directus_users_directus_files_uploaded_byTodirectus_users             directus_users?     @relation("directus_files_uploaded_byTodirectus_users", fields: [uploaded_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_files_uploaded_by_foreign")
+  directus_settings_directus_filesTodirectus_settings_project_logo      directus_settings[] @relation("directus_filesTodirectus_settings_project_logo")
+  directus_settings_directus_filesTodirectus_settings_public_background directus_settings[] @relation("directus_filesTodirectus_settings_public_background")
+  directus_settings_directus_filesTodirectus_settings_public_foreground directus_settings[] @relation("directus_filesTodirectus_settings_public_foreground")
+}
+
+model directus_flows {
+  id                  String                @id @db.Uuid
+  name                String                @db.VarChar(255)
+  icon                String?               @db.VarChar(30)
+  color               String?               @db.VarChar(255)
+  description         String?
+  status              String                @default("active") @db.VarChar(255)
+  trigger             String?               @db.VarChar(255)
+  accountability      String?               @default("all") @db.VarChar(255)
+  options             Json?                 @db.Json
+  operation           String?               @unique(map: "directus_flows_operation_unique") @db.Uuid
+  date_created        DateTime?             @default(now()) @db.Timestamptz(6)
+  user_created        String?               @db.Uuid
+  directus_users      directus_users?       @relation(fields: [user_created], references: [id], onUpdate: NoAction, map: "directus_flows_user_created_foreign")
+  directus_operations directus_operations[]
+}
+
+model directus_folders {
+  id                     String              @id @db.Uuid
+  name                   String              @db.VarChar(255)
+  parent                 String?             @db.Uuid
+  directus_folders       directus_folders?   @relation("directus_foldersTodirectus_folders_parent", fields: [parent], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_folders_parent_foreign")
+  directus_files         directus_files[]
+  other_directus_folders directus_folders[]  @relation("directus_foldersTodirectus_folders_parent")
+  directus_settings      directus_settings[]
+}
+
+model directus_migrations {
+  version   String    @id @db.VarChar(255)
+  name      String    @db.VarChar(255)
+  timestamp DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model directus_notifications {
+  id                                                              Int             @id @default(autoincrement())
+  timestamp                                                       DateTime?       @default(now()) @db.Timestamptz(6)
+  status                                                          String?         @default("inbox") @db.VarChar(255)
+  recipient                                                       String          @db.Uuid
+  sender                                                          String?         @db.Uuid
+  subject                                                         String          @db.VarChar(255)
+  message                                                         String?
+  collection                                                      String?         @db.VarChar(64)
+  item                                                            String?         @db.VarChar(255)
+  directus_users_directus_notifications_recipientTodirectus_users directus_users  @relation("directus_notifications_recipientTodirectus_users", fields: [recipient], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_notifications_recipient_foreign")
+  directus_users_directus_notifications_senderTodirectus_users    directus_users? @relation("directus_notifications_senderTodirectus_users", fields: [sender], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_notifications_sender_foreign")
+}
+
+model directus_operations {
+  id                                                                         String               @id @db.Uuid
+  name                                                                       String?              @db.VarChar(255)
+  key                                                                        String               @db.VarChar(255)
+  type                                                                       String               @db.VarChar(255)
+  position_x                                                                 Int
+  position_y                                                                 Int
+  options                                                                    Json?                @db.Json
+  resolve                                                                    String?              @unique(map: "directus_operations_resolve_unique") @db.Uuid
+  reject                                                                     String?              @unique(map: "directus_operations_reject_unique") @db.Uuid
+  flow                                                                       String               @db.Uuid
+  date_created                                                               DateTime?            @default(now()) @db.Timestamptz(6)
+  user_created                                                               String?              @db.Uuid
+  directus_flows                                                             directus_flows       @relation(fields: [flow], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_operations_flow_foreign")
+  directus_operations_directus_operationsTodirectus_operations_reject        directus_operations? @relation("directus_operationsTodirectus_operations_reject", fields: [reject], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_operations_reject_foreign")
+  directus_operations_directus_operationsTodirectus_operations_resolve       directus_operations? @relation("directus_operationsTodirectus_operations_resolve", fields: [resolve], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_operations_resolve_foreign")
+  directus_users                                                             directus_users?      @relation(fields: [user_created], references: [id], onUpdate: NoAction, map: "directus_operations_user_created_foreign")
+  other_directus_operations_directus_operationsTodirectus_operations_reject  directus_operations? @relation("directus_operationsTodirectus_operations_reject")
+  other_directus_operations_directus_operationsTodirectus_operations_resolve directus_operations? @relation("directus_operationsTodirectus_operations_resolve")
+}
+
+model directus_panels {
+  id                  String              @id @db.Uuid
+  dashboard           String              @db.Uuid
+  name                String?             @db.VarChar(255)
+  icon                String?             @db.VarChar(30)
+  color               String?             @db.VarChar(10)
+  show_header         Boolean             @default(false)
+  note                String?
+  type                String              @db.VarChar(255)
+  position_x          Int
+  position_y          Int
+  width               Int
+  height              Int
+  options             Json?               @db.Json
+  date_created        DateTime?           @default(now()) @db.Timestamptz(6)
+  user_created        String?             @db.Uuid
+  directus_dashboards directus_dashboards @relation(fields: [dashboard], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_panels_dashboard_foreign")
+  directus_users      directus_users?     @relation(fields: [user_created], references: [id], onUpdate: NoAction, map: "directus_panels_user_created_foreign")
+}
+
+model directus_permissions {
+  id             Int             @id @default(autoincrement())
+  role           String?         @db.Uuid
+  collection     String          @db.VarChar(64)
+  action         String          @db.VarChar(10)
+  permissions    Json?           @db.Json
+  validation     Json?           @db.Json
+  presets        Json?           @db.Json
+  fields         String?
+  directus_roles directus_roles? @relation(fields: [role], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_permissions_role_foreign")
+}
+
+model directus_presets {
+  id               Int             @id @default(autoincrement())
+  bookmark         String?         @db.VarChar(255)
+  user             String?         @db.Uuid
+  role             String?         @db.Uuid
+  collection       String?         @db.VarChar(64)
+  search           String?         @db.VarChar(100)
+  layout           String?         @default("tabular") @db.VarChar(100)
+  layout_query     Json?           @db.Json
+  layout_options   Json?           @db.Json
+  refresh_interval Int?
+  filter           Json?           @db.Json
+  icon             String          @default("bookmark_outline") @db.VarChar(30)
+  color            String?         @db.VarChar(255)
+  directus_roles   directus_roles? @relation(fields: [role], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_presets_role_foreign")
+  directus_users   directus_users? @relation(fields: [user], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_presets_user_foreign")
+}
+
+model directus_relations {
+  id                      Int     @id @default(autoincrement())
+  many_collection         String  @db.VarChar(64)
+  many_field              String  @db.VarChar(64)
+  one_collection          String? @db.VarChar(64)
+  one_field               String? @db.VarChar(64)
+  one_collection_field    String? @db.VarChar(64)
+  one_allowed_collections String?
+  junction_field          String? @db.VarChar(64)
+  sort_field              String? @db.VarChar(64)
+  one_deselect_action     String  @default("nullify") @db.VarChar(255)
+}
+
+model directus_revisions {
+  id                       Int                  @id @default(autoincrement())
+  activity                 Int
+  collection               String               @db.VarChar(64)
+  item                     String               @db.VarChar(255)
+  data                     Json?                @db.Json
+  delta                    Json?                @db.Json
+  parent                   Int?
+  directus_activity        directus_activity    @relation(fields: [activity], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_revisions_activity_foreign")
+  directus_revisions       directus_revisions?  @relation("directus_revisionsTodirectus_revisions_parent", fields: [parent], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_revisions_parent_foreign")
+  other_directus_revisions directus_revisions[] @relation("directus_revisionsTodirectus_revisions_parent")
+}
+
+model directus_roles {
+  id                   String                 @id @db.Uuid
+  name                 String                 @db.VarChar(100)
+  icon                 String                 @default("supervised_user_circle") @db.VarChar(30)
+  description          String?
+  ip_access            String?
+  enforce_tfa          Boolean                @default(false)
+  admin_access         Boolean                @default(false)
+  app_access           Boolean                @default(true)
+  directus_permissions directus_permissions[]
+  directus_presets     directus_presets[]
+  directus_shares      directus_shares[]
+  directus_users       directus_users[]
+}
+
+model directus_sessions {
+  token           String           @id @db.VarChar(64)
+  user            String?          @db.Uuid
+  expires         DateTime         @db.Timestamptz(6)
+  ip              String?          @db.VarChar(255)
+  user_agent      String?          @db.VarChar(255)
+  share           String?          @db.Uuid
+  origin          String?          @db.VarChar(255)
+  directus_shares directus_shares? @relation(fields: [share], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_sessions_share_foreign")
+  directus_users  directus_users?  @relation(fields: [user], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_sessions_user_foreign")
+}
+
+model directus_settings {
+  id                                                                 Int               @id @default(autoincrement())
+  project_name                                                       String            @default("Directus") @db.VarChar(100)
+  project_url                                                        String?           @db.VarChar(255)
+  project_color                                                      String?           @db.VarChar(50)
+  project_logo                                                       String?           @db.Uuid
+  public_foreground                                                  String?           @db.Uuid
+  public_background                                                  String?           @db.Uuid
+  public_note                                                        String?
+  auth_login_attempts                                                Int?              @default(25)
+  auth_password_policy                                               String?           @db.VarChar(100)
+  storage_asset_transform                                            String?           @default("all") @db.VarChar(7)
+  storage_asset_presets                                              Json?             @db.Json
+  custom_css                                                         String?
+  storage_default_folder                                             String?           @db.Uuid
+  basemaps                                                           Json?             @db.Json
+  mapbox_key                                                         String?           @db.VarChar(255)
+  module_bar                                                         Json?             @db.Json
+  project_descriptor                                                 String?           @db.VarChar(100)
+  translation_strings                                                Json?             @db.Json
+  default_language                                                   String            @default("en-US") @db.VarChar(255)
+  custom_aspect_ratios                                               Json?             @db.Json
+  directus_files_directus_filesTodirectus_settings_project_logo      directus_files?   @relation("directus_filesTodirectus_settings_project_logo", fields: [project_logo], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_settings_project_logo_foreign")
+  directus_files_directus_filesTodirectus_settings_public_background directus_files?   @relation("directus_filesTodirectus_settings_public_background", fields: [public_background], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_settings_public_background_foreign")
+  directus_files_directus_filesTodirectus_settings_public_foreground directus_files?   @relation("directus_filesTodirectus_settings_public_foreground", fields: [public_foreground], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "directus_settings_public_foreground_foreign")
+  directus_folders                                                   directus_folders? @relation(fields: [storage_default_folder], references: [id], onUpdate: NoAction, map: "directus_settings_storage_default_folder_foreign")
+}
+
+model directus_shares {
+  id                   String                @id @db.Uuid
+  name                 String?               @db.VarChar(255)
+  collection           String?               @db.VarChar(64)
+  item                 String?               @db.VarChar(255)
+  role                 String?               @db.Uuid
+  password             String?               @db.VarChar(255)
+  user_created         String?               @db.Uuid
+  date_created         DateTime?             @default(now()) @db.Timestamptz(6)
+  date_start           DateTime?             @db.Timestamptz(6)
+  date_end             DateTime?             @db.Timestamptz(6)
+  times_used           Int?                  @default(0)
+  max_uses             Int?
+  directus_collections directus_collections? @relation(fields: [collection], references: [collection], onDelete: Cascade, onUpdate: NoAction, map: "directus_shares_collection_foreign")
+  directus_roles       directus_roles?       @relation(fields: [role], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "directus_shares_role_foreign")
+  directus_users       directus_users?       @relation(fields: [user_created], references: [id], onUpdate: NoAction, map: "directus_shares_user_created_foreign")
+  directus_sessions    directus_sessions[]
+}
+
+model directus_users {
+  id                                                                      String                   @id @db.Uuid
+  first_name                                                              String?                  @db.VarChar(50)
+  last_name                                                               String?                  @db.VarChar(50)
+  email                                                                   String?                  @unique(map: "directus_users_email_unique") @db.VarChar(128)
+  password                                                                String?                  @db.VarChar(255)
+  location                                                                String?                  @db.VarChar(255)
+  title                                                                   String?                  @db.VarChar(50)
+  description                                                             String?
+  tags                                                                    Json?                    @db.Json
+  avatar                                                                  String?                  @db.Uuid
+  language                                                                String?                  @db.VarChar(255)
+  theme                                                                   String?                  @default("auto") @db.VarChar(20)
+  tfa_secret                                                              String?                  @db.VarChar(255)
+  status                                                                  String                   @default("active") @db.VarChar(16)
+  role                                                                    String?                  @db.Uuid
+  token                                                                   String?                  @unique(map: "directus_users_token_unique") @db.VarChar(255)
+  last_access                                                             DateTime?                @db.Timestamptz(6)
+  last_page                                                               String?                  @db.VarChar(255)
+  provider                                                                String                   @default("default") @db.VarChar(128)
+  external_identifier                                                     String?                  @unique(map: "directus_users_external_identifier_unique") @db.VarChar(255)
+  auth_data                                                               Json?                    @db.Json
+  email_notifications                                                     Boolean?                 @default(true)
+  directus_roles                                                          directus_roles?          @relation(fields: [role], references: [id], onUpdate: NoAction, map: "directus_users_role_foreign")
+  directus_dashboards                                                     directus_dashboards[]
+  directus_files_directus_files_modified_byTodirectus_users               directus_files[]         @relation("directus_files_modified_byTodirectus_users")
+  directus_files_directus_files_uploaded_byTodirectus_users               directus_files[]         @relation("directus_files_uploaded_byTodirectus_users")
+  directus_flows                                                          directus_flows[]
+  directus_notifications_directus_notifications_recipientTodirectus_users directus_notifications[] @relation("directus_notifications_recipientTodirectus_users")
+  directus_notifications_directus_notifications_senderTodirectus_users    directus_notifications[] @relation("directus_notifications_senderTodirectus_users")
+  directus_operations                                                     directus_operations[]
+  directus_panels                                                         directus_panels[]
+  directus_presets                                                        directus_presets[]
+  directus_sessions                                                       directus_sessions[]
+  directus_shares                                                         directus_shares[]
+}
+
+model directus_webhooks {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(255)
+  method      String  @default("POST") @db.VarChar(10)
+  url         String  @db.VarChar(255)
+  status      String  @default("active") @db.VarChar(10)
+  data        Boolean @default(true)
+  actions     String  @db.VarChar(100)
+  collections String  @db.VarChar(255)
+  headers     Json?   @db.Json
+}
+
+model dtb_admin {
+  id                  BigInt    @id @default(autoincrement())
+  name                String    @db.VarChar(500)
+  type                Int       @default(1) @db.SmallInt
+  username            String?   @db.VarChar(50)
+  password            String?   @db.VarChar(50)
+  email               String?   @db.VarChar(128)
+  unique_code         String?   @db.VarChar(15)
+  end_forgotpass_time Int?
+  status              Int?      @default(1) @db.SmallInt
+  lastlogin_date      DateTime? @db.Timestamp(6)
+  created_date        DateTime? @db.Timestamp(6)
+  updated_date        DateTime? @db.Timestamp(6)
+  deleted_date        DateTime? @db.Timestamp(6)
+}
+
+model dtb_applicants {
+  id           BigInt    @id @default(autoincrement())
+  vacancy_id   BigInt?
+  fullname     String?   @db.VarChar(100)
+  email        String?   @db.VarChar(200)
+  gender       Int?      @default(0) @db.SmallInt
+  dob          DateTime? @db.Date
+  address      String?
+  phone        String?   @db.VarChar(20)
+  file_path    String?   @db.VarChar(300)
+  status       Int       @default(1) @db.SmallInt
+  type         Int       @default(1) @db.SmallInt
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+  deleted_date DateTime? @db.Timestamp(6)
+}
+
+model dtb_area {
+  id         Int          @id @default(autoincrement())
+  name       String       @db.VarChar(100)
+  dtb_branch dtb_branch[]
+}
+
+model dtb_article {
+  id                 BigInt    @id @default(autoincrement())
+  pretty_url         String    @db.VarChar(1000)
+  type               Int       @db.SmallInt
+  title              String    @db.VarChar(500)
+  short_content      String?
+  full_content       String?
+  date               DateTime? @db.Date
+  status             Int       @default(1) @db.SmallInt
+  is_show            Int       @default(1) @db.SmallInt
+  meta_desc          String?
+  meta_keys          String?
+  tags               String?
+  enable_push        Int       @default(0) @db.SmallInt
+  push_date          DateTime? @db.Timestamp(6)
+  sticky_flag        Int       @default(0) @db.SmallInt
+  image_url          String?   @db.VarChar(500)
+  image_thumb        String?   @db.VarChar(500)
+  file_pretty_name   String?   @db.VarChar(500)
+  created_date       DateTime? @db.Timestamp(6)
+  updated_date       DateTime? @db.Timestamp(6)
+  deleted_date       DateTime? @db.Timestamp(6)
+  version            BigInt
+  image_device       String?   @db.VarChar(500)
+  microsite          Int?      @db.SmallInt
+  microsite_featured Boolean?
+  meta_title         String?
+}
+
+model dtb_awards {
+  id           BigInt    @id @default(autoincrement())
+  title        String?   @db.VarChar(200)
+  sub_title    String?   @db.VarChar(50)
+  description  String?
+  is_show      Int       @default(1) @db.SmallInt
+  status       Int       @default(1) @db.SmallInt
+  ordering     Int?
+  images       String
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+  deleted_date DateTime? @db.Timestamp(6)
+}
+
+model dtb_awards_image {
+  id               BigInt    @id @default(autoincrement())
+  awards_id        BigInt
+  type             Int       @db.SmallInt
+  file_url         String    @db.VarChar(500)
+  file_url_thumb   String?   @db.VarChar(500)
+  file_pretty_name String?   @db.VarChar(500)
+  file_alt_name    String?   @db.VarChar(500)
+  title            String?   @db.VarChar(500)
+  description      String?   @db.VarChar(1000)
+  date             DateTime? @db.Timestamp(6)
+  status           Int       @default(1) @db.SmallInt
+  is_show          Int       @default(1) @db.SmallInt
+  is_top           Int       @default(0) @db.SmallInt
+  ordering         Int?
+  product_id       BigInt?
+  year             Int?      @db.SmallInt
+  created_date     DateTime? @db.Timestamp(6)
+  updated_date     DateTime? @db.Timestamp(6)
+  deleted_date     DateTime? @db.Timestamp(6)
+}
+
+model dtb_branch {
+  id           BigInt    @id @default(autoincrement())
+  name         String?   @db.VarChar(200)
+  province     String    @db.VarChar(200)
+  address      String?
+  map_address  String?   @db.VarChar(500)
+  postal_code  String?   @db.VarChar(20)
+  telephone    String?   @db.VarChar(100)
+  handphone    String?   @db.VarChar(100)
+  fax          String?   @db.VarChar(100)
+  latitude     String?   @db.VarChar(100)
+  longitude    String?   @db.VarChar(100)
+  email        String?   @db.VarChar(500)
+  website      String?
+  status       Int       @default(1) @db.SmallInt
+  is_show      Int       @default(1) @db.SmallInt
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+  deleted_date DateTime? @db.Timestamp(6)
+  version      BigInt?
+  type         Int       @default(1) @db.SmallInt
+  id_area      Int?
+  dtb_area     dtb_area? @relation(fields: [id_area], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model dtb_branch_type {
+  id      Int     @id @default(autoincrement())
+  type    String? @db.VarChar(50)
+  type_en String? @db.VarChar(50)
+  color   String? @db.VarChar(10)
+  order   Int?    @db.SmallInt
+}
+
+model dtb_branchinfo {
+  idbranch Int    @id @default(autoincrement())
+  kota     String @db.VarChar(50)
+  cat      Int    @db.SmallInt
+  pipa     Int    @db.SmallInt
+}
+
+model dtb_color {
+  id           BigInt    @id @default(autoincrement())
+  name         String?   @db.VarChar(200)
+  code         String?   @db.VarChar(50)
+  red          Int?
+  green        Int?
+  blue         Int?
+  hex_code     String?   @db.VarChar(10)
+  can_size     Int?
+  images       String
+  status       Int       @default(1) @db.SmallInt
+  is_show      Int       @default(1) @db.SmallInt
+  type         Int
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+  deleted_date DateTime? @db.Timestamp(6)
+  version      BigInt
+  id_category  Int?      @default(1)
+}
+
+model dtb_color_mental_health {
+  id           Int     @id @default(autoincrement())
+  name         String  @db.VarChar(250)
+  kode         String  @db.VarChar(250)
+  hex          String  @db.VarChar(16)
+  order        Int?
+  section      String  @db.VarChar(250)
+  is_text_dark Boolean @default(false)
+}
+
+model dtb_contact_us {
+  id            BigInt    @id @default(autoincrement())
+  email_address String    @db.VarChar(500)
+  subject       String?   @db.VarChar(1000)
+  message       String
+  name          String    @db.VarChar(500)
+  type          Int       @default(1) @db.SmallInt
+  status        Int       @default(1) @db.SmallInt
+  created_date  DateTime? @db.Timestamp(6)
+  updated_date  DateTime? @db.Timestamp(6)
+  deleted_date  DateTime? @db.Timestamp(6)
+  topic         String?   @db.VarChar(255)
+}
+
+model dtb_custom_color {
+  id           BigInt    @id @default(autoincrement())
+  member_id    BigInt?
+  name         String?   @db.VarChar(200)
+  red          Int?
+  green        Int?
+  blue         Int?
+  hex_code     String?   @db.VarChar(10)
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+  version      BigInt
+  status       Int       @default(1) @db.SmallInt
+}
+
+model dtb_faq {
+  id       Int     @id @default(autoincrement())
+  question String?
+  answer   String?
+}
+
+model dtb_finance {
+  id      BigInt @id @default(autoincrement())
+  finance Json
+}
+
+model dtb_finance_history {
+  id     BigInt   @default(autoincrement())
+  open   String   @db.VarChar(255)
+  high   String   @db.VarChar(255)
+  low    String   @db.VarChar(255)
+  close  String   @db.VarChar(255)
+  volume String   @db.VarChar(255)
+  date   DateTime @unique(map: "dtb_finance_history_date") @db.Timestamp(6)
+}
+
+model dtb_investor_subscribe {
+  id                 Int       @id(map: "dtb_subscribe_pkey") @default(autoincrement())
+  fullname           String    @db.VarChar(100)
+  email              String    @db.VarChar(200)
+  is_subscribe       Boolean   @default(false)
+  created_date       DateTime? @db.Timestamp(6)
+  investor           String    @db.VarChar
+  shareholder_status String    @db.VarChar
+  job_title          String    @db.VarChar
+  job_position       String?   @db.VarChar
+  institution        String?   @db.VarChar
+}
+
+model dtb_layouts {
+  id           Int      @id @default(autoincrement())
+  created_date DateTime @default(now()) @db.Timestamp(6)
+  updated_date DateTime @default(now()) @db.Timestamp(6)
+  content      Json
+}
+
+model dtb_likebox {
+  id                   BigInt    @id @default(autoincrement())
+  member_id            BigInt?
+  type                 Int       @db.SmallInt
+  product_id           BigInt?
+  color_id             BigInt?
+  store_id             BigInt?
+  paint_calc_result_id BigInt?
+  visualizer_result_id BigInt?
+  custom_color_id      BigInt?
+  created_date         DateTime? @db.Timestamp(6)
+  updated_date         DateTime? @db.Timestamp(6)
+  version              BigInt?
+  status               Int       @default(1) @db.SmallInt
+}
+
+model dtb_member {
+  id                  BigInt    @id @default(autoincrement())
+  name                String?   @db.VarChar(200)
+  email               String?   @db.VarChar(100)
+  username            String?   @db.VarChar(25)
+  password            String?   @db.VarChar(50)
+  status              Int       @default(1) @db.SmallInt
+  fb_id               String?   @db.VarChar(200)
+  tw_id               String?   @db.VarChar(200)
+  google_id           String?   @db.VarChar(200)
+  unique_code         String?   @db.VarChar(250)
+  lastlogin_date      DateTime? @db.Timestamp(6)
+  created_date        DateTime? @db.Timestamp(6)
+  updated_date        DateTime? @db.Timestamp(6)
+  deleted_date        DateTime? @db.Timestamp(6)
+  profile_picture_url String?   @db.VarChar(300)
+}
+
+model dtb_menu {
+  id    BigInt  @id @default(autoincrement())
+  name  String? @db.VarChar(100)
+  color String? @db.VarChar(20)
+  type  Int?    @db.SmallInt
+  menu  Int
+}
+
+model dtb_microsite_mental_health_media {
+  id           Int      @id @default(autoincrement())
+  title        String   @db.VarChar(250)
+  url          String   @db.VarChar(250)
+  type         String   @db.VarChar(250)
+  cover_url    String?  @db.VarChar(250)
+  created_date DateTime @db.Timestamp(6)
+  updated_date DateTime @db.Timestamp(6)
+}
+
+model dtb_microsite_span_media {
+  id           Int      @id @default(autoincrement())
+  title        String   @db.VarChar(250)
+  url          String   @db.VarChar(250)
+  type         String   @db.VarChar(250)
+  created_date DateTime @default(now()) @db.Timestamp(6)
+  updated_date DateTime @default(now()) @db.Timestamp(6)
+  cover_url    String?  @db.VarChar(250)
+}
+
+model dtb_new_our_value {
+  id          Int    @id @default(autoincrement())
+  pic         String @db.VarChar(255)
+  header      String @db.VarChar(30)
+  ordering    Int
+  description String @db.VarChar(110)
+}
+
+model dtb_new_timeline {
+  id          Int    @id @default(autoincrement())
+  picture     String @db.VarChar(255)
+  year        String @db.VarChar(18)
+  description String
+}
+
+model dtb_new_timeline_header {
+  id          Int    @id(map: "dtb_new_timeline_header_id")
+  title       String @db.VarChar(100)
+  description String
+}
+
+model dtb_page {
+  id           BigInt    @id @default(autoincrement())
+  name         String    @db.VarChar(100)
+  title        String?   @db.VarChar(100)
+  pretty_url   String?   @db.VarChar(100)
+  meta_keys    String?
+  meta_desc    String?
+  updated_date DateTime? @db.Timestamp(6)
+}
+
+model dtb_page_child {
+  id           Int      @id @default(autoincrement())
+  id_page      Int
+  title        String?  @db.VarChar(100)
+  pretty_url   String?  @db.VarChar(100)
+  meta_keys    String?
+  meta_desc    String?
+  updated_date DateTime @db.Timestamp(6)
+  banner_url   String?  @db.VarChar(255)
+}
+
+model dtb_page_gallery {
+  id        Int    @id @default(autoincrement())
+  table     String @db.VarChar(255)
+  fk_id     Int
+  url_image String @db.VarChar(255)
+}
+
+model dtb_paint_calc {
+  id           BigInt    @id @default(autoincrement())
+  top          String?
+  bottom       String?
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+  version      BigInt?
+  status       Int       @default(1) @db.SmallInt
+}
+
+model dtb_pallete {
+  id              BigInt    @id @default(autoincrement())
+  name            String?   @db.VarChar(200)
+  code            String?   @db.VarChar(50)
+  jenis_warna     String    @default("ready_mix") @db.VarChar(255)
+  pallete_for     String?   @db.VarChar(100)
+  status          Int       @default(1) @db.SmallInt
+  is_show         Int       @default(1) @db.SmallInt
+  color_ids       String?
+  image_url       String?   @db.VarChar(500)
+  image_thumb     String?   @db.VarChar(500)
+  created_date    DateTime? @db.Timestamp(6)
+  updated_date    DateTime? @db.Timestamp(6)
+  deleted_date    DateTime? @db.Timestamp(6)
+  version         BigInt
+  visualizer_type Int?      @default(0) @db.SmallInt
+  meta_keys       String?
+  meta_desc       String?
+}
+
+model dtb_pallete_images {
+  id          BigInt  @id @default(autoincrement())
+  pallete_id  BigInt?
+  image_url   String? @db.VarChar(500)
+  image_thumb String? @db.VarChar(500)
+}
+
+model dtb_polling {
+  id_polling BigInt    @id @default(autoincrement())
+  start_date DateTime? @db.Date
+  end_date   DateTime? @db.Date
+  question   String
+  is_show    Int       @default(1) @db.SmallInt
+}
+
+model dtb_polling_answer {
+  id_polling_answer BigInt  @id @default(autoincrement())
+  id_polling        BigInt
+  answer            String
+  score             BigInt? @default(0)
+}
+
+model dtb_polling_device {
+  id                Int    @id @default(autoincrement())
+  id_polling        BigInt
+  device_identifier String @db.VarChar(100)
+}
+
+model dtb_product_awards {
+  id                BigInt  @id @default(autoincrement())
+  product_id        BigInt?
+  image_url         String? @db.VarChar(500)
+  image_pretty_name String? @db.VarChar(200)
+  image_alt_name    String? @db.VarChar(500)
+  ordering          Int
+}
+
+model dtb_product_category {
+  id                   BigInt  @id @default(autoincrement())
+  name                 String  @db.VarChar(200)
+  description          String?
+  pretty_url           String  @db.VarChar(500)
+  image_url            String? @db.VarChar(500)
+  image_pretty_name    String? @db.VarChar(200)
+  image_url_large      String? @db.VarChar(500)
+  is_show              Int     @default(1) @db.SmallInt
+  show_in_store_filter Int     @default(0) @db.SmallInt
+  version              BigInt
+  ordering             Int
+  meta_keys            String?
+  meta_desc            String?
+}
+
+model dtb_product_color_span {
+  id    Int    @id @default(autoincrement())
+  name  String @db.VarChar(250)
+  kode  String @db.VarChar(250)
+  hex   String @db.VarChar(16)
+  like  Int?
+  group Int
+  order Int?
+}
+
+model dtb_product_search {
+  id           BigInt    @id @default(autoincrement())
+  product_id   Int
+  type         Int
+  ordering     Int?
+  is_show      Int?      @default(1)
+  created_date DateTime? @default(now()) @db.Timestamp(6)
+  updated_date DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model dtb_product_slider {
+  id               BigInt       @id @default(autoincrement())
+  title            String?      @db.VarChar(100)
+  image_url        String?      @db.VarChar(300)
+  image_big        String?      @db.VarChar(500)
+  file_pretty_name String?      @db.VarChar(200)
+  ordering         Int?         @default(1)
+  is_show          Int?         @default(1) @db.SmallInt
+  category_id      BigInt?
+  created_date     DateTime?    @default(now()) @db.Timestamp(6)
+  updated_date     DateTime?    @default(now()) @db.Timestamp(6)
+  version          BigInt?
+  id_product       BigInt?
+  dtb_product      dtb_product? @relation(fields: [id_product], references: [id], onDelete: Cascade)
+}
+
+model dtb_product_video {
+  id         BigInt  @id @default(autoincrement())
+  product_id BigInt?
+  url        String? @db.VarChar(500)
+  image_url  String? @db.VarChar(500)
+}
+
+model dtb_push_device {
+  id            BigInt  @id @default(autoincrement())
+  member_id     BigInt?
+  device_token  String?
+  api_key       String? @db.VarChar(200)
+  push_setting  Int?    @default(1) @db.SmallInt
+  push_article  Int     @default(0) @db.SmallInt
+  push_event    Int     @default(0) @db.SmallInt
+  push_promo    Int     @default(0) @db.SmallInt
+  push_voucher  Int     @default(0) @db.SmallInt
+  push_reminder Int     @default(0) @db.SmallInt
+  type          Int     @default(1) @db.SmallInt
+  status        Int     @default(1) @db.SmallInt
+  lokasi        String? @db.VarChar(100)
+  province_id   BigInt?
+}
+
+model dtb_slider {
+  id               BigInt    @id @default(autoincrement())
+  title            String    @db.VarChar(50)
+  description      String?   @db.VarChar(500)
+  url              String?
+  image_url        String?   @db.VarChar(500)
+  image_url_pro    String?   @db.VarChar(500)
+  file_pretty_name String?   @db.VarChar(500)
+  ordering         Int
+  is_show          Int       @default(1) @db.SmallInt
+  show_in          Int       @default(1) @db.SmallInt
+  created_date     DateTime? @default(now()) @db.Timestamp(6)
+  updated_date     DateTime? @default(now()) @db.Timestamp(6)
+  image_url_device String?   @db.VarChar(300)
+  popup_image_url  String?   @db.VarChar(300)
+  is_show_as_popup Int?      @default(0)
+  type             Int?      @db.SmallInt
+}
+
+model dtb_slider_mobile {
+  id               BigInt    @id @default(autoincrement())
+  title            String    @db.VarChar(50)
+  description      String?   @db.VarChar(500)
+  url              String?
+  image_url        String?   @db.VarChar(500)
+  image_url_pro    String?   @db.VarChar(500)
+  file_pretty_name String?   @db.VarChar(500)
+  ordering         Int
+  is_show          Int       @default(1) @db.SmallInt
+  show_in          Int       @default(1) @db.SmallInt
+  created_date     DateTime? @db.Timestamp(6)
+  updated_date     DateTime? @db.Timestamp(6)
+  image_url_device String?   @db.VarChar(300)
+  popup_image_url  String?   @db.VarChar(300)
+  is_show_as_popup Int?      @default(0)
+  target           String    @default("_self") @db.VarChar(10)
+}
+
+model dtb_snippet {
+  id          BigInt  @id(map: "dtb_snippet_id")
+  snip_header String?
+  snip_footer String?
+}
+
+model dtb_store {
+  id               BigInt    @id @default(autoincrement())
+  pretty_url       String?   @db.VarChar(500)
+  store_code       String?   @db.VarChar(20)
+  name             String?   @db.VarChar(200)
+  address          String?
+  full_address     String?   @db.VarChar(1000)
+  opening_hour     String?   @db.VarChar(200)
+  phone            String?   @db.VarChar(100)
+  fax              String?   @db.VarChar(100)
+  email            String?   @db.VarChar(200)
+  website          String?   @db.VarChar(200)
+  description      String?
+  store_photo      String?   @db.VarChar(500)
+  file_pretty_name String?   @db.VarChar(500)
+  can_custom_color Int       @default(0) @db.SmallInt
+  province_id      Int?
+  country_id       Int       @default(101)
+  post_code        String?   @db.VarChar(10)
+  latitude         Float?    @db.Real
+  longitude        Float?    @db.Real
+  status           Int       @default(1) @db.SmallInt
+  is_show          Int       @default(1) @db.SmallInt
+  is_premium       Int       @default(0) @db.SmallInt
+  avail_products   String?
+  meta_desc        String?
+  meta_keys        String?
+  created_date     DateTime? @db.Timestamp(6)
+  updated_date     DateTime? @db.Timestamp(6)
+  deleted_date     DateTime? @db.Timestamp(6)
+  version          BigInt?
+}
+
+model dtb_store_v2 {
+  customer_id                          String   @id @db.VarChar(50)
+  kode_customer                        String?  @db.VarChar(20)
+  nama_customer                        String?  @db.VarChar(100)
+  alamat                               String?
+  latitude                             Decimal? @db.Decimal(19, 15)
+  longitude                            Decimal? @db.Decimal(19, 15)
+  foto_toko_url                        String?  @db.VarChar(100)
+  punya_mesin_tinting                  Int      @default(0) @db.SmallInt
+  telepon                              String?  @db.VarChar(50)
+  no_hp_1                              String?  @db.VarChar(50)
+  no_hp_2                              String?  @db.VarChar(50)
+  fax                                  String?  @db.VarChar(50)
+  website                              String?  @db.VarChar(50)
+  email                                String?  @db.VarChar(50)
+  version                              BigInt?
+  is_active                            Int      @default(1) @db.SmallInt
+  jual_pipa_power                      Int?     @db.SmallInt
+  jual_pipa_power_max                  Int?     @db.SmallInt
+  jual_fitting_power                   Int?     @db.SmallInt
+  jual_talang_power                    Int?     @db.SmallInt
+  jual_fitting_talang_power            Int?     @db.SmallInt
+  jual_no_odor                         Int?     @db.SmallInt
+  jual_fres                            Int?     @db.SmallInt
+  jual_avitex_exterior                 Int?     @db.SmallInt
+  jual_boyo_plamir                     Int?     @db.SmallInt
+  jual_no_drop                         Int?     @db.SmallInt
+  jual_avitex                          Int?     @db.SmallInt
+  jual_aries_gold                      Int?     @db.SmallInt
+  jual_aries                           Int?     @db.SmallInt
+  jual_sunguard                        Int?     @db.SmallInt
+  jual_supersilk                       Int?     @db.SmallInt
+  jual_everglo                         Int?     @db.SmallInt
+  jual_aquamatt                        Int?     @db.SmallInt
+  jual_avitex_alkali_resisting_primer  Int?     @db.SmallInt
+  jual_no_drop_107                     Int?     @db.SmallInt
+  jual_no_drop_100                     Int?     @db.SmallInt
+  jual_no_drop_bitumen_black           Int?     @db.SmallInt
+  jual_absolute                        Int?     @db.SmallInt
+  jual_avitex_roof                     Int?     @db.SmallInt
+  jual_belmas_roof                     Int?     @db.SmallInt
+  jual_yoko_roof                       Int?     @db.SmallInt
+  jual_lem_putih_vip_pvac              Int?     @db.SmallInt
+  jual_lem_putih_max_pvac              Int?     @db.SmallInt
+  jual_avian_road_line_paint           Int?     @db.SmallInt
+  jual_wood_eco_woodstain              Int?     @db.SmallInt
+  jual_boyo_politur_vernis             Int?     @db.SmallInt
+  jual_tan_politur                     Int?     @db.SmallInt
+  jual_avian_hammertone                Int?     @db.SmallInt
+  jual_suzuka_lacquer                  Int?     @db.SmallInt
+  jual_viplas                          Int?     @db.SmallInt
+  jual_vip_paint_remover               Int?     @db.SmallInt
+  jual_avian_anti_fouling              Int?     @db.SmallInt
+  jual_avian_lem_epoxy                 Int?     @db.SmallInt
+  jual_avian_non_sag_epoxy             Int?     @db.SmallInt
+  jual_thinner_a_avia                  Int?     @db.SmallInt
+  jual_lenkote_colorants               Int?     @db.SmallInt
+  jual_giant_mortar_220                Int?     @db.SmallInt
+  jual_giant_mortar_260                Int?     @db.SmallInt
+  jual_giant_mortar_270                Int?     @db.SmallInt
+  jual_giant_mortar_380                Int?     @db.SmallInt
+  jual_giant_mortar_480                Int?     @db.SmallInt
+  jual_platinum                        Int?     @db.SmallInt
+  jual_avian                           Int?     @db.SmallInt
+  jual_yoko                            Int?     @db.SmallInt
+  jual_belmas_zinchromate              Int?     @db.SmallInt
+  jual_avian_zinchromate               Int?     @db.SmallInt
+  jual_yoko_loodmeni                   Int?     @db.SmallInt
+  jual_thinner_a_special_avia          Int?     @db.SmallInt
+  jual_yoko_yzermenie                  Int?     @db.SmallInt
+  jual_glovin                          Int?     @db.SmallInt
+  jual_no_odor_wall_putty              Int?     @db.SmallInt
+  jual_lenkote_alkali_resisting_primer Int?     @db.SmallInt
+  jual_no_lumut_solvent_based          Int?     @db.SmallInt
+  jual_no_drop_tinting                 Int?     @db.SmallInt
+  jual_avian_1kg                       Int?     @db.SmallInt
+  rating_avianbrands                   Int?     @default(0) @db.SmallInt
+}
+
+model dtb_tags {
+  id   BigInt @id @default(autoincrement())
+  name String @db.VarChar(500)
+  type Int    @default(1) @db.SmallInt
+}
+
+model dtb_technology {
+  id               BigInt    @id(map: "dtb_technology_id")
+  title            String?   @db.VarChar(200)
+  image_url        String?   @db.VarChar(400)
+  file_pretty_name String?   @db.VarChar(500)
+  description      String?
+  is_show          Int       @default(1) @db.SmallInt
+  status           Int       @default(1) @db.SmallInt
+  ordering         Int?
+  created_date     DateTime? @db.Timestamp(6)
+  updated_date     DateTime? @db.Timestamp(6)
+  deleted_date     DateTime? @db.Timestamp(6)
+}
+
+model dtb_user {
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar
+  username String @db.VarChar
+  password String
+}
+
+model dtb_vacancy {
+  id                  BigInt    @id @default(autoincrement())
+  title               String?   @db.VarChar(500)
+  position            String?   @db.VarChar(500)
+  location            String    @db.VarChar(100)
+  detail              String?
+  requirement         String?
+  additional_info     String?
+  available_from_date DateTime? @db.Date
+  available_to_date   DateTime? @db.Date
+  is_show             Int       @default(1) @db.SmallInt
+  status              Int       @default(1) @db.SmallInt
+  type_pekerjaan      String    @db.VarChar(255)
+  created_date        DateTime? @db.Timestamp(6)
+  updated_date        DateTime? @db.Timestamp(6)
+  deleted_date        DateTime? @db.Timestamp(6)
+  meta_keys           String?
+  meta_desc           String?
+  is_full             Int
+}
+
+model dtb_version {
+  id      Int     @id(map: "dtb_version_id")
+  name    String? @db.VarChar(100)
+  version BigInt?
+}
+
+model dtb_visual_location {
+  id           BigInt    @id @default(autoincrement())
+  name         String?   @db.VarChar(200)
+  image_url    String?   @db.VarChar(500)
+  is_show      Int?      @default(1) @db.SmallInt
+  is_interior  Int       @default(1) @db.SmallInt
+  ordering     Int
+  version      BigInt?
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+}
+
+model dtb_visual_location_detail {
+  id           BigInt    @id @default(autoincrement())
+  location_id  BigInt
+  name         String?   @db.VarChar(200)
+  layer        Int?      @db.SmallInt
+  image_url    String?   @db.VarChar(500)
+  svg          String?
+  colorable    Int       @default(1) @db.SmallInt
+  x            Int?
+  y            Int?
+  is_show      Int       @default(1) @db.SmallInt
+  version      BigInt?
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+  products     String?
+}
+
+model dtb_visual_pallete {
+  id         BigInt  @id @default(autoincrement())
+  layer_id   BigInt?
+  pallete_id BigInt?
+  version    BigInt?
+  status     Int?    @default(1) @db.SmallInt
+}
+
+model dtb_visual_result {
+  id                 BigInt    @id @default(autoincrement())
+  location_id        BigInt?
+  member_id          BigInt?
+  result_image_url   String?   @db.VarChar(300)
+  result_image_large String?   @db.VarChar(500)
+  name               String?   @db.VarChar(200)
+  publish_date       DateTime? @db.Timestamp(6)
+  is_published       Int       @default(0) @db.SmallInt
+  version            BigInt?
+  is_show            Int       @default(1) @db.SmallInt
+  status             Int       @default(1) @db.SmallInt
+  created_date       DateTime? @db.Timestamp(6)
+  updated_date       DateTime? @db.Timestamp(6)
+  deleted_date       DateTime? @db.Timestamp(6)
+}
+
+model dtb_visual_result_detail {
+  id                        BigInt  @id @default(autoincrement())
+  visual_result_id          BigInt?
+  color_id                  BigInt?
+  pallete_id                BigInt?
+  visual_location_detail_id BigInt?
+  version                   BigInt?
+  product_id                BigInt  @default(0)
+}
+
+model jpr_master_account_code {
+  id          Int    @id @default(autoincrement())
+  AccountCode String @unique(map: "jpr_master_account_code_AccountCode") @db.VarChar(50)
+  Description String @db.VarChar(50)
+  Status      String @db.Char(1)
+}
+
+model jpr_master_blood_type {
+  id        Int    @id @default(autoincrement())
+  BloodType String @unique(map: "jpr_master_blood_type_BloodType") @db.VarChar(50)
+}
+
+model jpr_master_city {
+  id   Int    @id @default(autoincrement())
+  City String @unique(map: "jpr_master_city_City") @db.VarChar(50)
+}
+
+model jpr_master_company_area {
+  id          Int    @id @default(autoincrement())
+  CompanyArea String @unique(map: "jpr_master_company_area_CompanyArea") @db.VarChar(50)
+  Description String @db.VarChar(50)
+}
+
+model jpr_master_cost_center {
+  id             Int    @id @default(autoincrement())
+  CostCenterCode String @unique(map: "jpr_master_cost_center_CostCenterCode") @db.VarChar(50)
+  Description    String @db.VarChar(50)
+  Status         String @db.Char(1)
+}
+
+model jpr_master_education_level {
+  id             Int    @id @default(autoincrement())
+  EducationLevel String @unique(map: "jpr_master_education_level_EducationLevel") @db.VarChar(50)
+  Sort           String @db.Char(2)
+  Status         String @db.Char(1)
+}
+
+model jpr_master_education_major {
+  id             Int    @id @default(autoincrement())
+  EducationMajor String @unique(map: "jpr_master_education_major_EducationMajor") @db.VarChar(50)
+  Description    String @db.VarChar(50)
+  Status         String @db.Char(1)
+}
+
+model jpr_master_employee_status {
+  id             Int    @id @default(autoincrement())
+  EmployeeStatus String @unique(map: "jpr_master_employee_status_EmployeeStatus") @db.VarChar(50)
+  Sort           String @db.VarChar(2)
+  Status         String @db.Char(1)
+}
+
+model jpr_master_family_status {
+  id    Int    @id @default(autoincrement())
+  Value String @db.VarChar(50)
+  Code  Int
+
+  @@unique([Value, Code], map: "jpr_master_family_status_Value_Code")
+}
+
+model jpr_master_grade {
+  id          Int    @id @default(autoincrement())
+  GradeCode   String @unique(map: "jpr_master_grade_GradeCode") @db.VarChar(50)
+  Category    String @db.VarChar(50)
+  Description String @db.VarChar(50)
+  Sort        String @db.VarChar(2)
+  Status      String @db.Char(1)
+}
+
+model jpr_master_org_struct {
+  id                Int     @id @default(autoincrement())
+  Code              String  @unique(map: "jpr_master_org_struct_Code") @db.VarChar(50)
+  Description       String  @db.VarChar(50)
+  Upline            String  @db.VarChar(50)
+  OrganizationLevel String  @db.VarChar(2)
+  Status            String  @db.VarChar(1)
+  CostCenterCode    String? @db.VarChar(50)
+  AppLevel          String? @db.Char(1)
+}
+
+model jpr_master_reference {
+  id        Int    @id @default(autoincrement())
+  Reference String @unique(map: "jpr_master_reference_Reference") @db.VarChar(50)
+}
+
+model jpr_master_relationship {
+  id           Int    @id @default(autoincrement())
+  Code         String @unique(map: "jpr_master_relationship_Code") @db.Char(1)
+  Relationship String @db.VarChar(50)
+}
+
+model jpr_master_religion {
+  id       Int    @id @default(autoincrement())
+  Religion String @unique(map: "jpr_master_religion_Religion") @db.VarChar(50)
+  Status   String @db.Char(1)
+}
+
+model jpr_master_sub_district {
+  id          Int    @id @default(autoincrement())
+  SubDistrict String @db.VarChar(50)
+  City        String @db.VarChar(50)
+
+  @@unique([SubDistrict, City], map: "jpr_master_sub_district_SubDistrict_City")
+}
+
+model jpr_master_tax_code {
+  id          Int    @id @default(autoincrement())
+  TaxCode     String @unique(map: "jpr_master_tax_code_TaxCode") @db.VarChar(50)
+  Description String @db.VarChar(150)
+  Status      String @db.Char(1)
+}
+
+model jpr_master_title {
+  id                Int     @id @default(autoincrement())
+  TitleCode         String  @db.VarChar(50)
+  Description       String  @db.VarChar(50)
+  Category          String? @db.VarChar(50)
+  OrganizationLevel String  @db.Char(1)
+  Status            String  @db.Char(1)
+
+  @@unique([TitleCode, Category], map: "jpr_master_title_TitleCode_Category")
+}
+
+model jpr_master_village {
+  id          Int    @id @default(autoincrement())
+  Village     String @db.VarChar(50)
+  City        String @db.VarChar(50)
+  SubDistrict String @db.VarChar(50)
+
+  @@unique([Village, SubDistrict, City], map: "jpr_master_village_Village_SubDistrict_City")
+}
+
+model mst_applicants {
+  id                        Int                         @id @default(autoincrement())
+  id_user                   Int
+  id_vacancy                Int?
+  date                      DateTime                    @default(now()) @db.Timestamp(6)
+  is_selected               Boolean                     @default(false)
+  is_canceled               Boolean                     @default(false)
+  selected_by               Int?
+  id_company                Int?
+  is_rejected               Boolean                     @default(false)
+  is_referred               Boolean                     @default(false)
+  is_accepted               Boolean                     @default(false)
+  date_accepted             DateTime?                   @db.Timestamp(6)
+  date_selected             DateTime?                   @db.Timestamp(6)
+  jpayroll_input            Boolean                     @default(false)
+  is_exported               Boolean?                    @default(false)
+  is_read                   Boolean                     @default(false)
+  is_hidden                 Boolean                     @default(false)
+  mst_company               mst_company?                @relation(fields: [id_company], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_vacancy               mst_vacancy?                @relation(fields: [id_vacancy], references: [id], onDelete: Cascade)
+  mst_applicants_attachment mst_applicants_attachment[]
+  mst_applicants_stages     mst_applicants_stages[]
+}
+
+model mst_applicants_attachment {
+  id             Int            @id @default(autoincrement())
+  id_applicant   Int
+  url_attachment String
+  mst_applicants mst_applicants @relation(fields: [id_applicant], references: [id], onDelete: Cascade)
+}
+
+model mst_applicants_stages {
+  id                        Int                         @id @default(autoincrement())
+  id_applicant              Int
+  id_stage                  Int
+  start_date                DateTime?                   @db.Timestamp(6)
+  end_date                  DateTime?                   @db.Date
+  result                    String?                     @db.VarChar(50)
+  created_date              DateTime                    @default(now()) @db.Timestamp(6)
+  notes                     String?
+  url_attachment            String?
+  mst_applicants            mst_applicants              @relation(fields: [id_applicant], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  mst_stages                mst_stages                  @relation(fields: [id_stage], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  mst_applicants_stages_hrd mst_applicants_stages_hrd[]
+}
+
+model mst_applicants_stages_hrd {
+  id                       Int                      @id @default(autoincrement())
+  id_applicant_stage       Int
+  id_hrd_interview         Int
+  result                   String                   @db.VarChar(10)
+  mst_applicants_stages    mst_applicants_stages    @relation(fields: [id_applicant_stage], references: [id], onDelete: Cascade)
+  mst_stages_hrd_interview mst_stages_hrd_interview @relation(fields: [id_hrd_interview], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model mst_branch {
+  name      String   @db.VarChar
+  code      String   @db.Char(3)
+  address   String?  @db.VarChar
+  latitude  Decimal? @db.Decimal
+  longitude Decimal? @db.Decimal
+  id        Int      @id @default(autoincrement())
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model mst_branch_import {
+  name String @db.VarChar
+  code String @db.Char(3)
+
+  @@ignore
+}
+
+model mst_category {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(256)
+  content              Json?
+  id_parent            Int?
+  name_en              String?                @db.VarChar
+  order                Int?                   @db.SmallInt
+  dtb_product          dtb_product[]
+  mst_product          mst_product[]
+  mst_sub_category     mst_sub_category[]
+  mst_sub_sub_category mst_sub_sub_category[]
+
+  @@index([id_parent], map: "mst_category_id_parent")
+}
+
+model mst_certificate {
+  id           Int      @id @default(autoincrement())
+  title        String   @db.VarChar(255)
+  desc         String
+  img_url      String   @db.VarChar(255)
+  pdf_url      String   @db.VarChar(255)
+  type         String   @db.VarChar(255)
+  year         String   @db.Char(15)
+  month        Int
+  isShow       Boolean  @default(false)
+  order        Int?
+  created_date DateTime @db.Timestamp(6)
+  updated_date DateTime @db.Timestamp(6)
+}
+
+model mst_color_inspiration {
+  id         Int      @id(map: "color_inspiration_pkey") @default(autoincrement())
+  label      String   @db.VarChar(30)
+  hex        String   @db.VarChar(30)
+  status     String   @default("PUBLISHED") @db.VarChar(20)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  order      Int?     @db.SmallInt
+}
+
+model mst_company {
+  id                       Int                        @id @default(autoincrement())
+  name                     String
+  image                    String?
+  mst_applicants           mst_applicants[]
+  mst_department           mst_department[]
+  mst_stages_hrd_interview mst_stages_hrd_interview[]
+  mst_user                 mst_user[]
+  mst_user_subscribes      mst_user_subscribes[]
+  mst_vacancy              mst_vacancy[]
+}
+
+model mst_country {
+  id           Int       @id @default(autoincrement())
+  name         String    @default("") @db.VarChar(45)
+  is_show      Int?      @default(1)
+  version      BigInt
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+}
+
+model mst_csr {
+  id              BigInt           @id @default(autoincrement())
+  judul           String?          @db.VarChar(300)
+  content         String?
+  content_device  String?
+  is_show         Int?             @default(1)
+  image_landing   String?          @db.VarChar(300)
+  version         BigInt?
+  ordering        Int?
+  created_date    DateTime?        @db.Timestamp(6)
+  updated_date    DateTime?        @db.Timestamp(6)
+  pretty_url      String?
+  lokasi          String?          @db.VarChar(100)
+  type            Int?
+  latitude        Decimal?         @db.Decimal(19, 15)
+  longitude       Decimal?         @db.Decimal(19, 15)
+  short_content   String?
+  artikel_csr_id  BigInt?
+  mst_csr_artikel mst_csr_artikel? @relation(fields: [artikel_csr_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model mst_csr_artikel {
+  id             BigInt    @id @default(autoincrement())
+  pretty_url     String?
+  judul          String?   @db.VarChar(300)
+  content        String?
+  content_device String?
+  short_content  String?
+  is_show        Int?      @default(1)
+  meta_desc      String?
+  meta_keys      String?
+  created_date   DateTime? @db.Timestamp(6)
+  updated_date   DateTime? @db.Timestamp(6)
+  date           DateTime? @db.Timestamp(6)
+  meta_title     String?
+  mst_csr        mst_csr[]
+}
+
+model mst_department {
+  id                  Int                   @id(map: "mst_department_id") @default(autoincrement())
+  name                String                @db.VarChar(255)
+  id_company          Int                   @default(1)
+  mst_company         mst_company           @relation(fields: [id_company], references: [id], onDelete: Cascade)
+  mst_user            mst_user[]
+  mst_user_subscribes mst_user_subscribes[]
+  mst_vacancy         mst_vacancy[]
+}
+
+model mst_email_log {
+  id         Int       @id @default(autoincrement())
+  email_to   String    @db.VarChar
+  subject    String    @db.VarChar
+  text       String
+  html       String
+  response   Json
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model mst_event {
+  id               BigInt    @id @default(autoincrement())
+  judul            String?   @db.VarChar(300)
+  image_url        String?   @db.VarChar(300)
+  popup_image_url  String?   @db.VarChar(300)
+  alamat           String?
+  content          String?
+  periode_start    DateTime? @db.Date
+  periode_end      DateTime? @db.Date
+  latitude         Float?
+  longitude        Float?
+  province_id      BigInt?
+  member_id        BigInt?
+  is_from_avian    Int?      @default(1)
+  is_show_as_popup Int?      @default(0)
+  is_show          Int?      @default(1)
+  version          BigInt?
+  created_date     DateTime? @db.Timestamp(6)
+  updated_date     DateTime? @db.Timestamp(6)
+  status           Int       @default(1) @db.SmallInt
+}
+
+model mst_holiday {
+  id   Int      @id @default(autoincrement())
+  date DateTime @db.Date
+}
+
+model mst_jpayroll_log {
+  id           Int       @id @default(autoincrement())
+  id_applicant Int?
+  id_user      Int?
+  url          String    @db.VarChar
+  body         Json
+  response     Json
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model mst_kota_penempatan {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  mst_user_subscribes mst_user_subscribes[]
+  mst_vacancy         mst_vacancy[]
+}
+
+model mst_layout {
+  id     BigInt  @id @default(autoincrement())
+  header String?
+  footer String?
+}
+
+model mst_merchant {
+  id                BigInt    @id @default(autoincrement())
+  name              String?   @db.VarChar(100)
+  email             String?   @db.VarChar(100)
+  password          String?   @db.VarChar(100)
+  forgot_pass_time  DateTime? @db.Timestamp(6)
+  unique_code       String?   @db.VarChar(20)
+  verification_code String?   @db.VarChar(30)
+  last_login_date   DateTime? @db.Timestamp(6)
+  logo_image        String?   @db.VarChar(100)
+  description       String?
+  additional_info   String?
+  additional_link   String?
+  status            Int?      @default(1) @db.SmallInt
+  is_banned         Int?      @default(0) @db.SmallInt
+  created_date      DateTime? @db.Timestamp(6)
+  updated_date      DateTime? @db.Timestamp(6)
+}
+
+model mst_microsite {
+  id           Int      @id @default(autoincrement())
+  type         String   @db.VarChar(255)
+  site         String   @db.VarChar(255)
+  content      Json     @db.Json
+  created_date DateTime @db.Timestamp(6)
+  updated_date DateTime @db.Timestamp(6)
+}
+
+model mst_palette_color {
+  id         BigInt  @id @default(autoincrement())
+  color_id   BigInt?
+  palette_id BigInt?
+}
+
+model mst_palette_product {
+  id         BigInt  @id @default(autoincrement())
+  product_id BigInt?
+  palette_id BigInt?
+}
+
+model mst_pallete_color {
+  id                   Int       @id @default(autoincrement())
+  id_color_inspiration Int
+  name                 String    @db.VarChar(30)
+  lab_code             String    @db.VarChar(10)
+  l                    Decimal   @db.Decimal
+  a                    Decimal   @db.Decimal
+  b                    Decimal   @db.Decimal
+  rgb                  String?   @db.VarChar(30)
+  hex                  String?   @db.VarChar(30)
+  type                 String    @default("888") @db.VarChar(10)
+  status               String    @default("PUBLISHED") @db.VarChar(10)
+  created_at           DateTime? @default(now()) @db.Timestamp(6)
+  order                Int?      @db.SmallInt
+  kartu_warna          Int?      @db.SmallInt
+}
+
+model mst_pallete_color_170 {
+  id                   Int       @id @default(autoincrement())
+  id_color_inspiration Int
+  name                 String    @db.VarChar(30)
+  lab_code             String    @db.VarChar(10)
+  l                    Decimal   @db.Decimal
+  a                    Decimal   @db.Decimal
+  b                    Decimal   @db.Decimal
+  rgb                  String?   @db.VarChar(30)
+  hex                  String?   @db.VarChar(30)
+  status               String    @default("PUBLISHED") @db.VarChar(10)
+  created_at           DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model mst_pallete_color_170_import {
+  id         Int?
+  name       String?   @db.VarChar(30)
+  lab_code   String?   @db.VarChar(10)
+  r          Decimal?  @db.Decimal
+  g          Decimal?  @db.Decimal
+  b          Decimal?  @db.Decimal
+  hex        String?   @db.VarChar(30)
+  created_at DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+model mst_pallete_color_888 {
+  id                   Int       @id(map: "mst_palet_color_888_pkey") @default(autoincrement())
+  id_color_inspiration Int
+  name                 String    @db.VarChar(30)
+  lab_code             String    @db.VarChar(10)
+  l                    Decimal   @db.Decimal
+  a                    Decimal   @db.Decimal
+  b                    Decimal   @db.Decimal
+  rgb                  String?   @db.VarChar(30)
+  hex                  String?   @db.VarChar(30)
+  status               String    @default("PUBLISHED") @db.VarChar(10)
+  created_at           DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model mst_pallete_color_888_import {
+  id         Int?
+  name       String?   @db.VarChar(30)
+  lab_code   String?   @db.VarChar(10)
+  r          Decimal?  @db.Decimal
+  g          Decimal?  @db.Decimal
+  b          Decimal?  @db.Decimal
+  hex        String?   @db.VarChar(30)
+  created_at DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+model mst_point_configuration {
+  id            Int     @id @default(autoincrement())
+  activity_code String  @db.VarChar(20)
+  description   String?
+  point         BigInt  @default(0)
+}
+
+model mst_posisi {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  mst_user_subscribes mst_user_subscribes[]
+  mst_vacancy         mst_vacancy[]
+}
+
+model mst_product {
+  id                       Int                        @id @default(autoincrement())
+  id_solution              Int
+  id_category              Int
+  name                     String                     @db.VarChar(256)
+  tagline                  String?
+  description              String?
+  is_888                   Boolean?
+  is_170                   Boolean?
+  url_tds                  String?
+  url_msds                 String?
+  position                 String?                    @db.VarChar(255)
+  solvent                  String?                    @db.VarChar(255)
+  end_result               String?
+  surface                  String?
+  application_area         String?
+  spread_min               Decimal?                   @db.Decimal
+  spread_max               Decimal?                   @db.Decimal
+  layers_min               Decimal?                   @db.Decimal
+  layers_max               Decimal?                   @db.Decimal
+  dry_time_max             String?                    @db.VarChar(255)
+  sertification            String?
+  url_image                String?
+  url_tv_ads               String?
+  url_video_product        String?
+  is_calculator            Boolean?
+  mst_category             mst_category               @relation(fields: [id_category], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_solution             mst_solution               @relation(fields: [id_solution], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_product_packaging    mst_product_packaging[]
+  mst_product_pallete_card mst_product_pallete_card[]
+}
+
+model mst_product_packaging {
+  id          Int         @id @default(autoincrement())
+  id_product  Int
+  id_uom      Int
+  quantity    Decimal     @db.Decimal
+  mst_product mst_product @relation(fields: [id_product], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_uom     mst_uom     @relation(fields: [id_uom], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model mst_product_pallete_card {
+  id          Int         @id @default(autoincrement())
+  id_product  Int
+  url_image   String
+  mst_product mst_product @relation(fields: [id_product], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model mst_product_selling_point {
+  id                Int                @id @default(autoincrement())
+  id_product        BigInt
+  id_selling_point  Int?
+  dtb_product       dtb_product        @relation(fields: [id_product], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  mst_selling_point mst_selling_point? @relation(fields: [id_selling_point], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model mst_product_solution {
+  id           Int          @id @default(autoincrement())
+  id_solution  Int
+  id_product   BigInt
+  dtb_product  dtb_product  @relation(fields: [id_product], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_solution mst_solution @relation(fields: [id_solution], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model mst_product_store {
+  product_store_id   Int    @id @default(autoincrement())
+  product_store_code String @db.VarChar(50)
+  product_id         Int
+}
+
+model mst_promo {
+  id               BigInt    @id @default(autoincrement())
+  judul            String?   @db.VarChar(300)
+  image_url        String?   @db.VarChar(300)
+  popup_image_url  String?   @db.VarChar(300)
+  content          String?
+  periode_start    DateTime? @db.Date
+  periode_end      DateTime? @db.Date
+  province_id      BigInt?
+  member_id        BigInt?
+  is_from_avian    Int?      @default(1)
+  is_show_as_popup Int?      @default(0)
+  is_show          Int?      @default(1)
+  version          BigInt?
+  created_date     DateTime? @db.Timestamp(6)
+  updated_date     DateTime? @db.Timestamp(6)
+}
+
+model mst_province {
+  id           BigInt    @id @default(autoincrement())
+  name         String?   @db.VarChar(200)
+  country_id   BigInt?
+  is_show      Int?      @default(1)
+  version      BigInt
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+}
+
+model mst_regions {
+  id     Int    @id(map: "mst_region_pkey") @default(autoincrement())
+  name   String
+  cities Json
+}
+
+model mst_role {
+  id        Int        @id @default(autoincrement())
+  role_name String
+  mst_user  mst_user[]
+}
+
+model mst_selling_point {
+  id                        Int                         @id @default(autoincrement())
+  name                      String                      @db.VarChar(255)
+  icon_url                  String
+  description               String?
+  mst_product_selling_point mst_product_selling_point[]
+}
+
+model mst_setting {
+  id         Int    @id @default(autoincrement())
+  name       String @db.VarChar(255)
+  value      String
+  id_company Int    @default(1)
+}
+
+model mst_solution {
+  id                   Int                    @id(map: "mst_solusi_pkey") @default(autoincrement())
+  name                 String                 @db.VarChar(255)
+  content              Json?
+  id_parent            Int?
+  name_en              String?                @db.VarChar(255)
+  order                Int?                   @db.SmallInt
+  mst_product          mst_product[]
+  mst_product_solution mst_product_solution[]
+  mst_sub_solution     mst_sub_solution[]
+  mst_sub_sub_solution mst_sub_sub_solution[]
+}
+
+model mst_stages {
+  id                    Int                     @id(map: "mst_selection_stages_pkey") @default(autoincrement())
+  name                  String
+  code                  String                  @db.VarChar(3)
+  sequence_view         Int                     @default(0) @db.SmallInt
+  is_need_attachment    Boolean                 @default(false)
+  mst_applicants_stages mst_applicants_stages[]
+  mst_stages_company    mst_stages_company[]
+}
+
+model mst_stages_choices {
+  id        Int     @id(map: "mst_selection_stages_choices_pkey") @default(autoincrement())
+  id_stages Int
+  choices   String
+  status    String? @db.VarChar
+}
+
+model mst_stages_company {
+  id         Int        @id(map: "mst_selection_stages_company_pkey") @default(autoincrement())
+  id_stages  Int
+  id_company Int
+  mst_stages mst_stages @relation(fields: [id_stages], references: [id], onDelete: Cascade)
+}
+
+model mst_stages_hrd_interview {
+  id                        Int                         @id @default(autoincrement())
+  name                      String
+  id_company                Int
+  mst_company               mst_company                 @relation(fields: [id_company], references: [id], onDelete: Cascade)
+  mst_applicants_stages_hrd mst_applicants_stages_hrd[]
+}
+
+model mst_store {
+  id               Int      @id(map: "mst_store_id") @default(autoincrement())
+  store_id         String   @db.VarChar(20)
+  name             String   @db.VarChar(100)
+  address          String   @db.VarChar(100)
+  lattitude        Decimal? @db.Decimal
+  longitude        Decimal? @db.Decimal
+  phone            String?  @db.VarChar(50)
+  fax              String?  @db.VarChar(20)
+  hp               String?  @db.VarChar(20)
+  hp_1             String?  @db.VarChar(20)
+  email            String?  @db.VarChar(100)
+  website          String?  @db.VarChar(100)
+  can_custom_color Int?     @default(0) @db.SmallInt
+  opening_hours    String?  @db.VarChar(20)
+  product_ids      Json?
+
+  @@index([name], map: "mst_store_name2")
+}
+
+model mst_store_addon {
+  kode_customer       String    @id @db.VarChar(20)
+  owner_member_id     BigInt?
+  pretty_url          String?   @db.VarChar(500)
+  opening_hour        String?   @db.VarChar(200)
+  phone               String?   @db.VarChar(100)
+  fax                 String?   @db.VarChar(100)
+  email               String?   @db.VarChar(100)
+  website             String?   @db.VarChar(100)
+  is_show             Int       @default(1) @db.SmallInt
+  version             BigInt?
+  meta_keys           String?
+  meta_desc           String?
+  nama_customer       String?   @db.VarChar(100)
+  alamat              String?
+  latitude            Decimal?  @db.Decimal(19, 15)
+  longitude           Decimal?  @db.Decimal(19, 15)
+  foto_toko_url       String?   @db.VarChar(100)
+  punya_mesin_tinting Int?      @db.SmallInt
+  created_date        DateTime? @db.Timestamp(6)
+  updated_date        DateTime? @db.Timestamp(6)
+  deleted_date        DateTime? @db.Timestamp(6)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model mst_store_dummy {
+  store_id         String  @db.VarChar(20)
+  name             String  @db.VarChar(100)
+  address          String  @db.VarChar(100)
+  lattitude        Float?  @db.Real
+  longitude        Float?  @db.Real
+  phone            String? @db.VarChar(50)
+  fax              String? @db.VarChar(20)
+  hp               String? @db.VarChar(20)
+  hp_1             String? @db.VarChar(20)
+  email            String? @db.VarChar(100)
+  website          String? @db.VarChar(100)
+  can_custom_color Int?    @default(0) @db.SmallInt
+  opening_hours    String? @db.VarChar(20)
+  product_ids      Json?
+
+  @@ignore
+}
+
+model mst_store_import {
+  id               Int      @id(map: "mst_store_import_copy1_pkey") @default(autoincrement())
+  store_id         String   @db.VarChar(20)
+  name             String   @db.VarChar(100)
+  address          String   @db.VarChar(100)
+  lattitude        Decimal? @db.Decimal
+  longitude        Decimal? @db.Decimal
+  phone            String?  @db.VarChar(50)
+  fax              String?  @db.VarChar(50)
+  hp               String?  @db.VarChar(20)
+  hp_1             String?  @db.VarChar(20)
+  email            String?  @db.VarChar(100)
+  website          String?  @db.VarChar(100)
+  can_custom_color Int?     @default(0) @db.SmallInt
+  opening_hours    String?  @db.VarChar(20)
+  product_ids      Json?
+}
+
+model mst_store_product {
+  id         Int    @id(map: "mst_store_product_new_pkey2") @default(autoincrement())
+  store_id   String @db.VarChar(20)
+  product_id Int
+}
+
+model mst_store_product_import {
+  id         Int    @id @default(autoincrement())
+  store_id   String @db.VarChar(20)
+  product_id Int
+}
+
+model mst_store_product_search {
+  store_column String  @id @db.VarChar(50)
+  product_name String? @db.VarChar(128)
+  product_id   Int?
+}
+
+model mst_sub_category {
+  id                   Int                    @id @default(autoincrement())
+  id_category          Int
+  name                 String                 @db.Char(256)
+  mst_category         mst_category           @relation(fields: [id_category], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_sub_sub_category mst_sub_sub_category[]
+}
+
+model mst_sub_solution {
+  id                   Int                    @id @default(autoincrement())
+  id_solution          Int
+  name                 String                 @db.VarChar(256)
+  mst_solution         mst_solution           @relation(fields: [id_solution], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_sub_sub_solution mst_sub_sub_solution[]
+}
+
+model mst_sub_sub_category {
+  id               Int              @id @default(autoincrement())
+  id_category      Int
+  id_sub_category  Int
+  name             String           @db.VarChar(256)
+  mst_category     mst_category     @relation(fields: [id_category], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_sub_category mst_sub_category @relation(fields: [id_sub_category], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model mst_sub_sub_solution {
+  id               Int              @id @default(autoincrement())
+  id_solution      Int
+  id_sub_solution  Int
+  name             String           @db.VarChar(256)
+  mst_solution     mst_solution     @relation(fields: [id_solution], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_sub_solution mst_sub_solution @relation(fields: [id_sub_solution], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model mst_surface {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model mst_uom {
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  mst_product_packaging mst_product_packaging[]
+}
+
+model mst_user {
+  id                 Int             @id @default(autoincrement())
+  name               String
+  email              String
+  id_card_number     String?
+  password           String
+  activation_code    String?
+  id_role            Int             @default(1)
+  first_name         String?
+  last_name          String?
+  phone_number       String?
+  domicile           String?
+  birthdate          String?
+  gender             String?
+  cv_path            String?
+  additional_path    String?
+  photo_path         String?
+  additional_details Json?           @default("{\"experiences\": []}")
+  id_company         Int?
+  id_department      Int?
+  is_valid           Boolean         @default(false)
+  has_unsubscribe    Boolean         @default(false)
+  nik                String?         @db.Char(12)
+  marital            String?         @db.Char(1)
+  religion           String?         @db.VarChar(10)
+  nationality        String?         @db.Char(1)
+  fingerid           String?         @db.Char(12)
+  bloodtype          String?         @db.VarChar(10)
+  birthplace         String?         @db.VarChar(255)
+  expected_salary    Decimal         @default(0) @db.Decimal(9, 0)
+  jpayroll_input     Json?
+  jpayroll_status    String?         @db.VarChar(100)
+  created_at         DateTime?       @default(now()) @db.Timestamp(6)
+  transId            String?         @db.VarChar(255)
+  refnik             String?         @db.VarChar
+  mst_company        mst_company?    @relation(fields: [id_company], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_department     mst_department? @relation(fields: [id_department], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_role           mst_role        @relation(fields: [id_role], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model mst_user_blacklist {
+  id            Int      @id @default(autoincrement())
+  id_user       Int
+  info          String
+  start         DateTime @default(now()) @db.Timestamp(6)
+  end           DateTime @db.Timestamp(6)
+  id_company    Int
+  id_department Int?
+}
+
+model mst_user_educations {
+  id                Int       @id @default(autoincrement())
+  id_user           Int
+  stage             String    @db.VarChar(20)
+  batch_year        String    @db.VarChar(4)
+  last_score        Float?
+  graduation_year   String?   @db.VarChar(4)
+  school_name       String    @db.VarChar(255)
+  major             String?   @db.VarChar
+  graduation_date   DateTime? @db.Date
+  city              String?   @db.VarChar(45)
+  certificatenumber String?   @db.VarChar(50)
+  grade             Float?
+}
+
+model mst_user_empskills {
+  id        Int     @id @default(autoincrement())
+  id_user   Int
+  skillcode String  @db.VarChar(255)
+  level     String  @db.VarChar(100)
+  remark    String? @db.VarChar(200)
+}
+
+model mst_user_fams {
+  id           Int      @id @default(autoincrement())
+  id_user      Int
+  name         String   @db.VarChar(100)
+  relationship String   @db.VarChar(45)
+  sex          String   @db.Char(1)
+  dateofbirth  DateTime @db.Date
+  status       String   @db.VarChar(45)
+  samecompany  String   @db.Char(1)
+}
+
+model mst_user_idntax {
+  id                Int     @id @default(autoincrement())
+  id_user           Int
+  npwpdate          String? @db.VarChar(30)
+  currentaddress    String? @db.VarChar(255)
+  emergencyname     String? @db.VarChar(255)
+  npwpnumber        BigInt?
+  npwpcity          String? @db.VarChar(50)
+  idcity            String? @db.VarChar(50)
+  iddistrict        String? @db.VarChar(50)
+  idvillage         String? @db.VarChar(50)
+  emergencyrelation String? @db.VarChar(50)
+  emergencyphone    String? @db.VarChar(50)
+}
+
+model mst_user_orgexps {
+  id       Int      @id(map: "mst_user_workexps_pkey") @default(autoincrement())
+  id_user  Int
+  fromdate DateTime @db.Date
+  todate   DateTime @db.Date
+  orgname  String   @db.VarChar(255)
+  orgtitle String   @db.VarChar(255)
+  orgtype  String?  @db.VarChar(50)
+  remark   String?  @db.VarChar(50)
+  status   String   @db.Char(1)
+}
+
+model mst_user_stages {
+  id           Int     @id @default(autoincrement())
+  id_user      Int
+  id_applicant Int
+  step         String  @db.VarChar(45)
+  step_number  Int
+  input        Json?
+  output       Json?
+  status       String? @default("0") @db.Char(1)
+
+  @@unique([id_user, id_applicant, step_number], map: "mst_user_stages_id_user_id_applicant_step_number")
+}
+
+model mst_user_subscribes {
+  id                  Int                  @id @default(autoincrement())
+  id_user             Int
+  id_department       Int?
+  id_position         Int?
+  id_location         Int?
+  id_company          Int?
+  mst_company         mst_company?         @relation(fields: [id_company], references: [id], onDelete: Cascade)
+  mst_department      mst_department?      @relation(fields: [id_department], references: [id], onDelete: Cascade)
+  mst_kota_penempatan mst_kota_penempatan? @relation(fields: [id_location], references: [id], onDelete: Cascade)
+  mst_posisi          mst_posisi?          @relation(fields: [id_position], references: [id], onDelete: Cascade)
+}
+
+model mst_vacancy {
+  id                  Int                 @id @default(autoincrement())
+  title               String?
+  code                String?             @db.VarChar(12)
+  id_company          Int
+  id_position         Int
+  id_location         Int
+  id_department       Int
+  detail              String?
+  requirement         String?
+  description         String?
+  benefit             String?
+  additional_info     String?
+  available_from_date DateTime?           @db.Timestamp(6)
+  available_to_date   DateTime?           @db.Timestamp(6)
+  is_show             String?             @db.VarChar(1)
+  created_date        DateTime?           @default(now()) @db.Timestamp(6)
+  updated_date        DateTime?           @db.Timestamp(6)
+  kebutuhan           Int?                @default(0) @db.SmallInt
+  is_active           Boolean             @default(true)
+  url_jobstreet       String?
+  mst_company         mst_company         @relation(fields: [id_company], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_department      mst_department      @relation(fields: [id_department], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_kota_penempatan mst_kota_penempatan @relation(fields: [id_location], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_posisi          mst_posisi          @relation(fields: [id_position], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mst_applicants      mst_applicants[]
+}
+
+model mst_voucher {
+  id            BigInt    @id @default(autoincrement())
+  merchant_id   BigInt
+  title         String?   @db.VarChar(300)
+  price         BigInt?   @default(0)
+  image_url     String?   @db.VarChar(300)
+  periode_start DateTime? @db.Date
+  periode_end   DateTime? @db.Date
+  stok          BigInt    @default(0)
+  summary       String?
+  how_to        String?
+  terms         String?
+  is_show       Int?      @default(1) @db.SmallInt
+  status        Int?      @default(1) @db.SmallInt
+  version       BigInt
+  created_date  DateTime? @db.Timestamp(6)
+  updated_date  DateTime? @db.Timestamp(6)
+}
+
+model mtb_country {
+  id           Int       @id(map: "mtb_country_id")
+  name         String    @default("") @db.VarChar(45)
+  is_show      Int?      @default(1) @db.SmallInt
+  version      BigInt
+  created_date DateTime? @db.Timestamp(0)
+  updated_date DateTime? @db.Timestamp(0)
+}
+
+model mtb_province {
+  id           BigInt    @id(map: "mtb_province_id")
+  name         String?   @db.VarChar(200)
+  country_id   BigInt?
+  is_show      Int?      @default(1) @db.SmallInt
+  version      BigInt
+  created_date DateTime? @db.Timestamp(0)
+  updated_date DateTime? @db.Timestamp(0)
+}
+
+model p_migration {
+  version    String @id @db.VarChar(180)
+  apply_time Int?
+}
+
+model p_role {
+  id               Int           @id @default(autoincrement())
+  role_name        String        @db.VarChar(255)
+  role_description String        @db.VarChar(255)
+  menu_path        String?       @db.VarChar(255)
+  home_url         String?       @db.VarChar(255)
+  repo_path        String?       @db.VarChar(255)
+  p_user_role      p_user_role[]
+}
+
+model p_user {
+  id          Int           @id @default(autoincrement())
+  email       String        @db.VarChar(255)
+  username    String        @db.VarChar(255)
+  password    String        @db.VarChar(255)
+  last_login  DateTime?     @db.Timestamp(6)
+  is_deleted  Boolean?
+  id_company  Int?
+  p_user_role p_user_role[]
+}
+
+model p_user_role {
+  id              Int     @id @default(autoincrement())
+  user_id         Int
+  role_id         Int
+  is_default_role String? @default("No") @db.VarChar(255)
+  p_role          p_role  @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "p_role_has_p_user")
+  p_user          p_user  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "p_user_has_p_role")
+}
+
+model post {
+  id               Int                @id(map: "post_pkey2") @default(autoincrement())
+  post_date        DateTime           @default(now())
+  title            String?
+  lang             String             @default("id")
+  parent_id        Int?
+  type             String             @default("article")
+  status           String             @default("DRAFT")
+  content          Json
+  slug             String             @default("-")
+  summary          String?
+  sequence_of_view Int                @default(1)
+  updated_at       DateTime?          @db.Timestamp(6)
+  post_articles    post_articles[]
+  post_attachments post_attachments[]
+  post_quartal     post_quartal[]
+}
+
+model post_articles {
+  id               Int      @id @default(autoincrement())
+  date             DateTime @default(now()) @db.Date
+  title            String   @db.VarChar(255)
+  title_en         String?  @db.VarChar(255)
+  url              String   @db.VarChar(255)
+  id_post          Int
+  sequence_of_view Int
+  cover_image      String?  @db.VarChar
+  thumbnail        String?  @db.VarChar
+  content          String?
+  content_en       String?
+  short_content    String?
+  short_content_en String?
+  post             post     @relation(fields: [id_post], references: [id], onDelete: Cascade)
+}
+
+model post_attachments {
+  id               Int      @id @default(autoincrement())
+  category         String?  @db.VarChar(50)
+  date             DateTime @default(now()) @db.Date
+  title            String   @db.VarChar(255)
+  filesize         String   @db.VarChar(10)
+  url              String   @db.VarChar(255)
+  id_post          Int
+  sequence_of_view Int
+  cover_image      String?  @db.Char(255)
+  title_en         String?  @db.VarChar(255)
+  url_en           String?  @db.VarChar(255)
+  filesize_en      String?  @db.VarChar(10)
+  post             post     @relation(fields: [id_post], references: [id], onDelete: Cascade)
+}
+
+model post_quartal {
+  id               Int     @id @default(autoincrement())
+  tahun            String  @db.VarChar(10)
+  id_post          Int
+  q1               String? @db.VarChar
+  q2               String? @db.VarChar
+  q3               String? @db.VarChar
+  q4               String? @db.VarChar
+  kategori         String? @db.VarChar
+  sequence_of_view Int     @default(1)
+  q1_en            String? @db.VarChar
+  q2_en            String? @db.VarChar
+  q3_en            String? @db.VarChar
+  q4_en            String? @db.VarChar
+  kategori_en      String? @db.VarChar
+  q1_footnote      String? @db.VarChar
+  q2_footnote      String? @db.VarChar
+  q3_footnote      String? @db.VarChar
+  q4_footnote      String? @db.VarChar
+  q1_footnote_en   String? @db.VarChar
+  q2_footnote_en   String? @db.VarChar
+  q3_footnote_en   String? @db.VarChar
+  q4_footnote_en   String? @db.VarChar
+  fy               String? @db.VarChar
+  fy_en            String? @db.VarChar
+  fy_footnote      String? @db.VarChar
+  fy_footnote_en   String? @db.VarChar
+  post             post    @relation(fields: [id_post], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model post_quartal_downloaded {
+  id              Int      @id @default(autoincrement())
+  id_post_quartal Int
+  quartal         Int?
+  data            Json?
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  quartal_en      Int?
+}
+
+model sessions {
+  sid     String   @id @db.VarChar(255)
+  sess    Json     @db.Json
+  expired DateTime @db.Timestamptz(6)
+
+  @@index([expired], map: "sessions_expired_index")
+}
+
+model trs_chat_detail {
+  id           BigInt    @id @default(autoincrement())
+  chat_room_id BigInt
+  member_id    BigInt?
+  admin_id     BigInt?
+  message      String?
+  tanggal      DateTime? @db.Timestamp(6)
+  version      BigInt?
+  is_read      Int?      @db.SmallInt
+}
+
+model trs_chat_room {
+  id           BigInt    @id @default(autoincrement())
+  member_id    BigInt?
+  admin_id     BigInt?
+  version      BigInt?
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+  is_read      Int       @default(1) @db.SmallInt
+}
+
+model trs_csr_slider {
+  id           BigInt    @id @default(autoincrement())
+  csr_id       String?   @db.VarChar(20)
+  image_slider String?   @db.VarChar(300)
+  ordering     Int?
+  is_show      Int?      @default(1)
+  created_date DateTime? @db.Timestamp(6)
+  updated_date DateTime? @db.Timestamp(6)
+}
+
+model trs_email {
+  id        Int      @id @default(autoincrement())
+  sent_date DateTime @db.Timestamp(6)
+  content   Json
+  mail_to   String   @db.VarChar(255)
+  type      String   @default("HI-ContactUs") @db.VarChar(20)
+}
+
+model trs_member_point {
+  id                     BigInt    @id @default(autoincrement())
+  member_id              BigInt?
+  point_mutation         Int       @default(0)
+  activity_code          String?   @db.VarChar(20)
+  voucher_transaction_id BigInt?
+  description            String?
+  created_date           DateTime? @db.Timestamp(6)
+  updated_date           DateTime? @db.Timestamp(6)
+}
+
+model trs_product_discussion {
+  id                  BigInt   @id @default(autoincrement())
+  foreign_key         String   @db.VarChar(20)
+  discuss_datetime    DateTime @db.Timestamp(6)
+  member_id           BigInt
+  type                Int      @default(1)
+  discussion_topic_id String?  @db.VarChar(25)
+  discussion_content  String?
+  is_from_store_owner Int      @default(0)
+  status              Int      @default(0)
+  reject_reason       String?
+}
+
+model trs_product_review {
+  id              BigInt   @id @default(autoincrement())
+  foreign_key     String   @db.VarChar(20)
+  review_datetime DateTime @db.Timestamp(6)
+  member_id       BigInt
+  rating_score    BigInt   @default(0)
+  review_title    String?
+  review_content  String?
+  status          Int      @default(0)
+  reject_reason   String?
+}
+
+model trs_store_discussion {
+  id                  BigInt   @id @default(autoincrement())
+  foreign_key         String   @db.VarChar(20)
+  discuss_datetime    DateTime @db.Timestamp(6)
+  member_id           BigInt
+  type                Int      @default(1)
+  discussion_topic_id String?  @db.VarChar(25)
+  discussion_content  String?
+  is_from_store_owner Int      @default(0)
+  status              Int      @default(0)
+  reject_reason       String?
+}
+
+model trs_store_product {
+  id              Int     @id @default(autoincrement())
+  kode_customer   String? @db.VarChar(20)
+  product_id      BigInt?
+  additional_info String?
+}
+
+model trs_store_review {
+  id              BigInt   @id @default(autoincrement())
+  foreign_key     String   @db.VarChar(20)
+  review_datetime DateTime @db.Timestamp(6)
+  member_id       BigInt
+  rating_score    BigInt   @default(0)
+  review_title    String?
+  review_content  String?
+  status          Int      @default(0)
+  reject_reason   String?
+}
+
+model trs_voucher_member {
+  id             BigInt    @id @default(autoincrement())
+  member_id      BigInt?
+  voucher_id     BigInt?
+  status_claimed Int       @default(0)
+  unique_code    String?   @db.VarChar(20)
+  bought_date    DateTime? @db.Timestamp(6)
+  claimed_date   DateTime? @db.Timestamp(6)
+}
+
+model view_store_rating {
+  foreign_key       String   @id(map: "view_store_rating_foreign_key") @db.VarChar(20)
+  rating_avg        Decimal? @db.Decimal(24, 4)
+  total_reviews     BigInt?
+  count_5_star      BigInt?
+  count_4_star      BigInt?
+  count_3_star      BigInt?
+  count_2_star      BigInt?
+  count_1_star      BigInt?
+  count_0_star      BigInt?
+  total_discussions BigInt?
 }

@@ -1,15 +1,6 @@
-install using 
-
 node@16
 pnpm@7
 
-to run: 
-
-pnpm install
-
-cd app/db
-pnpm install
-pnpm prisma generate
-
-cd ../..
-pnpm node base
+npx pnpm i
+cd app/db && npx pnpm prisma db pull && npx pnpm prisma generate && cd ../..
+npx node base prod --port  5003
